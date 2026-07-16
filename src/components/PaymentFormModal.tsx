@@ -97,6 +97,13 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
     }
   };
 
+  const handleRemovePromo = () => {
+    setIsPromoApplied(false);
+    setAppliedPromo(null);
+    setPromoCode('');
+    setPromoError(null);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -181,14 +188,14 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
     <>
       <AnimatePresence>
         {isOpen && (
-          <div className="fixed inset-0 z-50 bg-[#FCFCFD] overflow-y-auto flex flex-col">
+          <div className="fixed inset-0 z-50 bg-[#FCFCFD] overflow-hidden flex flex-col">
             {/* Modal Container */}
             <motion.div
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 15 }}
               transition={{ duration: 0.25, ease: 'easeOut' }}
-              className="w-full flex-1 flex flex-col bg-[#FCFCFD] text-slate-800"
+              className="w-full h-full flex-1 flex flex-col bg-[#FCFCFD] text-slate-800 overflow-hidden"
             >
               {/* Header */}
               <div className="w-full border-b border-slate-100 bg-white sticky top-0 z-10 shrink-0 flex justify-center">
@@ -206,16 +213,16 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
                 </div>
               </div>
 
-              {/* Body Content Wrapper */}
-              <div className="w-full flex-1 flex justify-center p-5 pb-10">
-                <div className="max-w-lg w-full space-y-5">
-                  {/* Subtitle message */}
-                  <p className="text-[13px] text-slate-800 font-medium text-left">
-                    Access to this purchase will be sent to this email
-                  </p>
+              {/* Form wrapping the entire remaining content to support independent scrolling and sticky bottom footer */}
+              <form onSubmit={handleSubmit} className="w-full flex-1 flex flex-col overflow-hidden">
+                {/* Scrollable Body Content Wrapper */}
+                <div className="w-full flex-1 overflow-y-auto p-5 pb-6 flex justify-center">
+                  <div className="max-w-lg w-full space-y-5">
+                    {/* Subtitle message */}
+                    <p className="text-[13px] text-slate-800 font-medium text-left">
+                      Access to this purchase will be sent to this email
+                    </p>
 
-                  {/* Main Form Fields */}
-                  <form onSubmit={handleSubmit} className="space-y-4">
                     {/* Error Message Panel if exists */}
                     {error && (
                       <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-800 text-xs space-y-1 animate-fade-in text-left">
@@ -385,19 +392,38 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
                     >
                       <div className="flex justify-between items-center text-xs font-semibold text-slate-700">
                         <div className="flex items-center gap-2">
-                          <Tag className="w-4 h-4 text-slate-500" />
-                          <span className="text-slate-500 font-medium">Have a Discount Code?</span>
+                          <Tag className={`w-4 h-4 ${isPromoApplied ? 'text-emerald-500' : 'text-slate-500'}`} />
+                          {isPromoApplied ? (
+                            <span className="text-emerald-600 font-bold">
+                              Discount Applied: <span className="bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded uppercase font-mono text-[10px] ml-1">{appliedPromo}</span>
+                            </span>
+                          ) : (
+                            <span className="text-slate-500 font-medium">Have a Discount Code?</span>
+                          )}
                         </div>
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setShowPromoInput(!showPromoInput);
-                          }}
-                          className="text-blue-600 hover:text-blue-700 font-bold cursor-pointer px-1 text-xs"
-                        >
-                          {showPromoInput ? 'Cancel' : 'Add'}
-                        </button>
+                        {isPromoApplied ? (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleRemovePromo();
+                            }}
+                            className="text-red-500 hover:text-red-600 font-bold cursor-pointer px-1 text-xs"
+                          >
+                            Remove
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setShowPromoInput(!showPromoInput);
+                            }}
+                            className="text-blue-600 hover:text-blue-700 font-bold cursor-pointer px-1 text-xs"
+                          >
+                            {showPromoInput ? 'Cancel' : 'Add'}
+                          </button>
+                        )}
                       </div>
 
                       {showPromoInput && (
@@ -414,17 +440,23 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
                               disabled={isPromoApplied}
                               className="flex-1 h-9 px-3 rounded-lg bg-slate-50 text-xs font-bold uppercase border border-slate-200 focus:border-blue-500 focus:bg-white text-slate-900 focus:outline-none"
                             />
-                            <button
-                              type="button"
-                              onClick={handleApplyPromo}
-                              className={`h-9 px-4 rounded-lg text-white text-xs font-bold shrink-0 cursor-pointer transition-colors ${
-                                isPromoApplied 
-                                  ? 'bg-emerald-500 hover:bg-emerald-600' 
-                                  : 'bg-slate-950 hover:bg-slate-800'
-                              }`}
-                            >
-                              {isPromoApplied ? 'Applied' : 'Apply'}
-                            </button>
+                            {isPromoApplied ? (
+                              <button
+                                type="button"
+                                onClick={handleRemovePromo}
+                                className="h-9 px-4 rounded-lg bg-red-100 text-red-700 hover:bg-red-200 text-xs font-bold shrink-0 cursor-pointer transition-colors"
+                              >
+                                Remove
+                              </button>
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={handleApplyPromo}
+                                className="h-9 px-4 rounded-lg bg-slate-950 hover:bg-slate-800 text-white text-xs font-bold shrink-0 cursor-pointer transition-colors"
+                              >
+                                Apply
+                              </button>
+                            )}
                           </div>
                           {promoError && <p className="text-[10px] text-red-500 font-bold mt-1">{promoError}</p>}
                           {isPromoApplied && (
@@ -466,12 +498,17 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
                         <span className="text-base text-slate-950 font-bold">₹{finalTotal}</span>
                       </div>
                     </div>
+                  </div>
+                </div>
 
+                {/* Sticky Bottom Footer Area with Shadow */}
+                <div className="w-full border-t border-slate-100 bg-white p-5 shrink-0 flex justify-center sticky bottom-0 z-10 shadow-[0_-4px_16px_rgba(0,0,0,0.04)]">
+                  <div className="max-w-lg w-full space-y-4">
                     {/* Pay Action Button (Exactly like screenshots) */}
                     <button
                       type="submit"
                       disabled={loading}
-                      className="relative w-full h-14 rounded-xl bg-black hover:bg-slate-900 text-white font-semibold text-[15px] flex items-center justify-center cursor-pointer transition-all duration-200"
+                      className="relative w-full h-14 rounded-xl bg-black hover:bg-slate-900 text-white font-bold text-[15px] flex items-center justify-center cursor-pointer transition-all duration-200 shadow-sm"
                     >
                       {loading ? (
                         <div className="flex items-center gap-2">
@@ -485,17 +522,17 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
                         </>
                       )}
                     </button>
-                  </form>
 
-                  {/* Secure Trust Badge Footer */}
-                  <div className="pt-2 flex flex-col items-center gap-1 select-none">
-                    <div className="flex items-center justify-center gap-1.5 text-slate-400 text-[9px] font-bold uppercase tracking-wider">
-                      <Shield className="w-3.5 h-3.5 text-slate-400 stroke-[2.5]" />
-                      <span>UPI, Cards & Net Banking Secured by Cashfree Payments</span>
+                    {/* Secure Trust Badge Footer */}
+                    <div className="flex flex-col items-center gap-1 select-none">
+                      <div className="flex items-center justify-center gap-1.5 text-slate-400 text-[9px] font-bold uppercase tracking-wider">
+                        <Shield className="w-3.5 h-3.5 text-slate-400 stroke-[2.5]" />
+                        <span>UPI, Cards & Net Banking Secured by Cashfree Payments</span>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
+              </form>
             </motion.div>
           </div>
         )}
