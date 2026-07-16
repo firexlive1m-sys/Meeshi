@@ -91,7 +91,7 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
       setAppliedPromo(code);
       setPromoError(null);
     } else {
-      setPromoError('Invalid coupon code. Try SKALI or SAVE20!');
+      setPromoError('Invalid coupon code.');
       setIsPromoApplied(false);
       setAppliedPromo(null);
     }
@@ -197,27 +197,23 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
               transition={{ duration: 0.25, ease: 'easeOut' }}
               className="w-full h-full flex-1 flex flex-col bg-[#FCFCFD] text-slate-800 overflow-hidden"
             >
-              {/* Header */}
-              <div className="w-full border-b border-slate-100 bg-white sticky top-0 z-10 shrink-0 flex justify-center">
-                <div className="max-w-lg w-full px-5 py-4 flex justify-between items-center">
-                  <span className="text-sm font-bold text-slate-900 tracking-wider font-sans">
-                    CHECKOUT
-                  </span>
-                  <button
-                    type="button"
-                    onClick={onClose}
-                    className="p-1.5 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-800 transition-colors cursor-pointer"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
-                </div>
-              </div>
-
               {/* Form wrapping the entire remaining content to support independent scrolling and sticky bottom footer */}
               <form onSubmit={handleSubmit} className="w-full flex-1 flex flex-col overflow-hidden">
                 {/* Scrollable Body Content Wrapper */}
                 <div className="w-full flex-1 overflow-y-auto p-5 pb-6 flex justify-center">
-                  <div className="max-w-lg w-full space-y-5">
+                  <div className="max-w-lg w-full space-y-5 relative">
+                    {/* Floating Close Button at top-right corner with spacing and shadow highlight */}
+                    <div className="flex justify-end pt-1">
+                      <button
+                        type="button"
+                        onClick={onClose}
+                        className="p-2 rounded-full bg-white hover:bg-slate-50 text-slate-500 hover:text-slate-800 transition-all duration-150 cursor-pointer shadow-md hover:shadow-lg border border-slate-100 flex items-center justify-center"
+                        title="Close"
+                      >
+                        <X className="w-5 h-5 stroke-[2.5]" />
+                      </button>
+                    </div>
+
                     {/* Subtitle message */}
                     <p className="text-[13px] text-slate-800 font-medium text-left">
                       Access to this purchase will be sent to this email
@@ -434,7 +430,7 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
                           <div className="flex gap-2">
                             <input
                               type="text"
-                              placeholder="Enter Code (e.g. SAVE20)"
+                              placeholder="Enter Coupon Code"
                               value={promoCode}
                               onChange={(e) => setPromoCode(e.target.value)}
                               disabled={isPromoApplied}
