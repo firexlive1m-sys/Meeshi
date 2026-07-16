@@ -145,7 +145,7 @@ export const FEATURES: FeatureItem[] = [
   {
     id: "f5",
     title: "Step-by-Step Video Guide",
-    description: "Includes a simple 7-minute video tutorial in Hindi. Absolutely no coding or technical background required.",
+    description: "Includes a simple 7-minute video tutorial in Hinglish. Absolutely no coding or technical background required.",
     icon: "Sparkles"
   },
   {
@@ -220,7 +220,7 @@ export const FAQS: FAQItem[] = [
   {
     id: "faq-1",
     question: "Is this tool suitable for beginners?",
-    answer: "Absolutely! The tool is designed to be highly intuitive, and the video guides explain everything step-by-step in Hindi. You don't need any coding experience, complex Excel skills, or technical knowledge. It is as simple as copying and pasting."
+    answer: "Absolutely! The tool is designed to be highly intuitive, and the video guides explain everything step-by-step in easy Hinglish. You don't need any coding experience, complex Excel skills, or technical knowledge. It is as simple as copying and pasting."
   },
   {
     id: "faq-2",
@@ -230,7 +230,7 @@ export const FAQS: FAQItem[] = [
   {
     id: "faq-3",
     question: "How do I access the tool after payment?",
-    answer: "Immediately after your payment is completed, you will be automatically redirected to a secure download page in under 2 seconds. From there, you can download the tool with a single click and watch the Hindi video guide instantly. Additionally, we will instantly send backup download links and support info to your email address and WhatsApp number."
+    answer: "Immediately after your payment is completed, you will be automatically redirected to a secure download page in under 2 seconds. From there, you can download the tool with a single click and watch the step-by-step Hinglish video guide instantly. Additionally, we will instantly send backup download links and support info to your email address and WhatsApp number."
   },
   {
     id: "faq-4",

@@ -218,13 +218,13 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
                   <div className="max-w-lg w-full space-y-3 relative">
                     {/* Top Row: Info Highlight Badge & Close Button */}
                     <div className="flex justify-between items-center gap-3 pt-0.5 pb-1 select-none">
-                      <div className="flex-1 bg-emerald-50/70 border border-emerald-100/80 rounded-xl py-2 px-3 text-left flex items-center gap-2">
+                      <div className="flex-1 bg-emerald-50/70 border border-emerald-100/80 rounded-xl py-1.5 px-2.5 text-left flex items-center gap-1.5">
                         <span className="relative flex h-1.5 w-1.5 shrink-0">
                           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                           <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
                         </span>
-                        <p className="text-[11px] font-bold text-emerald-800 leading-normal">
-                          Access to this purchase will be sent instantly on WhatsApp
+                        <p className="text-[10px] xs:text-[11px] font-bold text-emerald-800 leading-tight">
+                          Instant Access will be sent on WhatsApp
                         </p>
                       </div>
                       <button
