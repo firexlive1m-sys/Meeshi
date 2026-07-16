@@ -200,24 +200,17 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
               {/* Form wrapping the entire remaining content to support independent scrolling and sticky bottom footer */}
               <form onSubmit={handleSubmit} className="w-full flex-1 flex flex-col overflow-hidden">
                 {/* Scrollable Body Content Wrapper */}
-                <div className="w-full flex-1 overflow-y-auto p-5 pb-6 flex justify-center">
-                  <div className="max-w-lg w-full space-y-5 relative">
-                    {/* Floating Close Button at top-right corner with spacing and shadow highlight */}
-                    <div className="flex justify-end pt-1">
-                      <button
-                        type="button"
-                        onClick={onClose}
-                        className="p-2 rounded-full bg-white hover:bg-slate-50 text-slate-500 hover:text-slate-800 transition-all duration-150 cursor-pointer shadow-md hover:shadow-lg border border-slate-100 flex items-center justify-center"
-                        title="Close"
-                      >
-                        <X className="w-5 h-5 stroke-[2.5]" />
-                      </button>
-                    </div>
-
-                    {/* Subtitle message */}
-                    <p className="text-[13px] text-slate-800 font-medium text-left">
-                      Access to this purchase will be sent to this email
-                    </p>
+                <div className="w-full flex-1 overflow-y-auto px-4 pt-3 pb-6 flex justify-center">
+                  <div className="max-w-lg w-full space-y-3 relative">
+                    {/* Floating Close Button at absolute top-right corner to avoid taking vertical flow space */}
+                    <button
+                      type="button"
+                      onClick={onClose}
+                      className="absolute top-0 right-0 z-30 p-2 rounded-full bg-white hover:bg-slate-50 text-slate-500 hover:text-slate-800 transition-all duration-150 cursor-pointer shadow-md hover:shadow-lg border border-slate-100 flex items-center justify-center"
+                      title="Close"
+                    >
+                      <X className="w-4 h-4 stroke-[2.5]" />
+                    </button>
 
                     {/* Error Message Panel if exists */}
                     {error && (
@@ -237,11 +230,11 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
                     )}
 
                     {/* Email Address Input Container */}
-                    <div className="space-y-1.5 text-left">
+                    <div className="space-y-1 text-left">
                       <label htmlFor="customerEmail" className="block text-[13px] font-semibold text-slate-700">
                         Email Address
                       </label>
-                      <div className={`border rounded-xl p-3 bg-white transition-all duration-150 ${
+                      <div className={`border rounded-xl py-2.5 px-3 bg-white transition-all duration-150 ${
                         emailTouched && emailError
                           ? 'border-red-500 ring-1 ring-red-500 bg-red-50/10'
                           : 'border-slate-200 focus-within:border-blue-600 focus-within:ring-1 focus-within:ring-blue-600'
@@ -273,11 +266,11 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
                     </div>
 
                     {/* Phone Number Input Container */}
-                    <div className="space-y-1.5 text-left">
+                    <div className="space-y-1 text-left">
                       <label htmlFor="customerPhone" className="block text-[13px] font-semibold text-slate-700">
                         Phone number *
                       </label>
-                      <div className={`border rounded-xl p-3 bg-white transition-all duration-150 ${
+                      <div className={`border rounded-xl py-2.5 px-3 bg-white transition-all duration-150 ${
                         phoneTouched && phoneError
                           ? 'border-red-500 ring-1 ring-red-500 bg-red-50/10'
                           : 'border-slate-200 focus-within:border-blue-600 focus-within:ring-1 focus-within:ring-blue-600'
@@ -313,15 +306,15 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
 
                     {/* Flipkart Tool Dotted/Dashed Blue Addon Card */}
                     <div 
-                      className="p-4 rounded-2xl border-dashed border-[1.5px] border-blue-400 bg-[#F0F7FF] hover:bg-[#EBF5FF] transition-all text-left shadow-sm"
+                      className="p-3 rounded-xl border-dashed border-[1.5px] border-blue-400 bg-[#F0F7FF] hover:bg-[#EBF5FF] transition-all text-left shadow-sm"
                     >
                       {/* Addon details click triggers drawer */}
-                      <div className="space-y-3 cursor-pointer" onClick={() => setIsDetailOpen(true)}>
+                      <div className="space-y-2 cursor-pointer" onClick={() => setIsDetailOpen(true)}>
                         
                         {/* Top Row: Image & Title Side-by-Side */}
-                        <div className="flex gap-4 items-start">
+                        <div className="flex gap-3 items-center">
                           {/* Image Thumbnail */}
-                          <div className="relative w-[100px] h-[75px] rounded-lg overflow-hidden bg-[#0A192F] border border-slate-200/50 shrink-0 shadow-sm flex items-center justify-center p-0.5">
+                          <div className="relative w-[80px] h-[60px] rounded bg-[#0A192F] border border-slate-200/50 shrink-0 shadow-sm flex items-center justify-center p-0.5">
                             <img 
                               src="https://media-cdn.cosmofeed.com/chat/1000055066-2026-27-05-04-34-47.png" 
                               alt="Flipkart Auto Listing Tool" 
@@ -332,14 +325,14 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
 
                           {/* Title Column */}
                           <div className="flex-1 min-w-0">
-                            <h4 className="text-[14px] font-bold text-slate-900 leading-snug font-sans">
+                            <h4 className="text-[13px] font-bold text-slate-900 leading-snug font-sans">
                               Flipkart Auto Listing Tool + AI SEO Generator
                             </h4>
                           </div>
                         </div>
 
                         {/* Content spanning full-width underneath */}
-                        <div className="space-y-1">
+                        <div className="space-y-0.5">
                           <div className="flex items-center gap-1 text-[11px] font-semibold text-slate-800">
                             <span>Flipkart Auto Listing Tool ⚡ Extra ₹50 OFF 💸</span>
                           </div>
@@ -357,18 +350,18 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
                       </div>
 
                       {/* Checkbox button exactly like screenshot */}
-                      <div className="mt-3 flex items-center justify-between gap-2">
+                      <div className="mt-2 flex items-center justify-between gap-2">
                         <button
                           type="button"
                           onClick={() => setIsAddonChecked(!isAddonChecked)}
-                          className="flex items-center gap-2.5 px-3.5 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-800 transition-all duration-150 shrink-0 shadow-sm cursor-pointer"
+                          className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-[11px] font-bold text-slate-800 transition-all duration-150 shrink-0 shadow-sm cursor-pointer"
                         >
-                          <div className={`w-4 h-4 rounded flex items-center justify-center border transition-all duration-150 ${
+                          <div className={`w-3.5 h-3.5 rounded flex items-center justify-center border transition-all duration-150 ${
                             isAddonChecked 
                               ? 'bg-[#0F172A] border-[#0F172A] text-white' 
                               : 'bg-white border-slate-300 text-transparent'
                           }`}>
-                            {isAddonChecked && <Check className="w-3 h-3 stroke-[4]" />}
+                            {isAddonChecked && <Check className="w-2.5 h-2.5 stroke-[4]" />}
                           </div>
                           <span>Add Flipkart Tool</span>
                         </button>
@@ -382,7 +375,7 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
                           setShowPromoInput(true);
                         }
                       }}
-                      className={`border border-slate-200 rounded-xl p-3 bg-white shadow-sm text-left transition-all ${
+                      className={`border border-slate-200 rounded-xl py-2.5 px-3 bg-white shadow-sm text-left transition-all ${
                         !showPromoInput ? 'cursor-pointer hover:border-slate-300' : ''
                       }`}
                     >
@@ -468,7 +461,7 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
                     </div>
 
                     {/* Order Pricing Breakdown Summary (Exactly like screenshots) */}
-                    <div className="space-y-3 text-xs text-slate-500 font-semibold pt-1 text-left">
+                    <div className="space-y-2 text-xs text-slate-500 font-semibold pt-1 text-left">
                       <div className="flex justify-between items-center">
                         <span>Sub Total</span>
                         <span className="text-slate-800 font-bold">₹{basePrice}</span>
@@ -489,7 +482,7 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
                       )}
 
                       {/* Final Bold Total */}
-                      <div className="flex justify-between items-center pt-3 border-t border-slate-100 text-slate-950 font-black">
+                      <div className="flex justify-between items-center pt-2 border-t border-slate-100 text-slate-950 font-black">
                         <span className="text-sm font-bold text-slate-800">Total</span>
                         <span className="text-base text-slate-950 font-bold">₹{finalTotal}</span>
                       </div>
@@ -498,8 +491,8 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
                 </div>
 
                 {/* Sticky Bottom Footer Area with Shadow */}
-                <div className="w-full border-t border-slate-100 bg-white p-5 shrink-0 flex justify-center sticky bottom-0 z-10 shadow-[0_-4px_16px_rgba(0,0,0,0.04)]">
-                  <div className="max-w-lg w-full space-y-4">
+                <div className="w-full border-t border-slate-100 bg-white p-4 shrink-0 flex justify-center sticky bottom-0 z-10 shadow-[0_-4px_16px_rgba(0,0,0,0.04)]">
+                  <div className="max-w-lg w-full space-y-3">
                     {/* Pay Action Button (Exactly like screenshots) */}
                     <button
                       type="submit"
