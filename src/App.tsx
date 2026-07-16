@@ -91,6 +91,22 @@ export default function App() {
         price: storedPrice
       });
 
+      // Fire Purchase event on Facebook Pixel with deduplication (eventID)
+      try {
+        if (typeof window !== 'undefined' && (window as any).fbq) {
+          (window as any).fbq('track', 'Purchase', {
+            value: storedPrice,
+            currency: 'INR',
+            content_name: storedPlan
+          }, {
+            eventID: orderId || undefined
+          });
+          console.log('FB Pixel Purchase event fired. eventID/orderID:', orderId);
+        }
+      } catch (pxErr) {
+        console.warn('Pixel Purchase tracking failed:', pxErr);
+      }
+
       // Backup fetch from endpoint in case localStorage was cleared/not-present
       if (orderId) {
         fetch(`/api/get-cashfree-order/${orderId}`)
