@@ -185,19 +185,6 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
         console.warn('Failed to save to localStorage:', e);
       }
 
-      // Track InitiateCheckout on Facebook Pixel
-      try {
-        if (typeof window !== 'undefined' && (window as any).fbq) {
-          (window as any).fbq('track', 'InitiateCheckout', {
-            content_name: finalPlanName,
-            value: finalTotal,
-            currency: 'INR'
-          });
-        }
-      } catch (pxErr) {
-        console.warn('Pixel tracking failed:', pxErr);
-      }
-
       // 3. Initiate checkout (V3 Web Checkout)
       await cashfree.checkout({
         paymentSessionId: payment_session_id,
