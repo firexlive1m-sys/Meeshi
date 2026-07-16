@@ -170,14 +170,14 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
     <>
       <AnimatePresence>
         {isOpen && (
-          <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto">
+          <div className="fixed inset-0 z-50 flex items-start sm:items-center justify-center p-0 sm:p-4 overflow-y-auto">
             {/* Backdrop with a dark blur */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={onClose}
-              className="fixed inset-0 bg-black/80 backdrop-blur-sm z-40"
+              className="hidden sm:block fixed inset-0 bg-black/80 backdrop-blur-sm z-40"
             />
 
             {/* Modal Container */}
@@ -186,7 +186,7 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: '100%' }}
               transition={{ type: 'spring', damping: 28, stiffness: 240 }}
-              className="relative w-full max-w-lg bg-[#FCFCFD] text-slate-800 shadow-2xl z-50 rounded-t-[28px] sm:rounded-[28px] overflow-hidden flex flex-col max-h-[96dvh] sm:max-h-[92vh] border-t sm:border border-white/20"
+              className="relative w-full h-full min-h-[100dvh] sm:min-h-0 sm:h-auto sm:max-h-[92vh] sm:max-w-lg bg-[#FCFCFD] text-slate-800 shadow-none sm:shadow-2xl z-50 rounded-none sm:rounded-[28px] overflow-hidden flex flex-col border-none sm:border border-white/20"
             >
               {/* Header */}
               <div className="px-5 py-4 border-b border-slate-100 flex justify-between items-center bg-white sticky top-0 z-10 shrink-0">
@@ -207,12 +207,6 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
 
               {/* Scrollable Body */}
               <div className="overflow-y-auto p-5 space-y-5 flex-1">
-                
-                {/* Visual Trust Indicator Bar */}
-                <div className="flex items-center justify-center gap-1.5 py-2 px-3 bg-emerald-50 rounded-2xl text-[11px] font-bold text-emerald-800 border border-emerald-100/70 text-center select-none font-sans">
-                  <Lock className="w-3.5 h-3.5 text-emerald-600 stroke-[2.5]" />
-                  <span>Your Connection is 256-Bit SSL Secured & Encrypted</span>
-                </div>
 
                 {/* Main Form Fields */}
                 <form onSubmit={handleSubmit} className="space-y-4">
@@ -231,11 +225,9 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
                         </div>
                       </div>
                     </div>
-                  )}
-
-                  {/* Full Name */}
-                  <div className="space-y-1.5 text-left">
-                    <label htmlFor="customerName" className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider font-sans">
+                  )}                  {/* Full Name */}
+                  <div className="space-y-1 text-left">
+                    <label htmlFor="customerName" className="block text-[11px] font-bold text-slate-600 uppercase tracking-wider font-sans">
                       Full Name (Apna Naam) <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -244,14 +236,14 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
                       required
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      placeholder="Asgar Ali"
-                      className="w-full h-11 px-4 rounded-xl bg-slate-100 border-2 border-transparent focus:border-blue-500 focus:bg-white text-slate-900 text-sm font-semibold focus:outline-none transition-all placeholder-slate-400"
+                      placeholder="Apna Poora Naam (e.g. Ramesh Kumar)"
+                      className="w-full h-10 px-3.5 rounded-lg bg-slate-50 border border-slate-200 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 text-[#0F172A] text-xs font-semibold focus:outline-none focus:bg-white transition-all placeholder-slate-400"
                     />
                   </div>
 
                   {/* Email Address */}
-                  <div className="space-y-1.5 text-left">
-                    <label htmlFor="customerEmail" className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider font-sans">
+                  <div className="space-y-1 text-left">
+                    <label htmlFor="customerEmail" className="block text-[11px] font-bold text-slate-600 uppercase tracking-wider font-sans">
                       Email Address <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -260,23 +252,23 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder="yourname@gmail.com"
-                      className="w-full h-11 px-4 rounded-xl bg-slate-100 border-2 border-transparent focus:border-blue-500 focus:bg-white text-slate-900 text-sm font-semibold focus:outline-none transition-all placeholder-slate-400"
+                      placeholder="Apna Email ID (e.g. name@example.com)"
+                      className="w-full h-10 px-3.5 rounded-lg bg-slate-50 border border-slate-200 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 text-[#0F172A] text-xs font-semibold focus:outline-none focus:bg-white transition-all placeholder-slate-400"
                     />
-                    <p className="text-[10px] text-slate-400 font-medium">Digital access and receipt will be sent to this email instantly</p>
+                    <p className="text-[10px] text-slate-400 font-medium mt-0.5">Digital access and receipt will be sent to this email instantly</p>
                   </div>
 
                   {/* Phone Number */}
-                  <div className="space-y-1.5 text-left">
-                    <label htmlFor="customerPhone" className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider font-sans">
+                  <div className="space-y-1 text-left">
+                    <label htmlFor="customerPhone" className="block text-[11px] font-bold text-slate-600 uppercase tracking-wider font-sans">
                       WhatsApp Mobile Number <span className="text-red-500">*</span>
                     </label>
                     <div className="flex gap-2">
                       {/* Interactive Country Selector Flag/Code */}
-                      <div className="flex items-center gap-1.5 px-3 rounded-xl bg-slate-100 border border-slate-200/40 text-slate-700 font-bold text-sm select-none shrink-0">
-                        <span className="text-base">🇮🇳</span>
-                        <span className="font-sans text-xs">+91</span>
-                        <ChevronDown className="w-3 h-3 text-slate-400 stroke-[2.5]" />
+                      <div className="flex items-center gap-1 px-2.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-500 font-bold text-xs select-none shrink-0">
+                        <span className="text-sm">🇮🇳</span>
+                        <span className="font-sans text-[10px]">+91</span>
+                        <ChevronDown className="w-2.5 h-2.5 text-slate-400 stroke-[2.5]" />
                       </div>
                       
                       {/* Actual Input Field */}
@@ -288,68 +280,74 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
                         maxLength={10}
                         value={phone}
                         onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
-                        placeholder="7365890209"
-                        className="flex-1 h-11 px-4 rounded-xl bg-slate-100 border-2 border-transparent focus:border-blue-500 focus:bg-white text-slate-900 text-sm font-semibold focus:outline-none transition-all placeholder-slate-400 font-sans"
+                        placeholder="10-Digit WhatsApp Mobile Number"
+                        className="flex-1 h-10 px-3.5 rounded-lg bg-slate-50 border border-slate-200 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 text-[#0F172A] text-xs font-semibold focus:outline-none focus:bg-white transition-all placeholder-slate-400 font-sans"
                       />
                     </div>
                   </div>
 
                   {/* Flipkart Tool Dotted/Dashed Blue Addon Card */}
                   <div 
-                    className={`p-3.5 rounded-2xl border-2 border-dashed transition-all duration-300 relative text-left select-none ${
+                    className={`p-3 rounded-xl border-2 border-dashed transition-all duration-300 relative text-left select-none ${
                       isAddonChecked 
                         ? 'border-blue-500 bg-blue-50/40 shadow-sm' 
                         : 'border-slate-200 bg-white hover:border-blue-300'
                     }`}
                   >
                     {/* Addon details click triggers drawer */}
-                    <div className="flex gap-3 cursor-pointer" onClick={() => setIsDetailOpen(true)}>
-                      {/* Image Thumbnail - FULLY VISIBLE & PREVENT CROP FIX */}
-                      <div className="relative w-28 h-16 rounded-xl overflow-hidden bg-[#0A192F] border border-slate-200/80 shrink-0 shadow-sm flex items-center justify-center p-0.5">
+                    <div className="space-y-3 cursor-pointer" onClick={() => setIsDetailOpen(true)}>
+                      
+                      {/* Full-width Landscape Banner Image - NO VERTICAL BLACK BARS, PERFECT ASPECT-VIDEO ASPECT RATIO */}
+                      <div className="relative w-full aspect-[1.78] rounded-lg overflow-hidden bg-[#0A192F] border border-slate-200/50 shadow-sm flex items-center justify-center">
                         <img 
                           src="https://media-cdn.cosmofeed.com/chat/1000055066-2026-27-05-04-34-47.png" 
                           alt="Flipkart Auto Listing Tool" 
-                          className="w-full h-full object-contain rounded-lg"
+                          className="w-full h-full object-cover"
                           referrerPolicy="no-referrer"
                         />
-                        <div className="absolute top-1 right-1 bg-blue-600 text-white p-0.5 rounded-full shadow z-10">
-                          <Info className="w-2.5 h-2.5 stroke-[3]" />
+                        <div className="absolute top-2 right-2 bg-blue-600 text-white p-1 rounded-full shadow z-10">
+                          <Info className="w-3 h-3 stroke-[3]" />
                         </div>
+                        <span className="absolute top-2 left-2 px-2 py-0.5 rounded bg-blue-600 text-white text-[9px] font-black uppercase tracking-wider font-sans shadow">
+                          POPULAR COMBO ADDON
+                        </span>
                       </div>
 
                       {/* Description Panel */}
-                      <div className="space-y-1 flex-1 min-w-0">
-                        <h4 className="text-[13px] font-black text-slate-950 leading-tight font-display">
+                      <div className="space-y-1">
+                        <h4 className="text-[13px] font-extrabold text-slate-900 leading-tight font-display">
                           Flipkart Auto Listing Tool + AI SEO Generator
                         </h4>
                         
-                        <div className="flex items-center gap-1.5 text-[10.5px] font-extrabold text-amber-600">
+                        <div className="flex items-center gap-1 text-[11px] font-bold text-amber-600">
                           <span>Flipkart Auto Listing Tool ⚡ Extra ₹50 OFF 💸</span>
                         </div>
 
-                        <p className="text-[10px] text-slate-500 leading-tight">
-                          Ab products manually upload karne ka jhanjhat khatam 😟... Click to see demo video!
+                        <p className="text-[10px] text-slate-500 leading-relaxed font-medium">
+                          Ab products manually upload karne ka jhanjhat khatam 😟... Direct bulk listing file generate karein aur single click me upload karein. Click to see video demo!
                         </p>
 
                         {/* Prices */}
                         <div className="flex items-center gap-1.5 pt-0.5">
-                          <span className="text-sm font-black text-slate-950">₹149</span>
+                          <span className="text-sm font-black text-slate-950">₹{addonPrice}</span>
                           <span className="text-xs text-slate-400 line-through">₹{originalAddonPrice}</span>
+                          <span className="text-[9.5px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded">Save ₹50</span>
                         </div>
                       </div>
+
                     </div>
 
                     {/* Checkbox add/remove option button */}
                     <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
-                      <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider flex items-center gap-1">
-                        <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
-                        Click above image to watch demo
+                      <span className="text-[9px] text-slate-400 font-bold uppercase tracking-widest flex items-center gap-1 font-mono">
+                        <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span>
+                        Click banner to watch video demo
                       </span>
 
                       <button
                         type="button"
                         onClick={() => setIsAddonChecked(!isAddonChecked)}
-                        className={`px-3 py-1.5 rounded-lg text-[10px] font-extrabold flex items-center gap-1 transition-all duration-150 ${
+                        className={`px-3 py-1.5 rounded-lg text-[10px] font-bold flex items-center gap-1 transition-all duration-150 shrink-0 ${
                           isAddonChecked 
                             ? 'bg-blue-600 text-white shadow-md shadow-blue-500/10 hover:bg-blue-700' 
                             : 'bg-slate-100 hover:bg-slate-200 text-slate-800'
@@ -516,12 +514,12 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
 
               {/* Scrollable details body */}
               <div className="overflow-y-auto flex-1">
-                {/* Banner Image - FULLY VISIBLE & PREVENT CROP FIX */}
-                <div className="w-full bg-[#0A192F] flex items-center justify-center p-3 border-b border-slate-100/50">
+                {/* Banner Image - PERFECT 16:9 LANDSCAPE RATIO WITH ZERO BLACK GAPS */}
+                <div className="w-full aspect-[1.78] overflow-hidden bg-[#0A192F] border-b border-slate-100 flex items-center justify-center">
                   <img 
                     src="https://media-cdn.cosmofeed.com/chat/1000055066-2026-27-05-04-34-47.png" 
                     alt="Flipkart Auto Listing Banner"
-                    className="w-full h-auto object-contain rounded-xl shadow-lg border border-slate-700/30"
+                    className="w-full h-full object-cover"
                     referrerPolicy="no-referrer"
                   />
                 </div>
