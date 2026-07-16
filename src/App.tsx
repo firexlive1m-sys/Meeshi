@@ -40,11 +40,39 @@ import FAQSection from './components/FAQSection';
 import PricingCard from './components/PricingCard';
 import LiveSalesNotification from './components/LiveSalesNotification';
 import PaymentFormModal from './components/PaymentFormModal';
+import DownloadPage from './components/DownloadPage';
 
 export default function App() {
   // Global CTA Variable
   const globalCtaUrl = CONFIG.ctaRedirectUrl;
   const whatsappNumber = CONFIG.whatsappNumber;
+
+  // Simple client-side routing state
+  const [currentPath, setCurrentPath] = useState(window.location.pathname);
+
+  useEffect(() => {
+    const handleLocationChange = () => {
+      setCurrentPath(window.location.pathname);
+    };
+    
+    window.addEventListener('popstate', handleLocationChange);
+    
+    // Periodically sync path in case of manual route updates
+    const interval = setInterval(() => {
+      if (window.location.pathname !== currentPath) {
+        setCurrentPath(window.location.pathname);
+      }
+    }, 500);
+
+    return () => {
+      window.removeEventListener('popstate', handleLocationChange);
+      clearInterval(interval);
+    };
+  }, [currentPath]);
+
+  if (currentPath === '/download') {
+    return <DownloadPage />;
+  }
 
   // Payment Modal States
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
