@@ -40,8 +40,10 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
   const [promoError, setPromoError] = useState<string | null>(null);
   const [showPromoInput, setShowPromoInput] = useState(false);
 
+  const [nameTouched, setNameTouched] = useState(false);
   const [emailTouched, setEmailTouched] = useState(false);
   const [phoneTouched, setPhoneTouched] = useState(false);
+  const [nameError, setNameError] = useState(false);
   const [emailError, setEmailError] = useState(false);
   const [phoneError, setPhoneError] = useState(false);
   
@@ -109,15 +111,22 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
     setError(null);
     setSetupInstruction(null);
 
+    const isNameInvalid = !name.trim();
     const isEmailInvalid = !email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     const isPhoneInvalid = !phone.trim() || !/^\d{10}$/.test(phone);
 
+    setNameTouched(true);
     setEmailTouched(true);
     setPhoneTouched(true);
+    setNameError(isNameInvalid);
     setEmailError(isEmailInvalid);
     setPhoneError(isPhoneInvalid);
 
     // Validate inputs
+    if (isNameInvalid) {
+      setError('Please enter your full name (Apna naam daalein)');
+      return;
+    }
     if (isEmailInvalid) {
       setError('Please enter a valid email address (Sahi email ID daalein)');
       return;
@@ -129,7 +138,7 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
 
     setLoading(true);
 
-    const computedName = email.split('@')[0] || 'Customer';
+    const computedName = name.trim() || email.split('@')[0] || 'Customer';
 
     try {
       // 1. Create order on Express backend
@@ -239,6 +248,42 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
                         </div>
                       </div>
                     )}
+
+                    {/* Name Input Container */}
+                    <div className="space-y-1 text-left">
+                      <label htmlFor="customerName" className="block text-[13px] font-semibold text-slate-700">
+                        Full Name *
+                      </label>
+                      <div className={`border rounded-xl py-2.5 px-3 bg-white transition-all duration-150 ${
+                        nameTouched && nameError
+                          ? 'border-red-500 ring-1 ring-red-500 bg-red-50/10'
+                          : 'border-slate-200 focus-within:border-blue-600 focus-within:ring-1 focus-within:ring-blue-600'
+                      }`}>
+                        <input
+                          id="customerName"
+                          type="text"
+                          required
+                          value={name}
+                          onChange={(e) => {
+                            setName(e.target.value);
+                            if (nameTouched) {
+                              setNameError(!e.target.value.trim());
+                            }
+                          }}
+                          onBlur={() => {
+                            setNameTouched(true);
+                            setNameError(!name.trim());
+                          }}
+                          placeholder="Enter your full name"
+                          className="block w-full bg-transparent text-slate-800 font-medium text-sm focus:outline-none border-0 p-0"
+                        />
+                      </div>
+                      {nameTouched && nameError && (
+                        <p className="text-[11px] font-semibold text-red-500 animate-fade-in text-left">
+                          Please enter your full name
+                        </p>
+                      )}
+                    </div>
 
                     {/* Email Address Input Container */}
                     <div className="space-y-1 text-left">
