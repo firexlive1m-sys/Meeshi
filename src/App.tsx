@@ -257,7 +257,7 @@ export default function App() {
 
   const handleRedirectToWhatsapp = (device: string) => {
     const isCombo = customerDetails.planName.toLowerCase().includes('combo');
-    const planTypeText = isCombo ? "Combo Pack" : "Single Tool Pack";
+    const planTypeText = isCombo ? "Combo" : "Single";
     
     const message = `👋 Hello Auto Listing Team
 
@@ -268,7 +268,7 @@ Maine aapka Automated Tool successfully purchase kar liya hai.
 👤 Customer Name: ${customerDetails.name}
 📱 Mobile Number: ${customerDetails.phone || 'N/A'}
 💻 Device: ${device}
-📦 Purchased Plan: ${customerDetails.planName} (${planTypeText})
+📦 Purchased Plan: ${planTypeText}
 💰 Amount Paid: ₹${customerDetails.price}
 ━━━━━━━━━━━━━━━━━━━━
 
@@ -307,7 +307,7 @@ Dhanyavaad! 🙏`;
               className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 text-xs font-bold text-emerald-400 uppercase tracking-wider mx-auto"
             >
               <Sparkles className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
-              <span>Payment Successful / भुगतान सफल रहा</span>
+              <span>Purchase Successful</span>
             </motion.div>
 
             {/* Title & Description */}
@@ -316,7 +316,7 @@ Dhanyavaad! 🙏`;
                 Aap Kis Device Me Use Karenge?
               </h3>
               <p className="text-emerald-400 font-mono text-[11px] font-semibold tracking-wider uppercase">
-                Device Selection / डिवाइस का चयन करें
+                Device Selection / Device Select Karein
               </p>
               <div className="h-px bg-slate-800 my-2" />
               <p className="text-gray-300 text-xs sm:text-sm leading-relaxed">
@@ -332,17 +332,17 @@ Dhanyavaad! 🙏`;
               {[
                 { 
                   id: 'Mobile', 
-                  label: '📱 Mobile (Smartphone / मोबाइल)', 
+                  label: '📱 Mobile (Smartphone)', 
                   sub: 'Android ya iPhone par chalane ke liye (To run on smartphone)' 
                 },
                 { 
                   id: 'PC', 
-                  label: '🖥️ PC (Desktop Computer / कंप्यूटर)', 
+                  label: '🖥️ PC (Desktop Computer)', 
                   sub: 'Computer me setup karne ke liye (To run on desktop PC)' 
                 },
                 { 
                   id: 'Laptop', 
-                  label: '💻 Laptop (लैपटॉप / नोटबुक)', 
+                  label: '💻 Laptop', 
                   sub: 'Laptop par extension run karne ke liye (To run on laptop)' 
                 }
               ].map((opt, idx) => {
