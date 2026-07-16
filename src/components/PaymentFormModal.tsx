@@ -98,10 +98,6 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
     setSetupInstruction(null);
 
     // Validate inputs
-    if (!name.trim()) {
-      setError('Please enter your full name (Apna poora naam daalein)');
-      return;
-    }
     if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       setError('Please enter a valid email address (Sahi email ID daalein)');
       return;
@@ -113,6 +109,8 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
 
     setLoading(true);
 
+    const computedName = email.split('@')[0] || 'Customer';
+
     try {
       // 1. Create order on Express backend
       const response = await fetch('/api/create-cashfree-order', {
@@ -122,7 +120,7 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
         },
         body: JSON.stringify({
           amount: finalTotal,
-          customerName: name,
+          customerName: computedName,
           customerEmail: email,
           customerPhone: phone,
           planName: finalPlanName
@@ -190,23 +188,25 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
             >
               {/* Header */}
               <div className="px-5 py-4 border-b border-slate-100 flex justify-between items-center bg-white sticky top-0 z-10 shrink-0">
-                <div className="flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse" />
-                  <span className="text-xs font-black text-slate-900 uppercase tracking-wider font-sans flex items-center gap-1.5">
-                    <ShieldCheck className="w-4 h-4 text-emerald-500 stroke-[2.5]" />
-                    SECURE CHECKOUT
-                  </span>
-                </div>
+                <span className="text-sm font-bold text-slate-900 tracking-wider font-sans">
+                  CHECKOUT
+                </span>
                 <button
+                  type="button"
                   onClick={onClose}
                   className="p-1.5 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-800 transition-colors"
                 >
-                  <X className="w-5 h-5 stroke-[2.5]" />
+                  <X className="w-5 h-5" />
                 </button>
               </div>
 
               {/* Scrollable Body */}
               <div className="overflow-y-auto p-5 space-y-5 flex-1">
+
+                {/* Subtitle message */}
+                <p className="text-[13px] text-slate-800 font-medium text-left">
+                  Access to this purchase will be sent to this email
+                </p>
 
                 {/* Main Form Fields */}
                 <form onSubmit={handleSubmit} className="space-y-4">
@@ -225,26 +225,12 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
                         </div>
                       </div>
                     </div>
-                  )}                  {/* Full Name */}
-                  <div className="space-y-1 text-left">
-                    <label htmlFor="customerName" className="block text-[11px] font-bold text-slate-600 uppercase tracking-wider font-sans">
-                      Full Name (Apna Naam) <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      id="customerName"
-                      type="text"
-                      required
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      placeholder="Apna Poora Naam (e.g. Ramesh Kumar)"
-                      className="w-full h-10 px-3.5 rounded-lg bg-slate-50 border border-slate-200 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 text-[#0F172A] text-xs font-semibold focus:outline-none focus:bg-white transition-all placeholder-slate-400"
-                    />
-                  </div>
+                  )}
 
-                  {/* Email Address */}
-                  <div className="space-y-1 text-left">
-                    <label htmlFor="customerEmail" className="block text-[11px] font-bold text-slate-600 uppercase tracking-wider font-sans">
-                      Email Address <span className="text-red-500">*</span>
+                  {/* Email Address Input Container */}
+                  <div className="border border-slate-200 rounded-xl p-3 bg-white focus-within:border-blue-600 focus-within:ring-1 focus-within:ring-blue-600 transition-all text-left">
+                    <label htmlFor="customerEmail" className="block text-[11px] font-medium text-slate-500">
+                      Email Address
                     </label>
                     <input
                       id="customerEmail"
@@ -252,26 +238,23 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder="Apna Email ID (e.g. name@example.com)"
-                      className="w-full h-10 px-3.5 rounded-lg bg-slate-50 border border-slate-200 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 text-[#0F172A] text-xs font-semibold focus:outline-none focus:bg-white transition-all placeholder-slate-400"
+                      placeholder="ska80ali@gmail.com"
+                      className="block w-full bg-transparent text-slate-800 font-medium text-sm focus:outline-none mt-1 border-0 p-0"
                     />
-                    <p className="text-[10px] text-slate-400 font-medium mt-0.5">Digital access and receipt will be sent to this email instantly</p>
                   </div>
 
-                  {/* Phone Number */}
-                  <div className="space-y-1 text-left">
-                    <label htmlFor="customerPhone" className="block text-[11px] font-bold text-slate-600 uppercase tracking-wider font-sans">
-                      WhatsApp Mobile Number <span className="text-red-500">*</span>
+                  {/* Phone Number Input Container */}
+                  <div className="border border-slate-200 rounded-xl p-3 bg-white focus-within:border-blue-600 focus-within:ring-1 focus-within:ring-blue-600 transition-all text-left">
+                    <label htmlFor="customerPhone" className="block text-[11px] font-medium text-slate-500">
+                      Phone number *
                     </label>
-                    <div className="flex gap-2">
-                      {/* Interactive Country Selector Flag/Code */}
-                      <div className="flex items-center gap-1 px-2.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-500 font-bold text-xs select-none shrink-0">
-                        <span className="text-sm">🇮🇳</span>
-                        <span className="font-sans text-[10px]">+91</span>
-                        <ChevronDown className="w-2.5 h-2.5 text-slate-400 stroke-[2.5]" />
+                    <div className="flex items-center gap-2 mt-1">
+                      {/* Country selector with chevron (no flag, exactly like screenshot) */}
+                      <div className="flex items-center gap-1 text-slate-800 font-semibold text-xs select-none shrink-0">
+                        <span className="font-sans">+91</span>
+                        <ChevronDown className="w-3.5 h-3.5 text-slate-500 stroke-[2.5]" />
                       </div>
-                      
-                      {/* Actual Input Field */}
+                      <div className="w-px h-4 bg-slate-200 shrink-0" />
                       <input
                         id="customerPhone"
                         type="tel"
@@ -280,196 +263,177 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
                         maxLength={10}
                         value={phone}
                         onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
-                        placeholder="10-Digit WhatsApp Mobile Number"
-                        className="flex-1 h-10 px-3.5 rounded-lg bg-slate-50 border border-slate-200 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 text-[#0F172A] text-xs font-semibold focus:outline-none focus:bg-white transition-all placeholder-slate-400 font-sans"
+                        placeholder="7365890209"
+                        className="flex-1 bg-transparent text-slate-800 font-medium text-sm focus:outline-none border-0 p-0 font-sans"
                       />
                     </div>
                   </div>
 
                   {/* Flipkart Tool Dotted/Dashed Blue Addon Card */}
                   <div 
-                    className={`p-3 rounded-xl border-2 border-dashed transition-all duration-300 relative text-left select-none ${
-                      isAddonChecked 
-                        ? 'border-blue-500 bg-blue-50/40 shadow-sm' 
-                        : 'border-slate-200 bg-white hover:border-blue-300'
-                    }`}
+                    className="p-4 rounded-2xl border-dashed border-[1.5px] border-blue-400 bg-[#F0F7FF] hover:bg-[#EBF5FF] transition-all text-left shadow-sm"
                   >
                     {/* Addon details click triggers drawer */}
                     <div className="space-y-3 cursor-pointer" onClick={() => setIsDetailOpen(true)}>
                       
-                      {/* Full-width Landscape Banner Image - NO VERTICAL BLACK BARS, PERFECT ASPECT-VIDEO ASPECT RATIO */}
-                      <div className="relative w-full aspect-[1.78] rounded-lg overflow-hidden bg-[#0A192F] border border-slate-200/50 shadow-sm flex items-center justify-center">
-                        <img 
-                          src="https://media-cdn.cosmofeed.com/chat/1000055066-2026-27-05-04-34-47.png" 
-                          alt="Flipkart Auto Listing Tool" 
-                          className="w-full h-full object-cover"
-                          referrerPolicy="no-referrer"
-                        />
-                        <div className="absolute top-2 right-2 bg-blue-600 text-white p-1 rounded-full shadow z-10">
-                          <Info className="w-3 h-3 stroke-[3]" />
+                      {/* Top Row: Image & Title Side-by-Side */}
+                      <div className="flex gap-4 items-start">
+                        {/* Image Thumbnail */}
+                        <div className="relative w-[100px] h-[75px] rounded-lg overflow-hidden bg-[#0A192F] border border-slate-200/50 shrink-0 shadow-sm flex items-center justify-center p-0.5">
+                          <img 
+                            src="https://media-cdn.cosmofeed.com/chat/1000055066-2026-27-05-04-34-47.png" 
+                            alt="Flipkart Auto Listing Tool" 
+                            className="w-full h-full object-cover rounded"
+                            referrerPolicy="no-referrer"
+                          />
                         </div>
-                        <span className="absolute top-2 left-2 px-2 py-0.5 rounded bg-blue-600 text-white text-[9px] font-black uppercase tracking-wider font-sans shadow">
-                          POPULAR COMBO ADDON
-                        </span>
+
+                        {/* Title Column */}
+                        <div className="flex-1 min-w-0">
+                          <h4 className="text-[14px] font-bold text-slate-900 leading-snug font-sans">
+                            Flipkart Auto Listing Tool + AI SEO Generator
+                          </h4>
+                        </div>
                       </div>
 
-                      {/* Description Panel */}
+                      {/* Content spanning full-width underneath */}
                       <div className="space-y-1">
-                        <h4 className="text-[13px] font-extrabold text-slate-900 leading-tight font-display">
-                          Flipkart Auto Listing Tool + AI SEO Generator
-                        </h4>
-                        
-                        <div className="flex items-center gap-1 text-[11px] font-bold text-amber-600">
+                        <div className="flex items-center gap-1 text-[11px] font-semibold text-slate-800">
                           <span>Flipkart Auto Listing Tool ⚡ Extra ₹50 OFF 💸</span>
                         </div>
-
-                        <p className="text-[10px] text-slate-500 leading-relaxed font-medium">
-                          Ab products manually upload karne ka jhanjhat khatam 😟... Direct bulk listing file generate karein aur single click me upload karein. Click to see video demo!
+                        <p className="text-[11px] text-slate-500 leading-relaxed font-medium">
+                          Ab products manually upload karne ka jhanjhat khatam 😟...
                         </p>
-
+                        
                         {/* Prices */}
-                        <div className="flex items-center gap-1.5 pt-0.5">
-                          <span className="text-sm font-black text-slate-950">₹{addonPrice}</span>
+                        <div className="flex items-center gap-2 pt-0.5">
+                          <span className="text-sm font-bold text-slate-900">₹{addonPrice}</span>
                           <span className="text-xs text-slate-400 line-through">₹{originalAddonPrice}</span>
-                          <span className="text-[9.5px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded">Save ₹50</span>
                         </div>
                       </div>
 
                     </div>
 
-                    {/* Checkbox add/remove option button */}
-                    <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
-                      <span className="text-[9px] text-slate-400 font-bold uppercase tracking-widest flex items-center gap-1 font-mono">
-                        <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span>
-                        Click banner to watch video demo
-                      </span>
-
+                    {/* Checkbox button exactly like screenshot */}
+                    <div className="mt-3 flex items-center justify-between gap-2">
                       <button
                         type="button"
                         onClick={() => setIsAddonChecked(!isAddonChecked)}
-                        className={`px-3 py-1.5 rounded-lg text-[10px] font-bold flex items-center gap-1 transition-all duration-150 shrink-0 ${
-                          isAddonChecked 
-                            ? 'bg-blue-600 text-white shadow-md shadow-blue-500/10 hover:bg-blue-700' 
-                            : 'bg-slate-100 hover:bg-slate-200 text-slate-800'
-                        }`}
+                        className="flex items-center gap-2.5 px-3.5 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-800 transition-all duration-150 shrink-0 shadow-sm cursor-pointer"
                       >
-                        {isAddonChecked ? (
-                          <>
-                            <Check className="w-3 h-3 stroke-[3]" />
-                            <span>Added to Order</span>
-                          </>
-                        ) : (
-                          <>
-                            <Plus className="w-3 h-3 stroke-[3]" />
-                            <span>Add Tool (₹149)</span>
-                          </>
-                        )}
+                        <div className={`w-4 h-4 rounded flex items-center justify-center border transition-all duration-150 ${
+                          isAddonChecked 
+                            ? 'bg-[#0F172A] border-[#0F172A] text-white' 
+                            : 'bg-white border-slate-300 text-transparent'
+                        }`}>
+                          {isAddonChecked && <Check className="w-3 h-3 stroke-[4]" />}
+                        </div>
+                        <span>Add Flipkart Tool</span>
                       </button>
                     </div>
                   </div>
 
-                  {/* Promo Code Row */}
-                  <div className="border-t border-b border-slate-100 py-2 text-left">
-                    {!showPromoInput && !isPromoApplied ? (
-                      <button
-                        type="button"
-                        onClick={() => setShowPromoInput(true)}
-                        className="text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1.5 transition-colors"
-                      >
-                        <Tag className="w-3.5 h-3.5" />
-                        <span>Have a Discount Coupon?</span>
-                      </button>
-                    ) : (
-                      <div className="space-y-1.5">
-                        <div className="flex gap-2">
-                          <input
-                            type="text"
-                            placeholder="Enter Code (e.g. SAVE20)"
-                            value={promoCode}
-                            onChange={(e) => setPromoCode(e.target.value)}
-                            disabled={isPromoApplied}
-                            className="flex-1 h-9 px-3 rounded-lg bg-slate-100 text-xs font-bold uppercase border border-transparent focus:border-blue-500 focus:bg-white text-slate-900 focus:outline-none"
-                          />
-                          <button
-                            type="button"
-                            onClick={handleApplyPromo}
-                            disabled={isPromoApplied}
-                            className="h-9 px-4 rounded-lg bg-slate-950 text-white text-xs font-bold hover:bg-slate-800 disabled:bg-emerald-500 shrink-0"
-                          >
-                            {isPromoApplied ? 'Applied' : 'Apply'}
-                          </button>
-                        </div>
-                        {promoError && <p className="text-[10px] text-red-500 font-bold">{promoError}</p>}
-                        {isPromoApplied && (
-                          <p className="text-[10px] text-emerald-600 font-bold flex items-center gap-1">
-                            <Check className="w-3 h-3 stroke-[3]" /> 
-                            {appliedPromo === 'SKALI' 
-                              ? `Mega Coupon SKALI Applied! Saved 99.9% (-₹${discountAmount})! 🎉`
-                              : 'Coupon applied! Saved ₹20.'}
-                          </p>
-                        )}
-                      </div>
-                    )}
+                  {/* Promo Code Row (Exactly like screenshots) */}
+                  <div className="border border-slate-200 rounded-xl p-3 bg-white flex justify-between items-center text-xs font-semibold text-slate-700 shadow-sm text-left">
+                    <div className="flex items-center gap-2">
+                      <Tag className="w-4 h-4 text-slate-500" />
+                      <span className="text-slate-500 font-medium">Have a Discount Code?</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setShowPromoInput(!showPromoInput)}
+                      className="text-blue-600 hover:text-blue-700 font-bold"
+                    >
+                      {showPromoInput ? 'Cancel' : 'Add'}
+                    </button>
                   </div>
 
-                  {/* Order Pricing Breakdown Summary */}
-                  <div className="space-y-2 text-xs font-sans text-slate-600 font-semibold pt-1 text-left">
+                  {showPromoInput && (
+                    <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-1.5 animate-fade-in text-left">
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          placeholder="Enter Code (e.g. SAVE20)"
+                          value={promoCode}
+                          onChange={(e) => setPromoCode(e.target.value)}
+                          disabled={isPromoApplied}
+                          className="flex-1 h-9 px-3 rounded-lg bg-white text-xs font-bold uppercase border border-slate-200 focus:border-blue-500 focus:bg-white text-slate-900 focus:outline-none"
+                        />
+                        <button
+                          type="button"
+                          onClick={handleApplyPromo}
+                          disabled={isPromoApplied}
+                          className="h-9 px-4 rounded-lg bg-slate-950 text-white text-xs font-bold hover:bg-slate-800 disabled:bg-emerald-500 shrink-0 cursor-pointer"
+                        >
+                          {isPromoApplied ? 'Applied' : 'Apply'}
+                        </button>
+                      </div>
+                      {promoError && <p className="text-[10px] text-red-500 font-bold">{promoError}</p>}
+                      {isPromoApplied && (
+                        <p className="text-[10px] text-emerald-600 font-bold flex items-center gap-1">
+                          <Check className="w-3 h-3 stroke-[3]" /> 
+                          {appliedPromo === 'SKALI' 
+                            ? `Mega Coupon SKALI Applied! Saved 99.9% (-₹${discountAmount})! 🎉`
+                            : 'Coupon applied! Saved ₹20.'}
+                        </p>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Order Pricing Breakdown Summary (Exactly like screenshots) */}
+                  <div className="space-y-3 text-xs text-slate-500 font-semibold pt-1 text-left">
                     <div className="flex justify-between items-center">
-                      <span>Meesho Suite License</span>
-                      <span className="text-slate-900 font-bold">₹{basePrice}</span>
+                      <span>Sub Total</span>
+                      <span className="text-slate-800 font-bold">₹{basePrice}</span>
                     </div>
 
                     {isAddonChecked && (
-                      <div className="flex justify-between items-center text-blue-600">
-                        <span>Flipkart Automation Addon</span>
-                        <span className="font-bold">₹{addonPrice}</span>
+                      <div className="flex justify-between items-center">
+                        <span>Add On</span>
+                        <span className="text-slate-800 font-bold">₹{addonPrice}</span>
                       </div>
                     )}
 
                     {isPromoApplied && (
                       <div className="flex justify-between items-center text-emerald-600">
-                        <span>Promo Code applied</span>
+                        <span>Discount</span>
                         <span className="font-bold">-₹{discountAmount}</span>
                       </div>
                     )}
 
                     {/* Final Bold Total */}
-                    <div className="flex justify-between items-center pt-2.5 border-t border-slate-100 text-slate-950 font-black">
-                      <span className="text-xs font-extrabold uppercase tracking-wide">Final Payable Amount</span>
-                      <span className="text-2xl font-display text-slate-950">₹{finalTotal}</span>
+                    <div className="flex justify-between items-center pt-3 border-t border-slate-100 text-slate-950 font-black">
+                      <span className="text-sm font-bold text-slate-800">Total</span>
+                      <span className="text-base text-slate-950 font-bold">₹{finalTotal}</span>
                     </div>
                   </div>
 
-                  {/* Pay Action Button */}
+                  {/* Pay Action Button (Exactly like screenshots) */}
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full h-13 rounded-xl bg-black hover:bg-slate-900 text-white font-extrabold text-xs flex justify-center items-center gap-2 cursor-pointer shadow-xl hover:shadow-slate-950/10 transition-all duration-200 uppercase tracking-wider font-sans disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="relative w-full h-14 rounded-xl bg-black hover:bg-slate-900 text-white font-semibold text-[15px] flex items-center justify-center cursor-pointer transition-all duration-200"
                   >
                     {loading ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
+                      <div className="flex items-center gap-2">
+                        <Loader2 className="w-5 h-5 animate-spin" />
                         <span>Creating Secure Checkout...</span>
-                      </>
+                      </div>
                     ) : (
                       <>
-                        <Lock className="w-4 h-4 stroke-[2.5]" />
-                        <span>Pay & Get Instant Access on WhatsApp</span>
-                        <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+                        <span>Pay Now & Unlock Access</span>
+                        <span className="absolute right-5 text-base">→</span>
                       </>
                     )}
                   </button>
                 </form>
 
                 {/* Secure Trust Badge Footer */}
-                <div className="pt-1 flex flex-col items-center gap-1 select-none">
+                <div className="pt-2 flex flex-col items-center gap-1 select-none">
                   <div className="flex items-center justify-center gap-1.5 text-slate-400 text-[9px] font-bold uppercase tracking-wider">
-                    <Shield className="w-3.5 h-3.5 text-emerald-500 stroke-[2.5]" />
+                    <Shield className="w-3.5 h-3.5 text-slate-400 stroke-[2.5]" />
                     <span>UPI, Cards & Net Banking Secured by Cashfree Payments</span>
                   </div>
-                  <p className="text-[9px] text-slate-400 font-semibold max-w-xs text-center leading-normal">
-                    Secure checkout. Your billing data is protected. Dispatch links will arrive via Email & WhatsApp instantly.
-                  </p>
                 </div>
               </div>
             </motion.div>
@@ -500,15 +464,14 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
             >
               {/* Header */}
               <div className="px-5 py-4 border-b border-slate-100 flex justify-between items-center bg-white sticky top-0 z-10 shrink-0">
-                <span className="text-xs font-black text-slate-950 uppercase tracking-tight font-display flex items-center gap-1.5">
-                  <Sparkles className="w-4 h-4 text-amber-500 stroke-[2.5]" />
-                  Flipkart Auto Listing Tool Demo
+                <span className="text-[14px] font-bold text-slate-900 tracking-tight font-sans">
+                  Flipkart Auto Listing Tool + AI SEO Generator
                 </span>
                 <button
                   onClick={() => setIsDetailOpen(false)}
                   className="p-1.5 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-800 transition-colors"
                 >
-                  <X className="w-5 h-5 stroke-[2.5]" />
+                  <X className="w-5 h-5" />
                 </button>
               </div>
 
@@ -526,43 +489,43 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
 
                 <div className="p-5 space-y-5 text-left">
                   {/* Highlight text details */}
-                  <div className="space-y-1.5">
-                    <h3 className="text-base font-black text-slate-950 font-display flex items-center gap-1 flex-wrap">
+                  <div className="space-y-1">
+                    <h3 className="text-[15px] font-bold text-slate-900 font-sans flex items-center gap-1 flex-wrap">
                       <span>Flipkart Auto Listing Tool ⚡ Extra ₹50 OFF 💸</span>
                     </h3>
-                    <p className="text-xs font-bold text-slate-600 leading-normal">
+                    <p className="text-[14px] font-bold text-slate-900 leading-normal">
                       Ab products manually upload karne ka jhanjhat khatam 😟
                     </p>
                   </div>
 
                   {/* Features List with beautiful checkmarks */}
-                  <div className="space-y-2.5 pt-1">
+                  <div className="space-y-3 pt-1">
                     {[
-                      { text: '1-Click Bulk Listing', emoji: '🚀' },
+                      { text: '1-Click Bulk Listing', emoji: '' },
                       { text: 'AI SEO Title Generator', emoji: '🤖' },
                       { text: 'AI Product Description Generator', emoji: '✍️' },
                       { text: 'Smart Keyword Suggestions', emoji: '🔍' },
-                      { text: 'Faster Product Upload', emoji: '📈' },
-                      { text: 'Save Time & Increase Orders', emoji: '💰' },
+                      { text: 'Faster Product Upload', emoji: '🚀' },
+                      { text: 'Save Time & Increase Orders', emoji: '📈' },
                       { text: 'Beginner Friendly + Mobile Supported', emoji: '📱' },
                     ].map((feat, index) => (
-                      <div key={index} className="flex items-center gap-2.5">
-                        <div className="w-5 h-5 rounded-full bg-emerald-100 border border-emerald-300 flex items-center justify-center text-emerald-600 shrink-0">
-                          <Check className="w-3 h-3 stroke-[3]" />
+                      <div key={index} className="flex items-center gap-3">
+                        <div className="w-5 h-5 rounded bg-[#22C55E] flex items-center justify-center text-white shrink-0 shadow-sm">
+                          <Check className="w-3.5 h-3.5 stroke-[4.5]" />
                         </div>
-                        <span className="text-[13px] font-extrabold text-slate-900 font-sans">
-                          {feat.text} {feat.emoji}
+                        <span className="text-[14px] font-bold text-slate-900 font-sans">
+                          {feat.text}{feat.emoji && ' '}{feat.emoji}
                         </span>
                       </div>
                     ))}
                   </div>
 
                   {/* Callout box text */}
-                  <div className="p-4 rounded-xl bg-amber-50 border border-amber-200/60 space-y-1.5">
-                    <p className="text-xs font-bold text-amber-800 leading-relaxed flex gap-1.5 items-start">
-                      <span>Thousands of sellers already using automation to scale faster 💰</span>
+                  <div className="p-4 rounded-xl bg-[#FFFBEB] border border-[#FEF3C7] space-y-1.5 text-left">
+                    <p className="text-[13px] font-bold text-amber-800 leading-relaxed">
+                      Thousands of sellers already using automation to scale faster 💰
                     </p>
-                    <p className="text-xs font-black text-slate-900 leading-normal">
+                    <p className="text-[13px] font-bold text-slate-900 leading-normal">
                       Ab tum bhi smarter way mein Flipkart selling start karo 🔥
                     </p>
                   </div>
@@ -574,7 +537,7 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
                 <button
                   type="button"
                   onClick={() => setIsDetailOpen(false)}
-                  className="flex-1 h-11 rounded-xl border border-slate-200 text-slate-700 font-bold text-xs hover:bg-slate-50 uppercase tracking-wider"
+                  className="flex-1 h-11 rounded-lg border border-slate-200 text-slate-700 font-bold text-xs hover:bg-slate-50 uppercase tracking-wider cursor-pointer"
                 >
                   Close Demo
                 </button>
@@ -584,9 +547,9 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
                     setIsAddonChecked(true);
                     setIsDetailOpen(false);
                   }}
-                  className="flex-1 h-11 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs shadow-md shadow-blue-500/15 uppercase tracking-wider flex items-center justify-center gap-1"
+                  className="flex-1 h-11 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-1 cursor-pointer"
                 >
-                  <Plus className="w-3.5 h-3.5 stroke-[3]" /> Add to Order
+                  Add Flipkart Tool
                 </button>
               </div>
             </motion.div>
