@@ -272,7 +272,7 @@ Maine aapka Automated Tool successfully purchase kar liya hai.
 💰 Amount Paid: ₹${customerDetails.price}
 ━━━━━━━━━━━━━━━━━━━━
 
-Kindly meri payment verify kar dijiye. Verification complete hone ke baad mera premium access, download link, aur agar koi setup instructions hain to isi WhatsApp number par share kar dijiye.
+Kindly meri payment verify kar dijiye. Verification complete hone ke baad tool & setup and how to use video bhej dijiye
 
 Agar kisi aur information ki zarurat ho to mujhe batayiye.
 
@@ -311,19 +311,33 @@ Dhanyavaad! 🙏`;
             </motion.div>
 
             {/* Title & Description */}
-            <div className="space-y-2">
+            <div className="space-y-3">
               <h3 className="text-xl sm:text-2xl font-black text-white font-display tracking-tight leading-snug animate-fade-in">
                 Aap Kis Device Me Use Karenge?
               </h3>
               <p className="text-emerald-400 font-mono text-[11px] font-semibold tracking-wider uppercase">
                 Device Selection / Device Select Karein
               </p>
-              <div className="h-px bg-slate-800 my-2" />
-              <p className="text-gray-300 text-xs sm:text-sm leading-relaxed">
-                Apna device select karein aur niche green button par click karke WhatsApp par direct code aur access files lein.
-              </p>
-              <p className="text-gray-400 text-[11px] italic leading-normal">
-                (Please select your device below to receive customized files and instant premium access directly on WhatsApp)
+              <div className="h-px bg-slate-800 my-1" />
+              
+              {/* Professional Warning/Info Callout */}
+              <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-3.5 text-left space-y-2 text-xs">
+                <p className="text-amber-400 font-bold flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                  Important Note / ज़रूरी सूचना:
+                </p>
+                <div className="space-y-1.5 text-gray-300 leading-relaxed font-medium">
+                  <p>
+                    Aap jis device me tool chalana chahte hain, <span className="text-white font-bold underline decoration-amber-400/50">usi device ko select karein</span>. Har purchase par sirf <span className="text-amber-300 font-bold">1 Single Device</span> ka access generate hoga aur aap kisi doosre device me isse nahi chala payenge.
+                  </p>
+                  <p className="text-[11px] text-gray-400 italic">
+                    (Please select the exact device you will use. Access is limited to only 1 device per purchase and cannot be transferred later.)
+                  </p>
+                </div>
+              </div>
+
+              <p className="text-gray-300 text-xs sm:text-sm leading-relaxed pt-1">
+                Device select karke niche green button par click karein aur WhatsApp par code & direct download files lein.
               </p>
             </div>
 
