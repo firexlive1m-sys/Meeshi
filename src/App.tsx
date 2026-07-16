@@ -54,6 +54,19 @@ export default function App() {
   const [paymentSuccess, setPaymentSuccess] = useState<boolean | null>(null);
   const [paymentOrderId, setPaymentOrderId] = useState<string>('');
 
+  // Device Selection Popup States
+  const [isDevicePopupOpen, setIsDevicePopupOpen] = useState(true);
+  const [selectedDevice, setSelectedDevice] = useState('Mobile');
+
+  // Stored Customer details state for WhatsApp confirmation message
+  const [customerDetails, setCustomerDetails] = useState({
+    name: 'Customer',
+    email: '',
+    phone: '',
+    planName: 'Meesho Instant Listing Pack',
+    price: 199
+  });
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const status = params.get('payment_status');
@@ -62,6 +75,43 @@ export default function App() {
     if (status === 'success') {
       setPaymentSuccess(true);
       if (orderId) setPaymentOrderId(orderId);
+
+      // Load initial info from localStorage
+      const storedName = localStorage.getItem('pending_purchase_name') || 'Customer';
+      const storedEmail = localStorage.getItem('pending_purchase_email') || '';
+      const storedPhone = localStorage.getItem('pending_purchase_phone') || '';
+      const storedPlan = localStorage.getItem('pending_purchase_plan') || 'Meesho Instant Listing Pack';
+      const storedPrice = localStorage.getItem('pending_purchase_price') ? Number(localStorage.getItem('pending_purchase_price')) : 199;
+
+      setCustomerDetails({
+        name: storedName,
+        email: storedEmail,
+        phone: storedPhone,
+        planName: storedPlan,
+        price: storedPrice
+      });
+
+      // Backup fetch from endpoint in case localStorage was cleared/not-present
+      if (orderId) {
+        fetch(`/api/get-cashfree-order/${orderId}`)
+          .then(res => {
+            if (res.ok) return res.json();
+            throw new Error('Failed to fetch details');
+          })
+          .then(data => {
+            if (data && data.customer_details) {
+              setCustomerDetails(prev => ({
+                ...prev,
+                name: data.customer_details.customer_name || prev.name,
+                email: data.customer_details.customer_email || prev.email,
+                phone: data.customer_details.customer_phone || prev.phone,
+                price: data.order_amount || prev.price
+              }));
+            }
+          })
+          .catch(err => console.warn('Backup fetch order details failed:', err));
+      }
+
       // Clean up URL parameters so refresh doesn't trigger it again
       window.history.replaceState({}, document.title, window.location.pathname);
     } else if (status === 'failed') {
@@ -205,11 +255,129 @@ export default function App() {
     }
   };
 
+  const handleRedirectToWhatsapp = (device: string) => {
+    const isCombo = customerDetails.planName.toLowerCase().includes('combo');
+    const planTypeText = isCombo ? "Combo Pack (Meesho + Flipkart Tool)" : "Single Tool Pack (Meesho Auto Listing)";
+    
+    const message = `Hello Asgar Sir,
+Maine Aapka Automated Tool purchase kiya hai! Details niche di gayi hain:
+
+📝 Purchase Details:
+--------------------------------
+👤 Name: ${customerDetails.name}
+📞 Mobile Number: ${customerDetails.phone || 'N/A'}
+🆔 Order ID: ${paymentOrderId || 'N/A'}
+💻 Selected Device: ${device}
+📦 Plan: ${customerDetails.planName} (${planTypeText})
+💰 Paid Amount: ₹${customerDetails.price}
+
+Please verify kijiye aur mujhe access link aur premium files WhatsApp par send kar dijiye. Thank you! 🙏`;
+
+    const encodedText = encodeURIComponent(message);
+    const whatsappUrl = `https://wa.me/91${whatsappNumber}?text=${encodedText}`;
+    
+    // Redirect current window to WhatsApp
+    window.location.href = whatsappUrl;
+  };
+
   if (paymentSuccess) {
     return (
       <div id="download-panel-root" className="min-h-screen w-full relative overflow-x-hidden bg-[#0F172A] text-[#F8FAFC] font-sans selection:bg-[#3B82F6] selection:text-white py-12 md:py-20">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[500px] bg-gradient-to-b from-blue-900/10 via-sky-900/5 to-transparent blur-3xl pointer-events-none" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[550px] bg-blue-600/10 blur-[130px] rounded-full pointer-events-none" />
+
+        {/* Device Selection Popup Modal Overlay */}
+        <AnimatePresence>
+          {isDevicePopupOpen && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 15 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 15 }}
+                className="relative w-full max-w-md bg-[#1E293B] border-2 border-blue-500/30 rounded-3xl p-6 sm:p-8 shadow-[0_25px_60px_rgba(59,130,246,0.25)] text-center font-sans space-y-6"
+              >
+                {/* Badge */}
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-blue-500/20 bg-blue-500/10 text-xs font-semibold text-blue-400 uppercase tracking-wider mx-auto">
+                  <Sparkles className="w-3.5 h-3.5 text-blue-400 animate-pulse" />
+                  Select Device / डिवाइस चुनें
+                </div>
+
+                {/* Title & Description */}
+                <div className="space-y-2">
+                  <h3 className="text-xl sm:text-2xl font-extrabold text-white font-display tracking-tight leading-snug">
+                    Aap Kis Device Me Use Karenge?
+                  </h3>
+                  <p className="text-gray-400 text-xs sm:text-sm leading-normal">
+                    Apna device select karein aur niche button par click karke WhatsApp par direct code aur files lein.
+                  </p>
+                </div>
+
+                {/* Options list */}
+                <div className="space-y-3 pt-2">
+                  {[
+                    { id: 'Mobile', label: '📱 Mobile (Smartphone)', sub: 'Android / iPhone par chalane ke liye' },
+                    { id: 'PC', label: '🖥️ PC (Desktop Computer)', sub: 'Computer me run karne ke liye' },
+                    { id: 'Laptop', label: '💻 Laptop', sub: 'Laptop me run karne ke liye' }
+                  ].map((opt) => {
+                    const isSelected = selectedDevice === opt.id;
+                    return (
+                      <button
+                        key={opt.id}
+                        type="button"
+                        onClick={() => setSelectedDevice(opt.id)}
+                        className={`w-full flex items-center justify-between p-4 rounded-2xl border text-left transition-all cursor-pointer ${
+                          isSelected 
+                            ? 'bg-blue-500/10 border-blue-500 text-white shadow-[0_4px_12px_rgba(59,130,246,0.15)]' 
+                            : 'bg-slate-900/50 border-slate-800 text-gray-300 hover:border-slate-700 hover:bg-slate-900'
+                        }`}
+                      >
+                        <div className="flex-1 min-w-0 pr-2">
+                          <p className={`text-sm font-bold ${isSelected ? 'text-white' : 'text-slate-200'}`}>
+                            {opt.label}
+                          </p>
+                          <p className="text-[11px] text-gray-500 mt-0.5 leading-normal">
+                            {opt.sub}
+                          </p>
+                        </div>
+                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
+                          isSelected 
+                            ? 'border-blue-500 bg-blue-500' 
+                            : 'border-slate-600 bg-transparent'
+                        }`}>
+                          {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Action Buttons */}
+                <div className="space-y-3 pt-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleRedirectToWhatsapp(selectedDevice);
+                      setIsDevicePopupOpen(false);
+                    }}
+                    className="w-full h-12 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-extrabold text-sm flex items-center justify-center gap-2 border border-emerald-400/20 shadow-lg cursor-pointer transition-all duration-150 transform hover:scale-[1.01]"
+                  >
+                    <MessageSquare className="w-4 h-4 fill-current text-white animate-pulse" />
+                    <span>Confirm & Get Access on WhatsApp</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setIsDevicePopupOpen(false)}
+                    className="text-xs text-gray-500 hover:text-gray-300 transition-colors uppercase font-mono tracking-wider cursor-pointer"
+                  >
+                    Skip to Direct Downloads Link
+                  </button>
+                </div>
+
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
 
         <div className="max-w-4xl mx-auto px-4 relative z-10 text-center space-y-8">
           
@@ -237,11 +405,11 @@ export default function App() {
             <div className="p-4 rounded-2xl bg-slate-900/50 border border-slate-800 flex flex-wrap justify-around items-center gap-4 text-xs font-mono text-gray-400 text-left">
               <div>
                 <span className="text-[10px] text-gray-500 block uppercase">Product Name</span>
-                <span className="font-bold text-white text-sm">{paymentPlan.name}</span>
+                <span className="font-bold text-white text-sm">{customerDetails.planName}</span>
               </div>
               <div>
                 <span className="text-[10px] text-gray-500 block uppercase">Amount Paid</span>
-                <span className="font-bold text-emerald-400 text-sm">₹{paymentPlan.price}</span>
+                <span className="font-bold text-emerald-400 text-sm">₹{customerDetails.price}</span>
               </div>
               <div>
                 <span className="text-[10px] text-gray-500 block uppercase">Order Reference ID</span>
@@ -320,15 +488,13 @@ export default function App() {
                 <h4 className="text-sm font-bold text-white">Kuch Problem Aa Rhi Hai?</h4>
                 <p className="text-xs text-gray-400 mt-0.5 font-sans">Asgar Sir ke team se direct WhatsApp support connect karein.</p>
               </div>
-              <a 
-                href={`https://wa.me/91${whatsappNumber}?text=Hi%20Asgar%20Sir%2C%20maine%20Meesho%20Listing%20Tool%20buy%20kiya%20hai.%20Mera%20Order%20ID%20${paymentOrderId}%20hai.%20Mujhe%20setup%20aur%20installation%20karwa%20dijiye.`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="h-11 px-6 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold text-xs flex items-center justify-center gap-2 uppercase tracking-wider transition-all duration-150 shrink-0"
+              <button 
+                onClick={() => handleRedirectToWhatsapp(selectedDevice)}
+                className="h-11 px-6 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold text-xs flex items-center justify-center gap-2 uppercase tracking-wider transition-all duration-150 shrink-0 cursor-pointer"
               >
                 <Phone className="w-4 h-4 fill-white text-white" />
-                WhatsApp Direct Support
-              </a>
+                <span>WhatsApp Direct Support</span>
+              </button>
             </div>
 
           </motion.div>

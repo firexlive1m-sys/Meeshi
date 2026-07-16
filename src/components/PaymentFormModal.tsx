@@ -180,6 +180,17 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
         mode: env === 'production' ? 'production' : 'sandbox',
       });
 
+      // Save billing credentials to localStorage so they are available upon successful return
+      try {
+        localStorage.setItem('pending_purchase_name', computedName);
+        localStorage.setItem('pending_purchase_email', email);
+        localStorage.setItem('pending_purchase_phone', phone);
+        localStorage.setItem('pending_purchase_plan', finalPlanName);
+        localStorage.setItem('pending_purchase_price', finalTotal.toString());
+      } catch (e) {
+        console.warn('Failed to save to localStorage:', e);
+      }
+
       // 3. Initiate checkout (V3 Web Checkout)
       await cashfree.checkout({
         paymentSessionId: payment_session_id,
