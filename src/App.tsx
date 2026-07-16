@@ -41,9 +41,6 @@ import PricingCard from './components/PricingCard';
 import LiveSalesNotification from './components/LiveSalesNotification';
 import PaymentFormModal from './components/PaymentFormModal';
 
-// Meta Pixel tracking utility
-import { initMetaPixel, trackPageView, trackViewContent, trackInitiateCheckout, trackPurchase } from './lib/metaPixel';
-
 export default function App() {
   // Global CTA Variable
   const globalCtaUrl = CONFIG.ctaRedirectUrl;
@@ -70,21 +67,6 @@ export default function App() {
     price: 199
   });
 
-  // Meta Pixel Initialization & Page View / View Content tracking
-  useEffect(() => {
-    initMetaPixel();
-    trackPageView();
-    // Default product view content
-    trackViewContent('Meesho Instant Listing Pack', 199);
-  }, []);
-
-  // InitiateCheckout event tracking when checkout modal opens
-  useEffect(() => {
-    if (isPaymentModalOpen) {
-      trackInitiateCheckout(paymentPlan.name, paymentPlan.price);
-    }
-  }, [isPaymentModalOpen, paymentPlan]);
-
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const status = params.get('payment_status');
@@ -109,11 +91,6 @@ export default function App() {
         price: storedPrice
       });
 
-      // Track purchase event with deduplication guard
-      if (orderId) {
-        trackPurchase(orderId, storedPlan, storedPrice);
-      }
-
       // Backup fetch from endpoint in case localStorage was cleared/not-present
       if (orderId) {
         fetch(`/api/get-cashfree-order/${orderId}`)
@@ -130,8 +107,6 @@ export default function App() {
                 phone: data.customer_details.customer_phone || prev.phone,
                 price: data.order_amount || prev.price
               }));
-              // Re-check/ensure purchase track with final verified fetched data if any differences occur
-              trackPurchase(orderId, data.plan_name || storedPlan, data.order_amount || storedPrice);
             }
           })
           .catch(err => console.warn('Backup fetch order details failed:', err));
