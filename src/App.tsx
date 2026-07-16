@@ -257,21 +257,26 @@ export default function App() {
 
   const handleRedirectToWhatsapp = (device: string) => {
     const isCombo = customerDetails.planName.toLowerCase().includes('combo');
-    const planTypeText = isCombo ? "Combo Pack (Meesho + Flipkart Tool)" : "Single Tool Pack (Meesho Auto Listing)";
+    const planTypeText = isCombo ? "Combo Pack" : "Single Tool Pack";
     
-    const message = `Hello Asgar Sir,
-Maine Aapka Automated Tool purchase kiya hai! Details niche di gayi hain:
+    const message = `👋 Hello Auto Listing Team
 
-📝 Purchase Details:
---------------------------------
-👤 Name: ${customerDetails.name}
-📞 Mobile Number: ${customerDetails.phone || 'N/A'}
-🆔 Order ID: ${paymentOrderId || 'N/A'}
-💻 Selected Device: ${device}
-📦 Plan: ${customerDetails.planName} (${planTypeText})
-💰 Paid Amount: ₹${customerDetails.price}
+Maine aapka Automated Tool successfully purchase kar liya hai.
 
-Please verify kijiye aur mujhe access link aur premium files WhatsApp par send kar dijiye. Thank you! 🙏`;
+📋 Purchase Information
+━━━━━━━━━━━━━━━━━━━━
+👤 Customer Name: ${customerDetails.name}
+📱 Mobile Number: ${customerDetails.phone || 'N/A'}
+💻 Device: ${device}
+📦 Purchased Plan: ${customerDetails.planName} (${planTypeText})
+💰 Amount Paid: ₹${customerDetails.price}
+━━━━━━━━━━━━━━━━━━━━
+
+Kindly meri payment verify kar dijiye. Verification complete hone ke baad mera premium access, download link, aur agar koi setup instructions hain to isi WhatsApp number par share kar dijiye.
+
+Agar kisi aur information ki zarurat ho to mujhe batayiye.
+
+Dhanyavaad! 🙏`;
 
     const encodedText = encodeURIComponent(message);
     const whatsappUrl = `https://wa.me/91${whatsappNumber}?text=${encodedText}`;
@@ -282,230 +287,122 @@ Please verify kijiye aur mujhe access link aur premium files WhatsApp par send k
 
   if (paymentSuccess) {
     return (
-      <div id="download-panel-root" className="min-h-screen w-full relative overflow-x-hidden bg-[#0F172A] text-[#F8FAFC] font-sans selection:bg-[#3B82F6] selection:text-white py-12 md:py-20">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[500px] bg-gradient-to-b from-blue-900/10 via-sky-900/5 to-transparent blur-3xl pointer-events-none" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[550px] bg-blue-600/10 blur-[130px] rounded-full pointer-events-none" />
+      <div id="download-panel-root" className="min-h-screen w-full relative overflow-x-hidden bg-[#0F172A] text-[#F8FAFC] font-sans selection:bg-[#3B82F6] selection:text-white py-12 md:py-20 flex items-center justify-center animate-fade-in">
+        {/* Modern glowing background accents */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[400px] bg-gradient-to-b from-emerald-950/20 via-slate-900/10 to-transparent blur-3xl pointer-events-none" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[450px] h-[450px] bg-emerald-500/5 blur-[120px] rounded-full pointer-events-none" />
 
-        {/* Device Selection Popup Modal Overlay */}
-        <AnimatePresence>
-          {isDevicePopupOpen && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md">
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95, y: 15 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95, y: 15 }}
-                className="relative w-full max-w-md bg-[#1E293B] border-2 border-blue-500/30 rounded-3xl p-6 sm:p-8 shadow-[0_25px_60px_rgba(59,130,246,0.25)] text-center font-sans space-y-6"
-              >
-                {/* Badge */}
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-blue-500/20 bg-blue-500/10 text-xs font-semibold text-blue-400 uppercase tracking-wider mx-auto">
-                  <Sparkles className="w-3.5 h-3.5 text-blue-400 animate-pulse" />
-                  Select Device / डिवाइस चुनें
-                </div>
-
-                {/* Title & Description */}
-                <div className="space-y-2">
-                  <h3 className="text-xl sm:text-2xl font-extrabold text-white font-display tracking-tight leading-snug">
-                    Aap Kis Device Me Use Karenge?
-                  </h3>
-                  <p className="text-gray-400 text-xs sm:text-sm leading-normal">
-                    Apna device select karein aur niche button par click karke WhatsApp par direct code aur files lein.
-                  </p>
-                </div>
-
-                {/* Options list */}
-                <div className="space-y-3 pt-2">
-                  {[
-                    { id: 'Mobile', label: '📱 Mobile (Smartphone)', sub: 'Android / iPhone par chalane ke liye' },
-                    { id: 'PC', label: '🖥️ PC (Desktop Computer)', sub: 'Computer me run karne ke liye' },
-                    { id: 'Laptop', label: '💻 Laptop', sub: 'Laptop me run karne ke liye' }
-                  ].map((opt) => {
-                    const isSelected = selectedDevice === opt.id;
-                    return (
-                      <button
-                        key={opt.id}
-                        type="button"
-                        onClick={() => setSelectedDevice(opt.id)}
-                        className={`w-full flex items-center justify-between p-4 rounded-2xl border text-left transition-all cursor-pointer ${
-                          isSelected 
-                            ? 'bg-blue-500/10 border-blue-500 text-white shadow-[0_4px_12px_rgba(59,130,246,0.15)]' 
-                            : 'bg-slate-900/50 border-slate-800 text-gray-300 hover:border-slate-700 hover:bg-slate-900'
-                        }`}
-                      >
-                        <div className="flex-1 min-w-0 pr-2">
-                          <p className={`text-sm font-bold ${isSelected ? 'text-white' : 'text-slate-200'}`}>
-                            {opt.label}
-                          </p>
-                          <p className="text-[11px] text-gray-500 mt-0.5 leading-normal">
-                            {opt.sub}
-                          </p>
-                        </div>
-                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
-                          isSelected 
-                            ? 'border-blue-500 bg-blue-500' 
-                            : 'border-slate-600 bg-transparent'
-                        }`}>
-                          {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-
-                {/* Action Buttons */}
-                <div className="space-y-3 pt-3">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      handleRedirectToWhatsapp(selectedDevice);
-                      setIsDevicePopupOpen(false);
-                    }}
-                    className="w-full h-12 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-extrabold text-sm flex items-center justify-center gap-2 border border-emerald-400/20 shadow-lg cursor-pointer transition-all duration-150 transform hover:scale-[1.01]"
-                  >
-                    <MessageSquare className="w-4 h-4 fill-current text-white animate-pulse" />
-                    <span>Confirm & Get Access on WhatsApp</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setIsDevicePopupOpen(false)}
-                    className="text-xs text-gray-500 hover:text-gray-300 transition-colors uppercase font-mono tracking-wider cursor-pointer"
-                  >
-                    Skip to Direct Downloads Link
-                  </button>
-                </div>
-
-              </motion.div>
-            </div>
-          )}
-        </AnimatePresence>
-
-        <div className="max-w-4xl mx-auto px-4 relative z-10 text-center space-y-8">
-          
-          {/* Success Card */}
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="p-6 sm:p-12 rounded-3xl bg-[#1E293B] border-2 border-emerald-500/30 shadow-[0_20px_50px_rgba(16,185,129,0.15)] space-y-6"
+        <div className="max-w-md w-full mx-auto px-4 relative z-10">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.96, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            className="relative w-full bg-[#1E293B] border-2 border-emerald-500/30 rounded-3xl p-6 sm:p-8 shadow-[0_20px_50px_rgba(16,185,129,0.15)] text-center font-sans space-y-6"
           >
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-emerald-500/10 border-2 border-emerald-500 text-emerald-400">
-              <CheckCircle className="w-10 h-10 animate-bounce text-emerald-400" />
-            </div>
+            {/* Success badge */}
+            <motion.div 
+              initial={{ scale: 0.9 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.1, type: "spring", stiffness: 100 }}
+              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 text-xs font-bold text-emerald-400 uppercase tracking-wider mx-auto"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
+              <span>Payment Successful / भुगतान सफल रहा</span>
+            </motion.div>
 
+            {/* Title & Description */}
             <div className="space-y-2">
-              <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest font-mono">Payment Completed Successfully / भुगतान सफल रहा</span>
-              <h1 className="text-2xl sm:text-4xl md:text-5xl font-black text-white font-display uppercase tracking-tight">
-                Aapka Tool Download Ke Liye Taiyar Hai!
-              </h1>
-              <p className="text-gray-400 text-xs sm:text-sm max-w-lg mx-auto">
-                Thank you for purchasing! Niche diye gye link se aap instant files download kijiye aur training video dekhiye.
+              <h3 className="text-xl sm:text-2xl font-black text-white font-display tracking-tight leading-snug animate-fade-in">
+                Aap Kis Device Me Use Karenge?
+              </h3>
+              <p className="text-emerald-400 font-mono text-[11px] font-semibold tracking-wider uppercase">
+                Device Selection / डिवाइस का चयन करें
+              </p>
+              <div className="h-px bg-slate-800 my-2" />
+              <p className="text-gray-300 text-xs sm:text-sm leading-relaxed">
+                Apna device select karein aur niche green button par click karke WhatsApp par direct code aur access files lein.
+              </p>
+              <p className="text-gray-400 text-[11px] italic leading-normal">
+                (Please select your device below to receive customized files and instant premium access directly on WhatsApp)
               </p>
             </div>
 
-            {/* Order info */}
-            <div className="p-4 rounded-2xl bg-slate-900/50 border border-slate-800 flex flex-wrap justify-around items-center gap-4 text-xs font-mono text-gray-400 text-left">
-              <div>
-                <span className="text-[10px] text-gray-500 block uppercase">Product Name</span>
-                <span className="font-bold text-white text-sm">{customerDetails.planName}</span>
-              </div>
-              <div>
-                <span className="text-[10px] text-gray-500 block uppercase">Amount Paid</span>
-                <span className="font-bold text-emerald-400 text-sm">₹{customerDetails.price}</span>
-              </div>
-              <div>
-                <span className="text-[10px] text-gray-500 block uppercase">Order Reference ID</span>
-                <span className="font-bold text-blue-400 text-sm select-all">{paymentOrderId || 'N/A'}</span>
-              </div>
+            {/* Options list */}
+            <div className="space-y-3 pt-1">
+              {[
+                { 
+                  id: 'Mobile', 
+                  label: '📱 Mobile (Smartphone / मोबाइल)', 
+                  sub: 'Android ya iPhone par chalane ke liye (To run on smartphone)' 
+                },
+                { 
+                  id: 'PC', 
+                  label: '🖥️ PC (Desktop Computer / कंप्यूटर)', 
+                  sub: 'Computer me setup karne ke liye (To run on desktop PC)' 
+                },
+                { 
+                  id: 'Laptop', 
+                  label: '💻 Laptop (लैपटॉप / नोटबुक)', 
+                  sub: 'Laptop par extension run karne ke liye (To run on laptop)' 
+                }
+              ].map((opt, idx) => {
+                const isSelected = selectedDevice === opt.id;
+                return (
+                  <motion.button
+                    key={opt.id}
+                    type="button"
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.2 + idx * 0.08, duration: 0.3 }}
+                    onClick={() => setSelectedDevice(opt.id)}
+                    className={`w-full flex items-center justify-between p-4 rounded-2xl border text-left transition-all cursor-pointer ${
+                      isSelected 
+                        ? 'bg-emerald-500/10 border-emerald-500 text-white shadow-[0_4px_15px_rgba(16,185,129,0.15)] ring-1 ring-emerald-500/20' 
+                        : 'bg-slate-900/40 border-slate-800 text-gray-300 hover:border-slate-700 hover:bg-slate-900/80'
+                    }`}
+                  >
+                    <div className="flex-1 min-w-0 pr-2">
+                      <p className={`text-sm font-bold transition-colors ${isSelected ? 'text-emerald-400' : 'text-slate-200'}`}>
+                        {opt.label}
+                      </p>
+                      <p className="text-[11px] text-gray-400 mt-1 leading-normal transition-colors">
+                        {opt.sub}
+                      </p>
+                    </div>
+                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${
+                      isSelected 
+                        ? 'border-emerald-500 bg-emerald-500' 
+                        : 'border-slate-600 bg-transparent'
+                    }`}>
+                      {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                    </div>
+                  </motion.button>
+                );
+              })}
             </div>
 
-            {/* Downloads grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 text-left">
-              {/* Card 1 */}
-              <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-4 hover:border-blue-500/30 transition-all">
-                <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
-                  <Table className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-white text-base">Meesho Auto Listing Bulk Script</h3>
-                  <p className="text-xs text-gray-400 mt-1 leading-relaxed">
-                    Main premium automated spreadsheet and bulk pre-fill script code. Ready to run.
-                  </p>
-                </div>
-                <a 
-                  href="https://github.com/firexlive1m-sys/Meesho-Auto-Listing-Tool-pro/archive/refs/heads/main.zip"
-                  download
-                  className="inline-flex w-full h-11 rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-bold text-xs items-center justify-center gap-2 transition-colors uppercase tracking-wider"
-                >
-                  <Zap className="w-4 h-4 fill-current text-yellow-300" />
-                  Download ZIP File (v3.2)
-                </a>
-              </div>
-
-              {/* Card 2 */}
-              <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-4 hover:border-emerald-500/30 transition-all">
-                <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
-                  <Smartphone className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-white text-base">Mobile Upload Bypass Template</h3>
-                  <p className="text-xs text-gray-400 mt-1 leading-relaxed">
-                    Google Sheets specialized layout for uploading catalogs via Android & iOS smartphones.
-                  </p>
-                </div>
-                <a 
-                  href="https://docs.google.com/spreadsheets/d/1_YOUR_TEMPLATE_ID/copy"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex w-full h-11 rounded-xl border border-emerald-500/30 bg-emerald-950/10 hover:bg-emerald-950/30 text-emerald-400 font-bold text-xs items-center justify-center gap-2 transition-colors uppercase tracking-wider"
-                >
-                  <Award className="w-4 h-4" />
-                  Use Sheets Template
-                </a>
-              </div>
-            </div>
-
-            {/* Video walkthrough section inside download panel */}
-            <div className="pt-6 border-t border-slate-800 space-y-4 text-left">
-              <div className="flex items-center gap-2">
-                <Play className="w-5 h-5 text-blue-400 animate-pulse" />
-                <h3 className="text-lg font-bold text-white">7-Minute Hindi Setup Walkthrough Guide</h3>
-              </div>
-              <p className="text-xs text-gray-400 leading-normal">
-                Niche diye gye step-by-step walkthrough video ko dhyaan se dekhein aur seekhein ki kaise extension list ko install aur auto listing formula run karna hai:
-              </p>
-              
-              <div className="relative w-full rounded-2xl overflow-hidden border border-slate-800 bg-slate-950 aspect-video shadow-inner">
-                <video
-                  src={CONFIG.heroVideoUrl}
-                  controls
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            </div>
-
-            {/* WhatsApp direct help CTA */}
-            <div className="pt-6 border-t border-slate-800 flex flex-col sm:flex-row justify-between items-center gap-4">
-              <div className="text-left">
-                <h4 className="text-sm font-bold text-white">Kuch Problem Aa Rhi Hai?</h4>
-                <p className="text-xs text-gray-400 mt-0.5 font-sans">Asgar Sir ke team se direct WhatsApp support connect karein.</p>
-              </div>
-              <button 
-                onClick={() => handleRedirectToWhatsapp(selectedDevice)}
-                className="h-11 px-6 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold text-xs flex items-center justify-center gap-2 uppercase tracking-wider transition-all duration-150 shrink-0 cursor-pointer"
+            {/* Action Buttons */}
+            <div className="space-y-4 pt-2">
+              <motion.button
+                type="button"
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.99 }}
+                onClick={() => {
+                  handleRedirectToWhatsapp(selectedDevice);
+                }}
+                className="w-full h-14 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-extrabold text-sm sm:text-base flex items-center justify-center gap-2 border border-emerald-400/20 shadow-lg cursor-pointer transition-all duration-150"
               >
-                <Phone className="w-4 h-4 fill-white text-white" />
-                <span>WhatsApp Direct Support</span>
-              </button>
+                <MessageSquare className="w-5 h-5 fill-current text-white animate-pulse" />
+                <span>Confirm & Get Access on WhatsApp</span>
+              </motion.button>
+
+              <div className="flex items-center justify-center gap-1.5 text-[11px] text-gray-500 font-mono">
+                <Lock className="w-3.5 h-3.5 text-gray-600" />
+                <span>Secure Billing & Verification ID: {paymentOrderId || 'Pending'}</span>
+              </div>
             </div>
 
           </motion.div>
-
-          <button
-            onClick={() => setPaymentSuccess(null)}
-            className="text-xs font-semibold text-gray-500 hover:text-white transition-colors uppercase tracking-wider cursor-pointer"
-          >
-            ← Return to Main Page
-          </button>
-
         </div>
       </div>
     );
