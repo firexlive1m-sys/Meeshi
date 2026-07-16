@@ -202,15 +202,26 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
                 {/* Scrollable Body Content Wrapper */}
                 <div className="w-full flex-1 overflow-y-auto px-4 pt-3 pb-6 flex justify-center">
                   <div className="max-w-lg w-full space-y-3 relative">
-                    {/* Floating Close Button at absolute top-right corner to avoid taking vertical flow space */}
-                    <button
-                      type="button"
-                      onClick={onClose}
-                      className="absolute top-0 right-0 z-30 p-2 rounded-full bg-white hover:bg-slate-50 text-slate-500 hover:text-slate-800 transition-all duration-150 cursor-pointer shadow-md hover:shadow-lg border border-slate-100 flex items-center justify-center"
-                      title="Close"
-                    >
-                      <X className="w-4 h-4 stroke-[2.5]" />
-                    </button>
+                    {/* Top Row: Info Highlight Badge & Close Button */}
+                    <div className="flex justify-between items-center gap-3 pt-0.5 pb-1 select-none">
+                      <div className="flex-1 bg-blue-50/70 border border-blue-100/80 rounded-xl py-2 px-3 text-left flex items-center gap-2">
+                        <span className="relative flex h-1.5 w-1.5 shrink-0">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-blue-500"></span>
+                        </span>
+                        <p className="text-[11px] font-bold text-blue-800 leading-normal">
+                          Access to this purchase will be sent to this email
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={onClose}
+                        className="p-2 rounded-full bg-white hover:bg-slate-50 text-slate-500 hover:text-slate-800 transition-all duration-150 cursor-pointer shadow-md hover:shadow-lg border border-slate-200/80 flex items-center justify-center shrink-0"
+                        title="Close"
+                      >
+                        <X className="w-4 h-4 stroke-[2.5]" />
+                      </button>
+                    </div>
 
                     {/* Error Message Panel if exists */}
                     {error && (
