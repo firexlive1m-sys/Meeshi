@@ -112,23 +112,16 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
     setSetupInstruction(null);
 
     const isNameInvalid = !name.trim();
-    const isEmailInvalid = !email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     const isPhoneInvalid = !phone.trim() || !/^\d{10}$/.test(phone);
 
     setNameTouched(true);
-    setEmailTouched(true);
     setPhoneTouched(true);
     setNameError(isNameInvalid);
-    setEmailError(isEmailInvalid);
     setPhoneError(isPhoneInvalid);
 
     // Validate inputs
     if (isNameInvalid) {
       setError('Please enter your full name (Apna naam daalein)');
-      return;
-    }
-    if (isEmailInvalid) {
-      setError('Please enter a valid email address (Sahi email ID daalein)');
       return;
     }
     if (isPhoneInvalid) {
@@ -138,7 +131,8 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
 
     setLoading(true);
 
-    const computedName = name.trim() || email.split('@')[0] || 'Customer';
+    const computedName = name.trim() || 'Customer';
+    const computedEmail = phone.trim() + '@gmail.com';
 
     try {
       // 1. Create order on Express backend
@@ -150,7 +144,7 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
         body: JSON.stringify({
           amount: finalTotal,
           customerName: computedName,
-          customerEmail: email,
+          customerEmail: computedEmail,
           customerPhone: phone,
           planName: finalPlanName
         }),
@@ -183,7 +177,7 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
       // Save billing credentials to localStorage so they are available upon successful return
       try {
         localStorage.setItem('pending_purchase_name', computedName);
-        localStorage.setItem('pending_purchase_email', email);
+        localStorage.setItem('pending_purchase_email', computedEmail);
         localStorage.setItem('pending_purchase_phone', phone);
         localStorage.setItem('pending_purchase_plan', finalPlanName);
         localStorage.setItem('pending_purchase_price', finalTotal.toString());
@@ -224,13 +218,13 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
                   <div className="max-w-lg w-full space-y-3 relative">
                     {/* Top Row: Info Highlight Badge & Close Button */}
                     <div className="flex justify-between items-center gap-3 pt-0.5 pb-1 select-none">
-                      <div className="flex-1 bg-blue-50/70 border border-blue-100/80 rounded-xl py-2 px-3 text-left flex items-center gap-2">
+                      <div className="flex-1 bg-emerald-50/70 border border-emerald-100/80 rounded-xl py-2 px-3 text-left flex items-center gap-2">
                         <span className="relative flex h-1.5 w-1.5 shrink-0">
-                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                          <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-blue-500"></span>
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
                         </span>
-                        <p className="text-[11px] font-bold text-blue-800 leading-normal">
-                          Access to this purchase will be sent to this email
+                        <p className="text-[11px] font-bold text-emerald-800 leading-normal">
+                          Access to this purchase will be sent instantly on WhatsApp
                         </p>
                       </div>
                       <button
@@ -292,42 +286,6 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
                       {nameTouched && nameError && (
                         <p className="text-[11px] font-semibold text-red-500 animate-fade-in text-left">
                           Please enter your full name
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Email Address Input Container */}
-                    <div className="space-y-1 text-left">
-                      <label htmlFor="customerEmail" className="block text-[13px] font-semibold text-slate-700">
-                        Email Address
-                      </label>
-                      <div className={`border rounded-xl py-2.5 px-3 bg-white transition-all duration-150 ${
-                        emailTouched && emailError
-                          ? 'border-red-500 ring-1 ring-red-500 bg-red-50/10'
-                          : 'border-slate-200 focus-within:border-blue-600 focus-within:ring-1 focus-within:ring-blue-600'
-                      }`}>
-                        <input
-                          id="customerEmail"
-                          type="email"
-                          required
-                          value={email}
-                          onChange={(e) => {
-                            setEmail(e.target.value);
-                            if (emailTouched) {
-                              setEmailError(!e.target.value.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e.target.value));
-                            }
-                          }}
-                          onBlur={() => {
-                            setEmailTouched(true);
-                            setEmailError(!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email));
-                          }}
-                          placeholder="Enter your email address"
-                          className="block w-full bg-transparent text-slate-800 font-medium text-sm focus:outline-none border-0 p-0"
-                        />
-                      </div>
-                      {emailTouched && emailError && (
-                        <p className="text-[11px] font-semibold text-red-500 animate-fade-in text-left">
-                          Please enter a valid email address
                         </p>
                       )}
                     </div>
