@@ -220,7 +220,7 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
               {/* Form wrapping the entire remaining content to support independent scrolling and sticky bottom footer */}
               <form onSubmit={handleSubmit} className="w-full flex-1 flex flex-col overflow-hidden">
                 {/* Scrollable Body Content Wrapper */}
-                <div className="w-full flex-1 overflow-y-auto px-4 pt-3 pb-6 flex justify-center">
+                <div className="w-full flex-1 overflow-y-auto px-4 pt-3 pb-6 flex justify-center [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                   <div className="max-w-lg w-full space-y-3 relative">
                     {/* Top Row: Info Highlight Badge & Close Button */}
                     <div className="flex justify-between items-center gap-3 pt-0.5 pb-1 select-none">
@@ -599,7 +599,7 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
               </div>
 
               {/* Scrollable details body */}
-              <div className="overflow-y-auto flex-1">
+              <div className="overflow-y-auto flex-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                 {/* Banner Image - PERFECT 16:9 LANDSCAPE RATIO WITH ZERO BLACK GAPS */}
                 <div className="w-full aspect-[1.78] overflow-hidden bg-[#0A192F] border-b border-slate-100 flex items-center justify-center">
                   <img 
