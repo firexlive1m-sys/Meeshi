@@ -71,9 +71,6 @@ export default function PricingCard({ onBuyClick }: PricingCardProps) {
         {/* Section Title */}
         <div className="text-center mb-12">
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
             className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-blue-500/30 bg-blue-950/20 text-xs font-bold text-[#3B82F6] mb-4 font-mono uppercase shadow-[0_0_15px_rgba(59,130,246,0.15)]"
           >
             <Flame className="w-3.5 h-3.5 animate-bounce" />
@@ -89,10 +86,6 @@ export default function PricingCard({ onBuyClick }: PricingCardProps) {
 
         {/* Premium Glow Container Card */}
         <motion.div 
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
           className="relative max-w-md md:max-w-xl mx-auto rounded-3xl bg-[#1E293B] border-2 border-blue-500/40 p-5 sm:p-6 md:p-10 shadow-[0_20px_50px_rgba(0,0,0,0.8)] overflow-hidden group"
         >
           {/* Top Decorative Floating Elements */}
@@ -123,9 +116,6 @@ export default function PricingCard({ onBuyClick }: PricingCardProps) {
               </p>
               <div className="w-full bg-amber-950/40 h-1.5 mt-1.5 rounded-full overflow-hidden">
                 <motion.div 
-                  initial={{ width: "90%" }}
-                  animate={{ width: `${(seatsLeft / 10) * 100}%` }}
-                  transition={{ duration: 0.4 }}
                   className="bg-gradient-to-r from-amber-500 to-yellow-400 h-full rounded-full" 
                 />
               </div>

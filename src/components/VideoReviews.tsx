@@ -124,9 +124,6 @@ function VideoCard({ review }: VideoCardProps) {
 
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.98 }}
-      whileInView={{ opacity: 1, scale: 1 }}
-      viewport={{ once: true }}
       className="bg-[#1E293B] border border-[#334155] p-4 rounded-2xl hover:border-blue-500/10 shadow-lg relative overflow-hidden group flex flex-col justify-between"
     >
       

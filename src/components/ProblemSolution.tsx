@@ -29,10 +29,6 @@ export default function ProblemSolution() {
           
           {/* Left panel: PROBLEMS container */}
           <motion.div
-            initial={{ opacity: 0, x: -15 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
             className="rounded-2xl p-6 md:p-8 bg-red-950/5 border border-red-950/20 shadow-md flex flex-col justify-between"
           >
             <div>
@@ -64,10 +60,6 @@ export default function ProblemSolution() {
 
           {/* Right panel: SOLUTIONS container (Glow effect) */}
           <motion.div
-            initial={{ opacity: 0, x: 15 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
             className="rounded-2xl p-6 md:p-8 bg-[#1E293B] border border-[#334155] shadow-lg flex flex-col justify-between relative overflow-hidden"
           >
             <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 blur-3xl pointer-events-none" />

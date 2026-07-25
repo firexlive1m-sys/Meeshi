@@ -55,10 +55,6 @@ export default function ComparisonTable() {
           {COMPARISONS.map((row, idx) => (
             <motion.div
               key={idx}
-              initial={{ opacity: 0, y: 10 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: idx * 0.05 }}
               className="p-4 rounded-xl bg-[#1E293B] border border-[#334155] space-y-3"
             >
               <div className="flex items-center gap-2 border-b border-[#334155] pb-2 text-sm font-bold text-gray-100 font-display">

@@ -15,10 +15,6 @@ export default function TrustBadges() {
             return (
               <motion.div
                 key={badge.id}
-                initial={{ opacity: 0, y: 15 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: idx * 0.1 }}
                 className="flex items-center gap-4 flex-1 justify-center border-r last:border-r-0 border-[#334155]/20 py-2"
               >
                 <div className="p-2.5 rounded-full bg-[#0F172A] text-[#3B82F6] border border-[#334155]">
@@ -40,10 +36,6 @@ export default function TrustBadges() {
             return (
               <motion.div
                 key={badge.id}
-                initial={{ opacity: 0, scale: 0.95 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.3, delay: idx * 0.05 }}
                 className="flex flex-col items-center text-center p-3.5 rounded-xl bg-[#1E293B]/30 border border-[#334155]/30"
               >
                 <div className="p-2 rounded-full bg-[#0F172A] text-[#3B82F6] mb-2 border border-[#334155]">

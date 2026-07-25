@@ -15,28 +15,17 @@ export default function StatsCounter() {
         {/* Section Heading */}
         <div className="text-center mb-10">
           <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
             className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-blue-500/30 bg-blue-950/20 text-xs font-semibold text-[#3B82F6] mb-3 uppercase tracking-wider font-mono shadow-[0_0_15px_rgba(59,130,246,0.1)]"
           >
             <Icons.Activity className="w-3.5 h-3.5 animate-pulse text-[#3B82F6]" />
             Live Platform Performance
           </motion.div>
           <motion.h2
-            initial={{ opacity: 0, y: 15 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
             className="text-2xl md:text-4xl font-extrabold text-white tracking-tight font-display"
           >
             Numbers Jo <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-sky-400">Jhooth Nahi Bolte</span>
           </motion.h2>
           <motion.p
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2 }}
             className="text-gray-400 text-sm md:text-base max-w-xl mx-auto mt-2 font-sans"
           >
             Real stats from active Meesho resellers scaling their daily catalogs listings automatically.
@@ -106,10 +95,6 @@ function CounterCard({ value, suffix, label, icon: Icon, delayIndex }: CounterCa
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.5, delay: delayIndex * 0.1 }}
       whileHover={{ y: -5, scale: 1.02 }}
       className="bg-[#1E293B] border border-[#334155] p-5 md:p-6 rounded-2xl relative overflow-hidden group hover:border-blue-500/30 transition-all duration-300 shadow-[0_4px_20px_rgba(0,0,0,0.5)]"
     >

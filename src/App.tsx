@@ -300,23 +300,17 @@ Dhanyavaad! 🙏`;
 
   if (paymentSuccess) {
     return (
-      <div id="download-panel-root" className="min-h-screen w-full relative overflow-x-hidden bg-[#0F172A] text-[#F8FAFC] font-sans selection:bg-[#3B82F6] selection:text-white py-12 md:py-20 flex items-center justify-center animate-fade-in">
+      <div id="download-panel-root" className="min-h-screen w-full relative overflow-x-hidden bg-[#0F172A] text-[#F8FAFC] font-sans selection:bg-[#3B82F6] selection:text-white py-12 md:py-20 flex items-center justify-center ">
         {/* Modern glowing background accents */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[400px] bg-gradient-to-b from-emerald-950/20 via-slate-900/10 to-transparent blur-3xl pointer-events-none" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[450px] h-[450px] bg-emerald-500/5 blur-[120px] rounded-full pointer-events-none" />
 
         <div className="max-w-md w-full mx-auto px-4 relative z-10">
           <motion.div
-            initial={{ opacity: 0, scale: 0.96, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
             className="relative w-full bg-[#1E293B] border-2 border-emerald-500/30 rounded-3xl p-6 sm:p-8 shadow-[0_20px_50px_rgba(16,185,129,0.15)] text-center font-sans space-y-6"
           >
             {/* Success badge */}
             <motion.div 
-              initial={{ scale: 0.9 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.1, type: "spring", stiffness: 100 }}
               className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 text-xs font-bold text-emerald-400 uppercase tracking-wider mx-auto"
             >
               <Sparkles className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
@@ -325,7 +319,7 @@ Dhanyavaad! 🙏`;
 
             {/* Title & Description */}
             <div className="space-y-3">
-              <h3 className="text-xl sm:text-2xl font-black text-white font-display tracking-tight leading-snug animate-fade-in">
+              <h3 className="text-xl sm:text-2xl font-black text-white font-display tracking-tight leading-snug ">
                 Aap Kis Device Me Use Karenge?
               </h3>
               <p className="text-emerald-400 font-mono text-[11px] font-semibold tracking-wider uppercase">
@@ -378,9 +372,6 @@ Dhanyavaad! 🙏`;
                   <motion.button
                     key={opt.id}
                     type="button"
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.2 + idx * 0.08, duration: 0.3 }}
                     onClick={() => setSelectedDevice(opt.id)}
                     className={`w-full flex items-center justify-between p-4 rounded-2xl border text-left transition-all cursor-pointer ${
                       isSelected 
@@ -452,9 +443,6 @@ Dhanyavaad! 🙏`;
             
             {/* Tagline */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.4 }}
               className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#334155] bg-[#1E293B] text-[10px] md:text-xs font-semibold text-[#94A3B8] uppercase tracking-widest font-mono"
             >
               <Sparkles className="w-3.5 h-3.5 text-[#3B82F6] animate-pulse" />
@@ -463,9 +451,6 @@ Dhanyavaad! 🙏`;
 
             {/* Main Headline */}
             <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
               className="text-3xl sm:text-4xl md:text-6xl font-extrabold tracking-tight text-white leading-tight font-display"
             >
               1-Click <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-sky-300 to-blue-400 glow-text-purple">Meesho Auto Listing</span> Tool & Reduce Shipping Charges
@@ -473,9 +458,6 @@ Dhanyavaad! 🙏`;
 
             {/* FULL WIDTH CINEMATIC VIDEO PLAYER (16:9) */}
             <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.35 }}
               onClick={handleToggleHeroPlay}
               className="relative w-full max-w-4xl mx-auto rounded-2xl md:rounded-3xl overflow-hidden shadow-[0_15px_60px_rgba(59,130,246,0.25)] border-2 border-[#334155] bg-[#1E293B] aspect-video group cursor-pointer"
             >
@@ -496,7 +478,7 @@ Dhanyavaad! 🙏`;
               {!heroPlaying && (
                 <div 
                   onClick={handleToggleHeroPlay}
-                  className="absolute inset-0 bg-black/60 backdrop-blur-[2px] transition-all flex flex-col items-center justify-center gap-3.5 z-25 cursor-pointer animate-fade-in"
+                  className="absolute inset-0 bg-black/60 backdrop-blur-[2px] transition-all flex flex-col items-center justify-center gap-3.5 z-25 cursor-pointer "
                 >
                   <motion.div 
                     whileHover={{ scale: 1.1 }}
@@ -847,9 +829,6 @@ Dhanyavaad! 🙏`;
             {REVIEWS.map((review) => (
               <motion.div
                 key={review.id}
-                initial={{ opacity: 0, scale: 0.98 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
                 className="glass-panel p-5.5 rounded-2xl relative border-[#334155]/40 hover:border-blue-500/25 duration-300 transition-all flex flex-col justify-between"
               >
                 <div>
@@ -1049,7 +1028,6 @@ Dhanyavaad! 🙏`;
           <div id="compliance-modal-overlay" className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md">
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 15 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 15 }}
               transition={{ duration: 0.2 }}
               className="relative w-full max-w-2xl max-h-[85vh] overflow-y-auto glass-panel-heavy rounded-3xl p-6 md:p-8 shadow-[0_25px_60px_rgba(59,130,246,0.25)] border border-[#334155] text-left font-sans"
@@ -1301,7 +1279,6 @@ Dhanyavaad! 🙏`;
         {paymentSuccess === false && (
           <motion.div
             initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 50 }}
             className="fixed bottom-24 left-4 right-4 md:left-auto md:right-8 z-50 max-w-md p-4 rounded-2xl bg-red-950 border-2 border-red-500/40 shadow-2xl flex gap-3.5 items-start text-left"
           >

@@ -46,7 +46,7 @@ export const initPixel = () => {
   if ((window as any).fbq) return;
 
   // Standard Facebook Pixel Snippet
-  !(function (f: any, b: any, e: any, v: any, n: any, t: any, s: any) {
+  (function (f: any, b: any, e: any, v: any, n: any, t: any, s: any) {
     if (f.fbq) return;
     n = f.fbq = function () {
       n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments);
@@ -65,7 +65,7 @@ export const initPixel = () => {
     window,
     document,
     'script',
-    'https://connect.facebook.net/en_US/fbevents.js'
+    'https://connect.facebook.net/en_US/fbevents.js', undefined, undefined, undefined
   );
 
   (window as any).fbq('init', PIXEL_ID);

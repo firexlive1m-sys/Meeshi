@@ -49,10 +49,7 @@ export default function ProofSlider() {
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeIdx}
-                initial={{ opacity: 0, scale: 0.98 }}
-                animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.98 }}
-                transition={{ duration: 0.25 }}
                 className="w-full h-full flex items-center justify-center relative p-2"
               >
                 {/* Screenshot Image Mockup (fully contained, never cropped) */}
