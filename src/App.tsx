@@ -35,7 +35,6 @@ import StatsCounter from './components/StatsCounter';
 import ProofSlider from './components/ProofSlider';
 import ComparisonTable from './components/ComparisonTable';
 import ProblemSolution from './components/ProblemSolution';
-import VideoReviews from './components/VideoReviews';
 import FAQSection from './components/FAQSection';
 import PricingCard from './components/PricingCard';
 import LiveSalesNotification from './components/LiveSalesNotification';
@@ -896,9 +895,6 @@ Dhanyavaad! 🙏`;
 
         </div>
       </section>
-
-      {/* 9. COMPACT VIDEO TESTIMONIALS */}
-      <VideoReviews />
 
       {/* 10. SHORT ACCORDION FAQ (Max 6 FAQs) */}
       <FAQSection />
