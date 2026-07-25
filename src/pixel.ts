@@ -1,7 +1,7 @@
 // Facebook Pixel Utility for React SPA (Single Page Application)
 // This prevents duplicate firing and ensures accurate tracking.
 
-export const PIXEL_ID = "1019973664292439"; // New Pixel ID
+export const PIXEL_ID = "1752414386118648"; // New Pixel ID
 
 export const initPixel = () => {
   if (!PIXEL_ID) return;
