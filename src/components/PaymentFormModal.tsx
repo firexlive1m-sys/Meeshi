@@ -187,7 +187,11 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
       }
 
       // 3. Initiate checkout (V3 Web Checkout)
-      trackInitiateCheckout(finalTotal, 'INR');
+      trackInitiateCheckout(finalTotal, 'INR', {
+        email: computedEmail,
+        phone: phone,
+        firstName: computedName
+      });
       await cashfree.checkout({
         paymentSessionId: payment_session_id,
         redirectTarget: '_self', // Best practices for reliable redirects across all webviews & browsers

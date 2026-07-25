@@ -91,7 +91,11 @@ export default function App() {
       const storedPrice = localStorage.getItem('pending_purchase_price') ? Number(localStorage.getItem('pending_purchase_price')) : 199;
 
       // Track Purchase Event
-      trackPurchase(storedPrice, 'INR', orderId || undefined);
+      trackPurchase(storedPrice, 'INR', orderId || undefined, {
+        email: storedEmail,
+        phone: storedPhone,
+        firstName: storedName
+      });
 
       setCustomerDetails({
         name: storedName,
