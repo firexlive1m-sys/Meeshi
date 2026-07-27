@@ -308,7 +308,7 @@ export default function Download() {
                       <div className="aspect-video w-full bg-black rounded-xl overflow-hidden border border-slate-700/50">
                         <iframe 
                           className="w-full h-full"
-                          src="https://www.youtube.com/embed/PzlDlTJQr_Q" 
+                          src={purchase.device === 'Mobile' ? "https://www.youtube.com/embed/SG9UHQyu_DM" : "https://www.youtube.com/embed/PzlDlTJQr_Q"} 
                           title="Meesho Tutorial Video" 
                           frameBorder="0" 
                           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
@@ -396,7 +396,7 @@ export default function Download() {
                         <div className="aspect-video w-full bg-black rounded-xl overflow-hidden border border-slate-700/50">
                           <iframe 
                             className="w-full h-full"
-                            src="https://www.youtube.com/embed/tTClmNY37do" 
+                            src={purchase.device === 'Mobile' ? "https://www.youtube.com/embed/WOPtWcieVHo" : "https://www.youtube.com/embed/tTClmNY37do"}
                             title="Flipkart Tutorial Video" 
                             frameBorder="0" 
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
