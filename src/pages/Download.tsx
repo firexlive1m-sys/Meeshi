@@ -242,55 +242,11 @@ export default function Download() {
                     Device: <span className="font-bold text-emerald-400">{purchase.device}</span> | Order ID: {purchase.orderId}
                   </p>
                 </div>
-                {purchase.device === 'Mobile' && (
-                  <a 
-                    href="https://link-to-mobile-app" 
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-2 px-6 py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-bold rounded-xl transition-all shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)] transform hover:-translate-y-0.5"
-                  >
-                    <DownloadIcon className="w-5 h-5" />
-                    Download App
-                  </a>
-                )}
               </div>
             </div>
 
             {/* Custom Content Based on Device */}
-            {purchase.device === 'Mobile' && (
-              <>
-                <div className="bg-[#1E293B] border border-slate-700/50 rounded-2xl p-6 md:p-8 shadow-lg">
-                  <h3 className="text-xl font-bold text-white mb-4">📱 Mobile Instructions</h3>
-                  <ul className="list-disc list-inside text-gray-300 space-y-2">
-                    <li>Download the APK file using the button above.</li>
-                    <li>Install the app on your Android device (you may need to allow "Install from unknown sources").</li>
-                    <li>Open the app and log in with your email.</li>
-                  </ul>
-                </div>
-                <div className="bg-[#1E293B] border border-slate-700/50 rounded-2xl overflow-hidden shadow-lg">
-                  <div className="p-6 md:p-8 border-b border-slate-700/50">
-                    <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                      <PlayCircle className="w-5 h-5 text-[#3B82F6]" />
-                      Setup & Tutorial Video
-                    </h3>
-                    <p className="text-gray-400 text-sm mt-1">Watch this quick video to learn how to set up the tool.</p>
-                  </div>
-                  <div className="aspect-video w-full bg-black relative">
-                    <iframe 
-                      className="w-full h-full absolute inset-0"
-                      src="https://www.youtube.com/embed/YOUR_VIDEO_ID" 
-                      title="Tutorial Video" 
-                      frameBorder="0" 
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                      allowFullScreen
-                    ></iframe>
-                  </div>
-                </div>
-              </>
-            )}
-
-            {purchase.device !== 'Mobile' && (
-              <div className="space-y-8">
+            <div className="space-y-8">
                 {/* Meesho Section */}
                 <div className="bg-[#1E293B] border-t-4 border-[#F43397] rounded-2xl overflow-hidden shadow-xl">
                   <div className="p-6 border-b border-slate-700/50 bg-slate-800/30">
@@ -328,8 +284,12 @@ export default function Download() {
                             <FileArchive className="w-5 h-5 text-[#F43397]" />
                           </div>
                           <div>
-                            <p className="font-bold text-sm text-slate-200 group-hover:text-white">Tool ZIP File</p>
-                            <p className="text-xs text-slate-400">Extension folder to load</p>
+                            <p className="font-bold text-sm text-slate-200 group-hover:text-white">
+                              Tool ZIP File
+                            </p>
+                            <p className="text-xs text-slate-400">
+                              Extension folder to load
+                            </p>
                           </div>
                         </a>
                         
@@ -395,8 +355,12 @@ export default function Download() {
                               <FileArchive className="w-5 h-5 text-[#2874F0]" />
                             </div>
                             <div>
-                              <p className="font-bold text-sm text-slate-200 group-hover:text-white">Tool ZIP File</p>
-                              <p className="text-xs text-slate-400">Extension folder to load</p>
+                              <p className="font-bold text-sm text-slate-200 group-hover:text-white">
+                                Tool ZIP File
+                              </p>
+                              <p className="text-xs text-slate-400">
+                                Extension folder to load
+                              </p>
                             </div>
                           </a>
                           
@@ -440,7 +404,6 @@ export default function Download() {
                   </div>
                 )}
               </div>
-            )}
           </div>
         )}
       </div>
