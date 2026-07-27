@@ -39,7 +39,7 @@ import FAQSection from './components/FAQSection';
 import PricingCard from './components/PricingCard';
 import LiveSalesNotification from './components/LiveSalesNotification';
 import PaymentFormModal from './components/PaymentFormModal';
-import { initPixel, trackPageView, trackPurchase } from './pixel';
+import { initPixel, trackPageView } from './pixel';
 
 export default function App() {
   // Global CTA Variable
@@ -88,13 +88,6 @@ export default function App() {
       const storedPhone = localStorage.getItem('pending_purchase_phone') || '';
       const storedPlan = localStorage.getItem('pending_purchase_plan') || 'Meesho Instant Listing Pack';
       const storedPrice = localStorage.getItem('pending_purchase_price') ? Number(localStorage.getItem('pending_purchase_price')) : 199;
-
-      // Track Purchase Event
-      trackPurchase(storedPrice, 'INR', orderId || undefined, {
-        email: storedEmail,
-        phone: storedPhone,
-        firstName: storedName
-      });
 
       setCustomerDetails({
         name: storedName,
