@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
-import { LogOut, Download as DownloadIcon, PlayCircle, Loader2, Sparkles, CheckCircle2 } from 'lucide-react';
+import { LogOut, Download as DownloadIcon, PlayCircle, Loader2, Sparkles, CheckCircle2, FileArchive, Link as LinkIcon, FileText, ShoppingCart } from 'lucide-react';
 import { auth, db, googleProvider } from '../firebase';
 import { signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
@@ -12,6 +12,8 @@ export default function Download() {
   const [loading, setLoading] = useState(true);
   const [selectedDevice, setSelectedDevice] = useState<string>('Mobile');
   const [savingDevice, setSavingDevice] = useState(false);
+
+  const isCombo = purchase?.plan?.toLowerCase().includes('combo');
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -240,62 +242,205 @@ export default function Download() {
                     Device: <span className="font-bold text-emerald-400">{purchase.device}</span> | Order ID: {purchase.orderId}
                   </p>
                 </div>
-                <a 
-                  href={purchase.device === 'Mobile' ? 'https://link-to-mobile-app' : 'https://link-to-pc-extension'} 
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 px-6 py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-bold rounded-xl transition-all shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)] transform hover:-translate-y-0.5"
-                >
-                  <DownloadIcon className="w-5 h-5" />
-                  Download for {purchase.device}
-                </a>
+                {purchase.device === 'Mobile' && (
+                  <a 
+                    href="https://link-to-mobile-app" 
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2 px-6 py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-bold rounded-xl transition-all shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)] transform hover:-translate-y-0.5"
+                  >
+                    <DownloadIcon className="w-5 h-5" />
+                    Download App
+                  </a>
+                )}
               </div>
             </div>
 
             {/* Custom Content Based on Device */}
             {purchase.device === 'Mobile' && (
-              <div className="bg-[#1E293B] border border-slate-700/50 rounded-2xl p-6 md:p-8 shadow-lg">
-                <h3 className="text-xl font-bold text-white mb-4">📱 Mobile Instructions</h3>
-                <ul className="list-disc list-inside text-gray-300 space-y-2">
-                  <li>Download the APK file using the button above.</li>
-                  <li>Install the app on your Android device (you may need to allow "Install from unknown sources").</li>
-                  <li>Open the app and log in with your email.</li>
-                </ul>
-              </div>
+              <>
+                <div className="bg-[#1E293B] border border-slate-700/50 rounded-2xl p-6 md:p-8 shadow-lg">
+                  <h3 className="text-xl font-bold text-white mb-4">📱 Mobile Instructions</h3>
+                  <ul className="list-disc list-inside text-gray-300 space-y-2">
+                    <li>Download the APK file using the button above.</li>
+                    <li>Install the app on your Android device (you may need to allow "Install from unknown sources").</li>
+                    <li>Open the app and log in with your email.</li>
+                  </ul>
+                </div>
+                <div className="bg-[#1E293B] border border-slate-700/50 rounded-2xl overflow-hidden shadow-lg">
+                  <div className="p-6 md:p-8 border-b border-slate-700/50">
+                    <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                      <PlayCircle className="w-5 h-5 text-[#3B82F6]" />
+                      Setup & Tutorial Video
+                    </h3>
+                    <p className="text-gray-400 text-sm mt-1">Watch this quick video to learn how to set up the tool.</p>
+                  </div>
+                  <div className="aspect-video w-full bg-black relative">
+                    <iframe 
+                      className="w-full h-full absolute inset-0"
+                      src="https://www.youtube.com/embed/YOUR_VIDEO_ID" 
+                      title="Tutorial Video" 
+                      frameBorder="0" 
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                      allowFullScreen
+                    ></iframe>
+                  </div>
+                </div>
+              </>
             )}
 
             {purchase.device !== 'Mobile' && (
-              <div className="bg-[#1E293B] border border-slate-700/50 rounded-2xl p-6 md:p-8 shadow-lg">
-                <h3 className="text-xl font-bold text-white mb-4">🖥️ PC / Laptop Instructions</h3>
-                <ul className="list-disc list-inside text-gray-300 space-y-2">
-                  <li>Download the ZIP file containing the extension.</li>
-                  <li>Extract the ZIP file to a folder on your computer.</li>
-                  <li>Open Chrome and go to <code className="bg-black px-2 py-1 rounded text-emerald-400">chrome://extensions/</code>.</li>
-                  <li>Enable "Developer mode" and click "Load unpacked", then select the extracted folder.</li>
-                </ul>
+              <div className="space-y-8">
+                {/* Meesho Section */}
+                <div className="bg-[#1E293B] border-t-4 border-[#F43397] rounded-2xl overflow-hidden shadow-xl">
+                  <div className="p-6 border-b border-slate-700/50 bg-slate-800/30">
+                    <h3 className="text-2xl font-black text-white flex items-center gap-3">
+                      <ShoppingCart className="w-6 h-6 text-[#F43397]" />
+                      Meesho Auto Listing Tool
+                    </h3>
+                  </div>
+                  
+                  <div className="p-6 md:p-8 grid md:grid-cols-2 gap-8">
+                    {/* Video side */}
+                    <div className="space-y-4">
+                      <h4 className="font-bold text-slate-200 flex items-center gap-2">
+                        <PlayCircle className="w-5 h-5 text-[#3B82F6]" />
+                        Setup & How To Use
+                      </h4>
+                      <div className="aspect-video w-full bg-black rounded-xl overflow-hidden border border-slate-700/50">
+                        <iframe 
+                          className="w-full h-full"
+                          src="https://www.youtube.com/embed/YOUR_MEESHO_VIDEO_ID" 
+                          title="Meesho Tutorial Video" 
+                          frameBorder="0" 
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                          allowFullScreen
+                        ></iframe>
+                      </div>
+                    </div>
+
+                    {/* Resources side */}
+                    <div className="space-y-4">
+                      <h4 className="font-bold text-slate-200">Resources & Downloads</h4>
+                      <div className="space-y-3">
+                        <a href="LINK_TO_MEESHO_ZIP" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-4 bg-slate-900/50 border border-slate-700 hover:border-[#F43397]/50 rounded-xl transition-all group cursor-pointer">
+                          <div className="w-10 h-10 rounded-lg bg-[#F43397]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <FileArchive className="w-5 h-5 text-[#F43397]" />
+                          </div>
+                          <div>
+                            <p className="font-bold text-sm text-slate-200 group-hover:text-white">Tool ZIP File</p>
+                            <p className="text-xs text-slate-400">Extension folder to load</p>
+                          </div>
+                        </a>
+                        
+                        <a href="LINK_TO_IMAGE_TOOL" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-4 bg-slate-900/50 border border-slate-700 hover:border-[#3B82F6]/50 rounded-xl transition-all group cursor-pointer">
+                          <div className="w-10 h-10 rounded-lg bg-[#3B82F6]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <LinkIcon className="w-5 h-5 text-[#3B82F6]" />
+                          </div>
+                          <div>
+                            <p className="font-bold text-sm text-slate-200 group-hover:text-white">Image Generation Tool</p>
+                            <p className="text-xs text-slate-400">Click to open link</p>
+                          </div>
+                        </a>
+
+                        <a href="LINK_TO_TEXT_GUIDE" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-4 bg-slate-900/50 border border-slate-700 hover:border-emerald-500/50 rounded-xl transition-all group cursor-pointer">
+                          <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <FileText className="w-5 h-5 text-emerald-500" />
+                          </div>
+                          <div>
+                            <p className="font-bold text-sm text-slate-200 group-hover:text-white">Text Guide</p>
+                            <p className="text-xs text-slate-400">Step-by-step instructions</p>
+                          </div>
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Flipkart Section */}
+                {isCombo ? (
+                  <div className="bg-[#1E293B] border-t-4 border-[#2874F0] rounded-2xl overflow-hidden shadow-xl">
+                    <div className="p-6 border-b border-slate-700/50 bg-slate-800/30">
+                      <h3 className="text-2xl font-black text-white flex items-center gap-3">
+                        <ShoppingCart className="w-6 h-6 text-[#2874F0]" />
+                        Flipkart Auto Listing Tool
+                      </h3>
+                    </div>
+                    
+                    <div className="p-6 md:p-8 grid md:grid-cols-2 gap-8">
+                      {/* Video side */}
+                      <div className="space-y-4">
+                        <h4 className="font-bold text-slate-200 flex items-center gap-2">
+                          <PlayCircle className="w-5 h-5 text-[#3B82F6]" />
+                          Setup & How To Use
+                        </h4>
+                        <div className="aspect-video w-full bg-black rounded-xl overflow-hidden border border-slate-700/50">
+                          <iframe 
+                            className="w-full h-full"
+                            src="https://www.youtube.com/embed/YOUR_FLIPKART_VIDEO_ID" 
+                            title="Flipkart Tutorial Video" 
+                            frameBorder="0" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowFullScreen
+                          ></iframe>
+                        </div>
+                      </div>
+
+                      {/* Resources side */}
+                      <div className="space-y-4">
+                        <h4 className="font-bold text-slate-200">Resources & Downloads</h4>
+                        <div className="space-y-3">
+                          <a href="LINK_TO_FLIPKART_ZIP" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-4 bg-slate-900/50 border border-slate-700 hover:border-[#2874F0]/50 rounded-xl transition-all group cursor-pointer">
+                            <div className="w-10 h-10 rounded-lg bg-[#2874F0]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                              <FileArchive className="w-5 h-5 text-[#2874F0]" />
+                            </div>
+                            <div>
+                              <p className="font-bold text-sm text-slate-200 group-hover:text-white">Tool ZIP File</p>
+                              <p className="text-xs text-slate-400">Extension folder to load</p>
+                            </div>
+                          </a>
+                          
+                          <a href="LINK_TO_IMAGE_TOOL" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-4 bg-slate-900/50 border border-slate-700 hover:border-[#3B82F6]/50 rounded-xl transition-all group cursor-pointer">
+                            <div className="w-10 h-10 rounded-lg bg-[#3B82F6]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                              <LinkIcon className="w-5 h-5 text-[#3B82F6]" />
+                            </div>
+                            <div>
+                              <p className="font-bold text-sm text-slate-200 group-hover:text-white">Image Generation Tool</p>
+                              <p className="text-xs text-slate-400">Click to open link</p>
+                            </div>
+                          </a>
+
+                          <a href="LINK_TO_TEXT_GUIDE" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-4 bg-slate-900/50 border border-slate-700 hover:border-emerald-500/50 rounded-xl transition-all group cursor-pointer">
+                            <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                              <FileText className="w-5 h-5 text-emerald-500" />
+                            </div>
+                            <div>
+                              <p className="font-bold text-sm text-slate-200 group-hover:text-white">Text Guide</p>
+                              <p className="text-xs text-slate-400">Step-by-step instructions</p>
+                            </div>
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="bg-[#1E293B] border-t-4 border-slate-600 rounded-2xl overflow-hidden shadow-xl p-8 text-center">
+                    <ShoppingCart className="w-12 h-12 text-slate-600 mx-auto mb-4 opacity-50" />
+                    <h3 className="text-2xl font-black text-slate-400 mb-2">Flipkart Auto Listing Tool</h3>
+                    <p className="text-slate-500 max-w-md mx-auto mb-6 text-sm">
+                      You are currently on the Single Plan. Upgrade to the Combo Plan to get access to the Flipkart Auto Listing Tool as well.
+                    </p>
+                    <a 
+                      href="/#pricing" 
+                      className="inline-flex items-center gap-2 bg-[#2874F0] hover:bg-[#1C5ECA] text-white font-bold py-3 px-8 rounded-xl transition-all shadow-lg hover:shadow-xl"
+                    >
+                      <ShoppingCart className="w-5 h-5" />
+                      Buy Flipkart Tool
+                    </a>
+                  </div>
+                )}
               </div>
             )}
-
-            <div className="bg-[#1E293B] border border-slate-700/50 rounded-2xl overflow-hidden shadow-lg">
-              <div className="p-6 md:p-8 border-b border-slate-700/50">
-                <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                  <PlayCircle className="w-5 h-5 text-[#3B82F6]" />
-                  Setup & Tutorial Video
-                </h3>
-                <p className="text-gray-400 text-sm mt-1">Watch this quick video to learn how to set up the tool.</p>
-              </div>
-              <div className="aspect-video w-full bg-black relative">
-                {/* Replace with actual video embed */}
-                <iframe 
-                  className="w-full h-full absolute inset-0"
-                  src="https://www.youtube.com/embed/YOUR_VIDEO_ID" 
-                  title="Tutorial Video" 
-                  frameBorder="0" 
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                  allowFullScreen
-                ></iframe>
-              </div>
-            </div>
           </div>
         )}
       </div>
