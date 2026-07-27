@@ -784,21 +784,44 @@ export default function Landing() {
           </div>
 
           {/* Copyright bar */}
-          <div className="mt-8 pt-6 border-t border-[#334155]/40 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-gray-500 font-mono">
-            <span>© 2026 AutoListing.online. All Rights Reserved.</span>
+          <div className="mt-8 pt-6 border-t border-[#334155]/40 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] text-gray-500 font-mono">
+            <span>© 2026 Meesho AutoListing Automation Suites. All Rights Saved.</span>
             
             <div className="flex flex-wrap justify-center gap-4">
-              <Link to="/privacy" className="hover:text-[#3B82F6] transition-colors cursor-pointer text-gray-400 font-medium">
+              <button 
+                onClick={() => setActiveModal('privacy')}
+                className="hover:text-[#3B82F6] transition-colors cursor-pointer bg-transparent border-none text-[10px] font-mono text-gray-400 font-medium"
+              >
                 Privacy Policy
-              </Link>
+              </button>
               <span>•</span>
-              <Link to="/terms" className="hover:text-[#3B82F6] transition-colors cursor-pointer text-gray-400 font-medium">
+              <button 
+                onClick={() => setActiveModal('terms')}
+                className="hover:text-[#3B82F6] transition-colors cursor-pointer bg-transparent border-none text-[10px] font-mono text-gray-400 font-medium"
+              >
                 Terms of Service
-              </Link>
+              </button>
               <span>•</span>
-              <Link to="/refund" className="hover:text-[#3B82F6] transition-colors cursor-pointer text-gray-400 font-medium">
+              <button 
+                onClick={() => setActiveModal('refund')}
+                className="hover:text-[#3B82F6] transition-colors cursor-pointer bg-transparent border-none text-[10px] font-mono text-gray-400 font-medium"
+              >
                 Refund Policy
-              </Link>
+              </button>
+              <span>•</span>
+              <button 
+                onClick={() => setActiveModal('shipping')}
+                className="hover:text-[#3B82F6] transition-colors cursor-pointer bg-transparent border-none text-[10px] font-mono text-gray-400 font-medium"
+              >
+                Shipping & Delivery
+              </button>
+              <span>•</span>
+              <button 
+                onClick={() => setActiveModal('support')}
+                className="hover:text-[#3B82F6] transition-colors cursor-pointer bg-transparent border-none text-[10px] font-mono text-gray-400 font-medium"
+              >
+                Contact Support Help
+              </button>
             </div>
           </div>
 

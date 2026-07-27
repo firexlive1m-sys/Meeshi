@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
-import { LogOut, Download as DownloadIcon, PlayCircle, Loader2, Sparkles, CheckCircle2, FileArchive, Link as LinkIcon, FileText, ShoppingCart, ChevronRight } from 'lucide-react';
+import { LogOut, MessageCircle, Download as DownloadIcon, PlayCircle, Loader2, Sparkles, CheckCircle2, FileArchive, Link as LinkIcon, FileText, ShoppingCart } from 'lucide-react';
 import { auth, db, googleProvider } from '../firebase';
 import { signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { CONFIG } from '../data';
 import { Link } from 'react-router-dom';
 
 export default function Download() {
@@ -76,44 +77,41 @@ export default function Download() {
   // Not Logged In State
   if (!user) {
     return (
-      <div className="min-h-screen bg-[#0F172A] flex flex-col items-center justify-center text-white p-4">
-        <div className="max-w-md w-full bg-[#1E293B] border border-slate-700/50 rounded-3xl p-8 text-center shadow-2xl relative overflow-hidden mb-8">
+      <div className="min-h-screen bg-[#0F172A] flex flex-col items-center justify-center text-white p-4 space-y-6">
+        <div className="max-w-md w-full bg-[#1E293B] border border-slate-700/50 rounded-3xl p-8 text-center shadow-2xl relative overflow-hidden">
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-12 bg-emerald-500/20 blur-2xl rounded-full" />
           
-          <h1 className="text-3xl font-extrabold text-white mb-3">Secure Access</h1>
-          <p className="text-slate-400 text-sm mb-8 leading-relaxed">
-            Use the same Google account you used during purchase.
-            Your files will be unlocked instantly after login.
+          <h1 className="text-2xl font-bold mb-2">Access Your Purchase</h1>
+          <p className="text-gray-400 text-sm mb-8">
+            Please log in with the email address you used during purchase to access your files.
           </p>
           
           <button
             onClick={handleLogin}
-            className="w-full flex items-center justify-center gap-3 bg-white text-gray-900 font-bold py-4 px-4 rounded-xl hover:bg-gray-100 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+            className="w-full flex items-center justify-center gap-3 bg-white text-gray-900 font-bold py-3.5 px-4 rounded-xl hover:bg-gray-100 transition-colors"
           >
-            <img src="https://www.svgrepo.com/show/475656/google-color.svg" className="w-6 h-6" alt="Google" />
+            <img src="https://www.svgrepo.com/show/475656/google-color.svg" className="w-5 h-5" alt="Google" />
             Continue with Google
           </button>
-          
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-xs font-semibold text-slate-400">
-            <div className="flex items-center gap-1.5"><span className="text-emerald-400">🔒</span> Secure Login</div>
-            <div className="flex items-center gap-1.5"><span className="text-emerald-400">⚡</span> Instant Access</div>
-            <div className="flex items-center gap-1.5"><span className="text-emerald-400">💾</span> Lifetime Downloads</div>
-          </div>
         </div>
 
-        <div className="max-w-md w-full bg-[#1E293B]/50 border border-slate-700/50 rounded-2xl p-6 text-center shadow-lg backdrop-blur-sm">
-          <h2 className="text-lg font-bold text-white mb-2">Need Help?</h2>
-          <p className="text-slate-400 text-sm mb-5">Having trouble logging in or accessing your downloads? Contact us anytime.</p>
+        {/* Need Help Section */}
+        <div className="max-w-md w-full bg-[#1E293B]/50 border border-slate-700/30 rounded-2xl p-6 text-center shadow-lg">
+          <h3 className="text-white font-bold mb-2 flex items-center justify-center gap-2">
+            <MessageCircle className="w-5 h-5 text-emerald-400" />
+            Need Help?
+          </h3>
+          <p className="text-sm text-gray-400 mb-4">
+            Facing issues logging in or accessing your purchase? Our support team is here to help.
+          </p>
           <a
-            href="https://wa.me/916295429762"
+            href={`https://wa.me/91${CONFIG.whatsappNumber}?text=${encodeURIComponent('Hello, I need help with the login page for the Auto Listing Tool.')}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold rounded-xl transition-all shadow-[0_0_15px_rgba(37,211,102,0.3)] hover:shadow-[0_0_25px_rgba(37,211,102,0.5)] transform hover:-translate-y-0.5"
+            className="inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-[#25D366]/10 hover:bg-[#25D366]/20 text-[#25D366] font-bold rounded-xl transition-all border border-[#25D366]/30 text-sm"
           >
-            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
-            </svg>
-            Chat on WhatsApp
+            <MessageCircle className="w-4 h-4" />
+            Contact on WhatsApp
           </a>
         </div>
       </div>
@@ -141,21 +139,6 @@ export default function Download() {
             Logout
           </button>
         </header>
-
-        {purchase && (
-          <div className="mb-10 space-y-6">
-            {/* Success Message */}
-            <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-4 flex items-start gap-4 shadow-lg shadow-emerald-500/5 backdrop-blur-sm">
-              <div className="bg-emerald-500/20 p-1.5 rounded-full text-emerald-400 shrink-0">
-                <CheckCircle2 className="w-6 h-6" />
-              </div>
-              <div>
-                <h3 className="text-lg font-bold text-emerald-400">Payment Successful</h3>
-                <p className="text-emerald-500/80 text-sm mt-1">Your purchase has been confirmed. Everything is ready to download.</p>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* User has logged in, but no purchase found */}
         {!purchase ? (
@@ -311,64 +294,44 @@ export default function Download() {
                           allowFullScreen
                         ></iframe>
                       </div>
-                      <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3 mt-2 flex gap-2 items-start">
-                        <span className="text-amber-500 text-lg leading-none mt-0.5">⚠</span>
-                        <p className="text-amber-500/90 text-xs font-medium leading-relaxed">
-                          Please watch the setup video before downloading and using the tool.
-                        </p>
-                      </div>
                     </div>
 
                     {/* Resources side */}
                     <div className="space-y-4">
                       <h4 className="font-bold text-slate-200">Resources & Downloads</h4>
                       <div className="space-y-3">
-                        <a href="LINK_TO_MEESHO_ZIP" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between p-5 bg-slate-900/50 border border-slate-700/80 hover:border-[#F43397]/50 rounded-2xl transition-all group cursor-pointer hover:bg-slate-800/80 hover:shadow-lg hover:shadow-[#F43397]/5">
-                          <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-xl bg-[#F43397]/10 flex items-center justify-center group-hover:scale-110 group-hover:bg-[#F43397]/20 transition-all duration-300">
-                              <FileArchive className="w-6 h-6 text-[#F43397]" />
-                            </div>
-                            <div>
-                              <p className="font-bold text-base text-slate-200 group-hover:text-white transition-colors">
-                                Tool ZIP File
-                              </p>
-                              <p className="text-xs text-slate-400 mt-0.5">
-                                Extension folder to load
-                              </p>
-                              <div className="flex items-center gap-3 mt-2 text-[10px] text-slate-500 font-medium">
-                                 <span className="bg-slate-800 px-2 py-0.5 rounded">v1.2.0</span>
-                                 <span>2.4 MB</span>
-                                 <span>Updated: Today</span>
-                              </div>
-                            </div>
+                        <a href="LINK_TO_MEESHO_ZIP" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-4 bg-slate-900/50 border border-slate-700 hover:border-[#F43397]/50 rounded-xl transition-all group cursor-pointer">
+                          <div className="w-10 h-10 rounded-lg bg-[#F43397]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <FileArchive className="w-5 h-5 text-[#F43397]" />
                           </div>
-                          <ChevronRight className="w-5 h-5 text-slate-600 group-hover:text-[#F43397] transition-colors group-hover:translate-x-1 duration-300" />
+                          <div>
+                            <p className="font-bold text-sm text-slate-200 group-hover:text-white">
+                              Tool ZIP File
+                            </p>
+                            <p className="text-xs text-slate-400">
+                              Extension folder to load
+                            </p>
+                          </div>
                         </a>
                         
-                        <a href="LINK_TO_IMAGE_TOOL" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between p-5 bg-slate-900/50 border border-slate-700/80 hover:border-[#3B82F6]/50 rounded-2xl transition-all group cursor-pointer hover:bg-slate-800/80 hover:shadow-lg hover:shadow-[#3B82F6]/5">
-                          <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-xl bg-[#3B82F6]/10 flex items-center justify-center group-hover:scale-110 group-hover:bg-[#3B82F6]/20 transition-all duration-300">
-                              <LinkIcon className="w-6 h-6 text-[#3B82F6]" />
-                            </div>
-                            <div>
-                              <p className="font-bold text-base text-slate-200 group-hover:text-white transition-colors">Image Generation Tool</p>
-                              <p className="text-xs text-slate-400 mt-0.5">Click to open link</p>
-                            </div>
+                        <a href="LINK_TO_IMAGE_TOOL" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-4 bg-slate-900/50 border border-slate-700 hover:border-[#3B82F6]/50 rounded-xl transition-all group cursor-pointer">
+                          <div className="w-10 h-10 rounded-lg bg-[#3B82F6]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <LinkIcon className="w-5 h-5 text-[#3B82F6]" />
                           </div>
-                          <ChevronRight className="w-5 h-5 text-slate-600 group-hover:text-[#3B82F6] transition-colors group-hover:translate-x-1 duration-300" />
+                          <div>
+                            <p className="font-bold text-sm text-slate-200 group-hover:text-white">Image Generation Tool</p>
+                            <p className="text-xs text-slate-400">Click to open link</p>
+                          </div>
                         </a>
 
-                        <a href="LINK_TO_TEXT_GUIDE" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between p-5 bg-slate-900/50 border border-slate-700/80 hover:border-emerald-500/50 rounded-2xl transition-all group cursor-pointer hover:bg-slate-800/80 hover:shadow-lg hover:shadow-emerald-500/5">
-                          <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center group-hover:scale-110 group-hover:bg-emerald-500/20 transition-all duration-300">
-                              <FileText className="w-6 h-6 text-emerald-500" />
-                            </div>
-                            <div>
-                              <p className="font-bold text-base text-slate-200 group-hover:text-white transition-colors">Text Guide</p>
-                              <p className="text-xs text-slate-400 mt-0.5">Step-by-step instructions</p>
-                            </div>
+                        <a href="LINK_TO_TEXT_GUIDE" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-4 bg-slate-900/50 border border-slate-700 hover:border-emerald-500/50 rounded-xl transition-all group cursor-pointer">
+                          <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <FileText className="w-5 h-5 text-emerald-500" />
                           </div>
-                          <ChevronRight className="w-5 h-5 text-slate-600 group-hover:text-emerald-500 transition-colors group-hover:translate-x-1 duration-300" />
+                          <div>
+                            <p className="font-bold text-sm text-slate-200 group-hover:text-white">Text Guide</p>
+                            <p className="text-xs text-slate-400">Step-by-step instructions</p>
+                          </div>
                         </a>
                       </div>
                     </div>
@@ -402,64 +365,44 @@ export default function Download() {
                             allowFullScreen
                           ></iframe>
                         </div>
-                        <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3 mt-2 flex gap-2 items-start">
-                          <span className="text-amber-500 text-lg leading-none mt-0.5">⚠</span>
-                          <p className="text-amber-500/90 text-xs font-medium leading-relaxed">
-                            Please watch the setup video before downloading and using the tool.
-                          </p>
-                        </div>
                       </div>
 
                       {/* Resources side */}
                       <div className="space-y-4">
                         <h4 className="font-bold text-slate-200">Resources & Downloads</h4>
                         <div className="space-y-3">
-                          <a href="LINK_TO_FLIPKART_ZIP" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between p-5 bg-slate-900/50 border border-slate-700/80 hover:border-[#2874F0]/50 rounded-2xl transition-all group cursor-pointer hover:bg-slate-800/80 hover:shadow-lg hover:shadow-[#2874F0]/5">
-                            <div className="flex items-center gap-4">
-                              <div className="w-12 h-12 rounded-xl bg-[#2874F0]/10 flex items-center justify-center group-hover:scale-110 group-hover:bg-[#2874F0]/20 transition-all duration-300">
-                                <FileArchive className="w-6 h-6 text-[#2874F0]" />
-                              </div>
-                              <div>
-                                <p className="font-bold text-base text-slate-200 group-hover:text-white transition-colors">
-                                  Tool ZIP File
-                                </p>
-                                <p className="text-xs text-slate-400 mt-0.5">
-                                  Extension folder to load
-                                </p>
-                                <div className="flex items-center gap-3 mt-2 text-[10px] text-slate-500 font-medium">
-                                   <span className="bg-slate-800 px-2 py-0.5 rounded">v1.2.0</span>
-                                   <span>2.4 MB</span>
-                                   <span>Updated: Today</span>
-                                </div>
-                              </div>
+                          <a href="LINK_TO_FLIPKART_ZIP" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-4 bg-slate-900/50 border border-slate-700 hover:border-[#2874F0]/50 rounded-xl transition-all group cursor-pointer">
+                            <div className="w-10 h-10 rounded-lg bg-[#2874F0]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                              <FileArchive className="w-5 h-5 text-[#2874F0]" />
                             </div>
-                            <ChevronRight className="w-5 h-5 text-slate-600 group-hover:text-[#2874F0] transition-colors group-hover:translate-x-1 duration-300" />
+                            <div>
+                              <p className="font-bold text-sm text-slate-200 group-hover:text-white">
+                                Tool ZIP File
+                              </p>
+                              <p className="text-xs text-slate-400">
+                                Extension folder to load
+                              </p>
+                            </div>
                           </a>
                           
-                          <a href="LINK_TO_IMAGE_TOOL" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between p-5 bg-slate-900/50 border border-slate-700/80 hover:border-[#3B82F6]/50 rounded-2xl transition-all group cursor-pointer hover:bg-slate-800/80 hover:shadow-lg hover:shadow-[#3B82F6]/5">
-                            <div className="flex items-center gap-4">
-                              <div className="w-12 h-12 rounded-xl bg-[#3B82F6]/10 flex items-center justify-center group-hover:scale-110 group-hover:bg-[#3B82F6]/20 transition-all duration-300">
-                                <LinkIcon className="w-6 h-6 text-[#3B82F6]" />
-                              </div>
-                              <div>
-                                <p className="font-bold text-base text-slate-200 group-hover:text-white transition-colors">Image Generation Tool</p>
-                                <p className="text-xs text-slate-400 mt-0.5">Click to open link</p>
-                              </div>
+                          <a href="LINK_TO_IMAGE_TOOL" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-4 bg-slate-900/50 border border-slate-700 hover:border-[#3B82F6]/50 rounded-xl transition-all group cursor-pointer">
+                            <div className="w-10 h-10 rounded-lg bg-[#3B82F6]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                              <LinkIcon className="w-5 h-5 text-[#3B82F6]" />
                             </div>
-                            <ChevronRight className="w-5 h-5 text-slate-600 group-hover:text-[#3B82F6] transition-colors group-hover:translate-x-1 duration-300" />
+                            <div>
+                              <p className="font-bold text-sm text-slate-200 group-hover:text-white">Image Generation Tool</p>
+                              <p className="text-xs text-slate-400">Click to open link</p>
+                            </div>
                           </a>
 
-                          <a href="LINK_TO_TEXT_GUIDE" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between p-5 bg-slate-900/50 border border-slate-700/80 hover:border-emerald-500/50 rounded-2xl transition-all group cursor-pointer hover:bg-slate-800/80 hover:shadow-lg hover:shadow-emerald-500/5">
-                            <div className="flex items-center gap-4">
-                              <div className="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center group-hover:scale-110 group-hover:bg-emerald-500/20 transition-all duration-300">
-                                <FileText className="w-6 h-6 text-emerald-500" />
-                              </div>
-                              <div>
-                                <p className="font-bold text-base text-slate-200 group-hover:text-white transition-colors">Text Guide</p>
-                                <p className="text-xs text-slate-400 mt-0.5">Step-by-step instructions</p>
-                              </div>
+                          <a href="LINK_TO_TEXT_GUIDE" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-4 bg-slate-900/50 border border-slate-700 hover:border-emerald-500/50 rounded-xl transition-all group cursor-pointer">
+                            <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                              <FileText className="w-5 h-5 text-emerald-500" />
                             </div>
-                            <ChevronRight className="w-5 h-5 text-slate-600 group-hover:text-emerald-500 transition-colors group-hover:translate-x-1 duration-300" />
+                            <div>
+                              <p className="font-bold text-sm text-slate-200 group-hover:text-white">Text Guide</p>
+                              <p className="text-xs text-slate-400">Step-by-step instructions</p>
+                            </div>
                           </a>
                         </div>
                       </div>
@@ -485,48 +428,24 @@ export default function Download() {
           </div>
         )}
 
-        {/* Support Section */}
-        {purchase && purchase.device && (
-          <div className="mt-16 bg-gradient-to-b from-[#1E293B] to-[#0F172A] border border-slate-700/50 rounded-3xl p-8 md:p-12 text-center shadow-2xl relative overflow-hidden">
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-px bg-gradient-to-r from-transparent via-[#25D366]/50 to-transparent"></div>
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/4 h-12 bg-[#25D366]/10 blur-2xl rounded-full"></div>
-            
-            <h2 className="text-3xl font-extrabold text-white mb-4">Need Help?</h2>
-            <div className="max-w-xl mx-auto space-y-4 mb-8 text-slate-400 leading-relaxed text-sm md:text-base">
-              <p>Need help with login, download, installation or activation?</p>
-              <p>Our support team usually replies within a few minutes during business hours.</p>
-              <p className="font-medium text-slate-300">If you purchased the tool but cannot access your files, simply contact us on WhatsApp and we'll help you quickly.</p>
-            </div>
-            <a
-              href="https://wa.me/916295429762"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold rounded-2xl transition-all shadow-[0_0_20px_rgba(37,211,102,0.2)] hover:shadow-[0_0_35px_rgba(37,211,102,0.4)] transform hover:-translate-y-1 relative group"
-            >
-              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
-              </svg>
-              Chat with Support
-            </a>
-          </div>
-        )}
-
-      </div>
-
-      {/* Footer */}
-      <footer className="mt-20 border-t border-slate-800/50 bg-[#0F172A]/80 backdrop-blur-md relative z-10 py-12">
-        <div className="max-w-5xl mx-auto px-4 flex flex-col items-center justify-center gap-6 text-sm text-slate-500 font-medium">
-          <div className="flex flex-wrap items-center justify-center gap-6 md:gap-8">
-            <Link to="/privacy" className="hover:text-emerald-400 transition-colors">Privacy Policy</Link>
-            <Link to="/terms" className="hover:text-emerald-400 transition-colors">Terms & Conditions</Link>
-            <Link to="/refund" className="hover:text-emerald-400 transition-colors">Refund Policy</Link>
-          </div>
-          <div className="flex flex-col items-center gap-2 mt-4 text-center">
-            <div>Current Version: 1.2.0</div>
-            <div>Copyright &copy; 2026 AutoListing.online</div>
-          </div>
+        {/* Dashboard Need Help Section */}
+        <div className="mt-12 bg-gradient-to-br from-[#1E293B] to-[#0F172A] border border-slate-700/50 rounded-2xl p-8 text-center shadow-xl">
+          <MessageCircle className="w-10 h-10 text-[#25D366] mx-auto mb-4" />
+          <h3 className="text-xl font-bold text-white mb-2">Need Help with Your Purchase?</h3>
+          <p className="text-slate-400 mb-6 max-w-lg mx-auto">
+            Are you facing any issues while downloading, setting up, or using the tool? Our support team is here to assist you.
+          </p>
+          <a
+            href={`https://wa.me/91${CONFIG.whatsappNumber}?text=${encodeURIComponent('Hello, I need help on the download dashboard for the Auto Listing Tool.')}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-8 py-3 bg-[#25D366] hover:bg-[#20bd5a] text-slate-900 font-bold rounded-xl transition-all shadow-[0_0_20px_rgba(37,211,102,0.3)] hover:shadow-[0_0_30px_rgba(37,211,102,0.5)] transform hover:-translate-y-0.5"
+          >
+            <MessageCircle className="w-5 h-5" />
+            Contact WhatsApp Support
+          </a>
         </div>
-      </footer>
+      </div>
     </div>
   );
 }
