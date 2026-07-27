@@ -119,25 +119,46 @@ export default function Download() {
   }
 
   return (
-    <div className="min-h-screen w-full relative bg-[#0F172A] text-[#F8FAFC] font-sans selection:bg-[#3B82F6] selection:text-white py-12 md:py-20">
+    <div className="min-h-screen w-full relative bg-[#0F172A] text-[#F8FAFC] font-sans selection:bg-[#3B82F6] selection:text-white py-4 md:py-6">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[400px] bg-gradient-to-b from-emerald-950/20 via-slate-900/10 to-transparent blur-3xl pointer-events-none" />
       
       <div className="max-w-5xl w-full mx-auto px-4 relative z-10">
-        <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-12">
+        <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-2xl md:text-3xl font-extrabold text-white flex items-center gap-2">
+            <h1 className="text-xl md:text-2xl font-extrabold text-white flex items-center gap-2">
               <span className="w-3 h-3 bg-emerald-400 rounded-full animate-pulse shadow-[0_0_15px_rgba(52,211,153,0.5)]" />
-              Download Dashboard
+              Auto Listing Tool
             </h1>
-            <p className="text-gray-400 text-sm mt-1">Logged in as {user.email}</p>
+            <div className="flex items-center gap-2 mt-1">
+              <p className="text-gray-400 text-xs">Logged in as {user.email}</p>
+              {purchase?.device && (
+                <>
+                  <span className="text-gray-600">|</span>
+                  <span className="text-emerald-400 text-xs font-bold bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                    Device: {purchase.device}
+                  </span>
+                </>
+              )}
+            </div>
           </div>
-          <button 
-            onClick={handleLogout}
-            className="flex items-center justify-center gap-2 px-4 py-2 bg-slate-800/50 hover:bg-slate-700/50 border border-slate-700 rounded-xl transition-all text-sm font-medium"
-          >
-            <LogOut className="w-4 h-4" />
-            Logout
-          </button>
+          <div className="flex items-center gap-2">
+            <a 
+              href={`https://wa.me/91${CONFIG.whatsappNumber}?text=${encodeURIComponent('Hello, I need help with my purchase.')}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-2 px-3 py-1.5 bg-[#25D366]/10 hover:bg-[#25D366]/20 text-[#25D366] border border-[#25D366]/30 rounded-lg transition-all text-xs font-bold"
+            >
+              <MessageCircle className="w-3.5 h-3.5" />
+              Support
+            </a>
+            <button 
+              onClick={handleLogout}
+              className="flex items-center justify-center gap-1.5 px-3 py-1.5 bg-slate-800/50 hover:bg-slate-700/50 border border-slate-700 rounded-lg transition-all text-xs font-medium text-slate-300 hover:text-white"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              Logout
+            </button>
+          </div>
         </header>
 
         {/* User has logged in, but no purchase found */}
@@ -252,20 +273,6 @@ export default function Download() {
         ) : (
           /* User has purchase and DEVICE is selected! */
           <div className="space-y-8">
-            <div className="bg-gradient-to-br from-[#1E293B] to-[#0F172A] border border-emerald-500/20 rounded-2xl p-6 md:p-8 shadow-xl">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <div>
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-emerald-500/20 bg-emerald-500/10 text-xs font-bold text-emerald-400 uppercase tracking-wider mb-3">
-                    <CheckCircle2 className="w-3.5 h-3.5" /> Active Subscription
-                  </div>
-                  <h2 className="text-2xl font-bold text-white">{purchase.plan || 'Meesho Automation Tool'}</h2>
-                  <p className="text-gray-400 text-sm mt-1">
-                    Device: <span className="font-bold text-emerald-400">{purchase.device}</span> | Order ID: {purchase.orderId}
-                  </p>
-                </div>
-              </div>
-            </div>
-
             {/* Custom Content Based on Device */}
             <div className="space-y-8">
                 {/* Meesho Section */}
@@ -300,39 +307,56 @@ export default function Download() {
                     <div className="space-y-4">
                       <h4 className="font-bold text-slate-200">Resources & Downloads</h4>
                       <div className="space-y-3">
-                        <a href="LINK_TO_MEESHO_ZIP" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-4 bg-slate-900/50 border border-slate-700 hover:border-[#F43397]/50 rounded-xl transition-all group cursor-pointer">
-                          <div className="w-10 h-10 rounded-lg bg-[#F43397]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                            <FileArchive className="w-5 h-5 text-[#F43397]" />
+                        {purchase.device === 'Mobile' && (
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-slate-900/50 border border-slate-700 hover:border-amber-500/50 rounded-xl transition-all group">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <DownloadIcon className="w-5 h-5 text-amber-500" />
+                              </div>
+                              <div>
+                                <p className="font-bold text-sm text-slate-200 group-hover:text-white">Browser Download</p>
+                                <p className="text-xs text-slate-400">Required browser for mobile extension</p>
+                              </div>
+                            </div>
+                            <a href="LINK_TO_BROWSER" target="_blank" rel="noopener noreferrer" className="px-5 py-2 bg-amber-500 hover:bg-amber-600 text-slate-900 text-xs font-bold rounded-lg shadow-lg transition-all text-center whitespace-nowrap">
+                              Download
+                            </a>
                           </div>
-                          <div>
-                            <p className="font-bold text-sm text-slate-200 group-hover:text-white">
-                              Tool ZIP File
-                            </p>
-                            <p className="text-xs text-slate-400">
-                              Extension folder to load
-                            </p>
-                          </div>
-                        </a>
-                        
-                        <a href="LINK_TO_IMAGE_TOOL" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-4 bg-slate-900/50 border border-slate-700 hover:border-[#3B82F6]/50 rounded-xl transition-all group cursor-pointer">
-                          <div className="w-10 h-10 rounded-lg bg-[#3B82F6]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                            <LinkIcon className="w-5 h-5 text-[#3B82F6]" />
-                          </div>
-                          <div>
-                            <p className="font-bold text-sm text-slate-200 group-hover:text-white">Image Generation Tool</p>
-                            <p className="text-xs text-slate-400">Click to open link</p>
-                          </div>
-                        </a>
+                        )}
 
-                        <a href="LINK_TO_TEXT_GUIDE" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-4 bg-slate-900/50 border border-slate-700 hover:border-emerald-500/50 rounded-xl transition-all group cursor-pointer">
-                          <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                            <FileText className="w-5 h-5 text-emerald-500" />
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-slate-900/50 border border-slate-700 hover:border-[#F43397]/50 rounded-xl transition-all group">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-lg bg-[#F43397]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                              <FileArchive className="w-5 h-5 text-[#F43397]" />
+                            </div>
+                            <div>
+                              <p className="font-bold text-sm text-slate-200 group-hover:text-white">
+                                Tool ZIP File
+                              </p>
+                              <p className="text-xs text-slate-400">
+                                Extension folder to load
+                              </p>
+                            </div>
                           </div>
-                          <div>
-                            <p className="font-bold text-sm text-slate-200 group-hover:text-white">Text Guide</p>
-                            <p className="text-xs text-slate-400">Step-by-step instructions</p>
+                          <a href="LINK_TO_MEESHO_ZIP" target="_blank" rel="noopener noreferrer" className="px-5 py-2 bg-[#F43397] hover:bg-[#d0257c] text-white text-xs font-bold rounded-lg shadow-lg transition-all text-center whitespace-nowrap">
+                            Download
+                          </a>
+                        </div>
+                        
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-slate-900/50 border border-slate-700 hover:border-[#3B82F6]/50 rounded-xl transition-all group">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-lg bg-[#3B82F6]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                              <LinkIcon className="w-5 h-5 text-[#3B82F6]" />
+                            </div>
+                            <div>
+                              <p className="font-bold text-sm text-slate-200 group-hover:text-white">Image Generation Tool</p>
+                              <p className="text-xs text-slate-400">Click to open link</p>
+                            </div>
                           </div>
-                        </a>
+                          <a href="LINK_TO_IMAGE_TOOL" target="_blank" rel="noopener noreferrer" className="px-5 py-2 bg-[#3B82F6] hover:bg-[#2563eb] text-white text-xs font-bold rounded-lg shadow-lg transition-all text-center whitespace-nowrap">
+                            Open
+                          </a>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -371,39 +395,56 @@ export default function Download() {
                       <div className="space-y-4">
                         <h4 className="font-bold text-slate-200">Resources & Downloads</h4>
                         <div className="space-y-3">
-                          <a href="LINK_TO_FLIPKART_ZIP" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-4 bg-slate-900/50 border border-slate-700 hover:border-[#2874F0]/50 rounded-xl transition-all group cursor-pointer">
-                            <div className="w-10 h-10 rounded-lg bg-[#2874F0]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                              <FileArchive className="w-5 h-5 text-[#2874F0]" />
+                          {purchase.device === 'Mobile' && (
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-slate-900/50 border border-slate-700 hover:border-amber-500/50 rounded-xl transition-all group">
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                  <DownloadIcon className="w-5 h-5 text-amber-500" />
+                                </div>
+                                <div>
+                                  <p className="font-bold text-sm text-slate-200 group-hover:text-white">Browser Download</p>
+                                  <p className="text-xs text-slate-400">Required browser for mobile extension</p>
+                                </div>
+                              </div>
+                              <a href="LINK_TO_BROWSER" target="_blank" rel="noopener noreferrer" className="px-5 py-2 bg-amber-500 hover:bg-amber-600 text-slate-900 text-xs font-bold rounded-lg shadow-lg transition-all text-center whitespace-nowrap">
+                                Download
+                              </a>
                             </div>
-                            <div>
-                              <p className="font-bold text-sm text-slate-200 group-hover:text-white">
-                                Tool ZIP File
-                              </p>
-                              <p className="text-xs text-slate-400">
-                                Extension folder to load
-                              </p>
-                            </div>
-                          </a>
-                          
-                          <a href="LINK_TO_IMAGE_TOOL" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-4 bg-slate-900/50 border border-slate-700 hover:border-[#3B82F6]/50 rounded-xl transition-all group cursor-pointer">
-                            <div className="w-10 h-10 rounded-lg bg-[#3B82F6]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                              <LinkIcon className="w-5 h-5 text-[#3B82F6]" />
-                            </div>
-                            <div>
-                              <p className="font-bold text-sm text-slate-200 group-hover:text-white">Image Generation Tool</p>
-                              <p className="text-xs text-slate-400">Click to open link</p>
-                            </div>
-                          </a>
+                          )}
 
-                          <a href="LINK_TO_TEXT_GUIDE" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-4 bg-slate-900/50 border border-slate-700 hover:border-emerald-500/50 rounded-xl transition-all group cursor-pointer">
-                            <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                              <FileText className="w-5 h-5 text-emerald-500" />
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-slate-900/50 border border-slate-700 hover:border-[#2874F0]/50 rounded-xl transition-all group">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-lg bg-[#2874F0]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <FileArchive className="w-5 h-5 text-[#2874F0]" />
+                              </div>
+                              <div>
+                                <p className="font-bold text-sm text-slate-200 group-hover:text-white">
+                                  Tool ZIP File
+                                </p>
+                                <p className="text-xs text-slate-400">
+                                  Extension folder to load
+                                </p>
+                              </div>
                             </div>
-                            <div>
-                              <p className="font-bold text-sm text-slate-200 group-hover:text-white">Text Guide</p>
-                              <p className="text-xs text-slate-400">Step-by-step instructions</p>
+                            <a href="LINK_TO_FLIPKART_ZIP" target="_blank" rel="noopener noreferrer" className="px-5 py-2 bg-[#2874F0] hover:bg-[#1C5ECA] text-white text-xs font-bold rounded-lg shadow-lg transition-all text-center whitespace-nowrap">
+                              Download
+                            </a>
+                          </div>
+                          
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-slate-900/50 border border-slate-700 hover:border-[#3B82F6]/50 rounded-xl transition-all group">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-lg bg-[#3B82F6]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <LinkIcon className="w-5 h-5 text-[#3B82F6]" />
+                              </div>
+                              <div>
+                                <p className="font-bold text-sm text-slate-200 group-hover:text-white">Image Generation Tool</p>
+                                <p className="text-xs text-slate-400">Click to open link</p>
+                              </div>
                             </div>
-                          </a>
+                            <a href="LINK_TO_IMAGE_TOOL" target="_blank" rel="noopener noreferrer" className="px-5 py-2 bg-[#3B82F6] hover:bg-[#2563eb] text-white text-xs font-bold rounded-lg shadow-lg transition-all text-center whitespace-nowrap">
+                              Open
+                            </a>
+                          </div>
                         </div>
                       </div>
                     </div>
