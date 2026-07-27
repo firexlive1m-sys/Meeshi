@@ -291,15 +291,22 @@ export default function Download() {
                         <PlayCircle className="w-5 h-5 text-[#3B82F6]" />
                         Setup & How To Use
                       </h4>
-                      <div className="aspect-video w-full bg-black rounded-xl overflow-hidden border border-slate-700/50">
-                        <iframe 
-                          className="w-full h-full"
-                          src={purchase.device === 'PC' ? "https://www.youtube.com/embed/PzlDlTJQr_Q" : "https://www.youtube.com/embed/YOUR_MOBILE_MEESHO_VIDEO_ID"} 
-                          title="Meesho Tutorial Video" 
-                          frameBorder="0" 
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                          allowFullScreen
-                        ></iframe>
+                      <div className="aspect-video w-full bg-slate-900 rounded-xl overflow-hidden border border-slate-700/50 flex items-center justify-center">
+                        {purchase.device === 'PC' ? (
+                          <iframe 
+                            className="w-full h-full"
+                            src="https://www.youtube.com/embed/PzlDlTJQr_Q" 
+                            title="Meesho Tutorial Video" 
+                            frameBorder="0" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowFullScreen
+                          ></iframe>
+                        ) : (
+                          <div className="text-center p-6">
+                            <PlayCircle className="w-10 h-10 text-slate-600 mx-auto mb-3" />
+                            <p className="text-slate-400 font-medium text-sm">Mobile setup video coming soon...</p>
+                          </div>
+                        )}
                       </div>
                     </div>
 
@@ -338,7 +345,7 @@ export default function Download() {
                               </p>
                             </div>
                           </div>
-                          <a href="/Meesho%20auto%20listing%20tool.zip" target="_blank" rel="noopener noreferrer" className="px-5 py-2 bg-[#F43397] hover:bg-[#d0257c] text-white text-xs font-bold rounded-lg shadow-lg transition-all text-center whitespace-nowrap">
+                          <a href="/Meesho%20auto%20listing%20tool.zip" download className="px-5 py-2 bg-[#F43397] hover:bg-[#d0257c] text-white text-xs font-bold rounded-lg shadow-lg transition-all text-center whitespace-nowrap">
                             Download
                           </a>
                         </div>
@@ -379,16 +386,23 @@ export default function Download() {
                           <PlayCircle className="w-5 h-5 text-[#3B82F6]" />
                           Setup & How To Use
                         </h4>
-                        <div className="aspect-video w-full bg-black rounded-xl overflow-hidden border border-slate-700/50">
+                      <div className="aspect-video w-full bg-slate-900 rounded-xl overflow-hidden border border-slate-700/50 flex items-center justify-center">
+                        {purchase.device === 'PC' ? (
                           <iframe 
                             className="w-full h-full"
-                            src={purchase.device === 'PC' ? "https://www.youtube.com/embed/tTClmNY37do" : "https://www.youtube.com/embed/YOUR_MOBILE_FLIPKART_VIDEO_ID"} 
+                            src="https://www.youtube.com/embed/tTClmNY37do" 
                             title="Flipkart Tutorial Video" 
                             frameBorder="0" 
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                             allowFullScreen
                           ></iframe>
-                        </div>
+                        ) : (
+                          <div className="text-center p-6">
+                            <PlayCircle className="w-10 h-10 text-slate-600 mx-auto mb-3" />
+                            <p className="text-slate-400 font-medium text-sm">Mobile setup video coming soon...</p>
+                          </div>
+                        )}
+                      </div>
                       </div>
 
                       {/* Resources side */}
@@ -426,7 +440,7 @@ export default function Download() {
                                 </p>
                               </div>
                             </div>
-                            <a href="/Flipkart%20auto%20listing%20tool.zip" target="_blank" rel="noopener noreferrer" className="px-5 py-2 bg-[#2874F0] hover:bg-[#1C5ECA] text-white text-xs font-bold rounded-lg shadow-lg transition-all text-center whitespace-nowrap">
+                            <a href="/Flipkart%20auto%20listing%20tool.zip" download className="px-5 py-2 bg-[#2874F0] hover:bg-[#1C5ECA] text-white text-xs font-bold rounded-lg shadow-lg transition-all text-center whitespace-nowrap">
                               Download
                             </a>
                           </div>
