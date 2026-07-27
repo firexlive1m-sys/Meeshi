@@ -345,7 +345,7 @@ export default function Download() {
                               </p>
                             </div>
                           </div>
-                          <a href="/Meesho%20auto%20listing%20tool.zip" download className="px-5 py-2 bg-[#F43397] hover:bg-[#d0257c] text-white text-xs font-bold rounded-lg shadow-lg transition-all text-center whitespace-nowrap">
+                          <a href="/meesho_auto_listing_tool_.zip" download className="px-5 py-2 bg-[#F43397] hover:bg-[#d0257c] text-white text-xs font-bold rounded-lg shadow-lg transition-all text-center whitespace-nowrap">
                             Download
                           </a>
                         </div>
@@ -440,7 +440,7 @@ export default function Download() {
                                 </p>
                               </div>
                             </div>
-                            <a href="/Flipkart%20auto%20listing%20tool.zip" download className="px-5 py-2 bg-[#2874F0] hover:bg-[#1C5ECA] text-white text-xs font-bold rounded-lg shadow-lg transition-all text-center whitespace-nowrap">
+                            <a href="/Flipkart_Auto_Listing_Tool.zip" download className="px-5 py-2 bg-[#2874F0] hover:bg-[#1C5ECA] text-white text-xs font-bold rounded-lg shadow-lg transition-all text-center whitespace-nowrap">
                               Download
                             </a>
                           </div>
