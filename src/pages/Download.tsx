@@ -409,23 +409,6 @@ export default function Download() {
                       <div className="space-y-4">
                         <h4 className="font-bold text-slate-200">Resources & Downloads</h4>
                         <div className="space-y-3">
-                          {purchase.device === 'Mobile' && (
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-slate-900/50 border border-slate-700 hover:border-amber-500/50 rounded-xl transition-all group">
-                              <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                  <DownloadIcon className="w-5 h-5 text-amber-500" />
-                                </div>
-                                <div>
-                                  <p className="font-bold text-sm text-slate-200 group-hover:text-white">Kiwi Browser</p>
-                                  <p className="text-xs text-slate-400">Required browser for mobile extension</p>
-                                </div>
-                              </div>
-                              <a href="https://github.com/kiwibrowser/src.next/releases/download/14310011181/com.kiwibrowser.browser-arm64-14310011181-github.apk" target="_blank" rel="noopener noreferrer" className="px-5 py-2 bg-amber-500 hover:bg-amber-600 text-slate-900 text-xs font-bold rounded-lg shadow-lg transition-all text-center whitespace-nowrap">
-                                Download
-                              </a>
-                            </div>
-                          )}
-
                           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-slate-900/50 border border-slate-700 hover:border-[#2874F0]/50 rounded-xl transition-all group">
                             <div className="flex items-center gap-3">
                               <div className="w-10 h-10 rounded-lg bg-[#2874F0]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
