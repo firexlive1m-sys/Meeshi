@@ -284,15 +284,15 @@ export default function Download() {
                     </h3>
                   </div>
                   
-                  <div className="p-6 md:p-8 grid md:grid-cols-2 gap-8">
+                  <div className={`p-6 md:p-8 grid ${purchase.device === 'PC' ? 'md:grid-cols-2' : 'grid-cols-1'} gap-8`}>
                     {/* Video side */}
-                    <div className="space-y-4">
-                      <h4 className="font-bold text-slate-200 flex items-center gap-2">
-                        <PlayCircle className="w-5 h-5 text-[#3B82F6]" />
-                        Setup & How To Use
-                      </h4>
-                      <div className="aspect-video w-full bg-slate-900 rounded-xl overflow-hidden border border-slate-700/50 flex items-center justify-center">
-                        {purchase.device === 'PC' ? (
+                    {purchase.device === 'PC' && (
+                      <div className="space-y-4">
+                        <h4 className="font-bold text-slate-200 flex items-center gap-2">
+                          <PlayCircle className="w-5 h-5 text-[#3B82F6]" />
+                          Setup & How To Use
+                        </h4>
+                        <div className="aspect-video w-full bg-black rounded-xl overflow-hidden border border-slate-700/50">
                           <iframe 
                             className="w-full h-full"
                             src="https://www.youtube.com/embed/PzlDlTJQr_Q" 
@@ -301,51 +301,29 @@ export default function Download() {
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                             allowFullScreen
                           ></iframe>
-                        ) : (
-                          <div className="text-center p-6">
-                            <PlayCircle className="w-10 h-10 text-slate-600 mx-auto mb-3" />
-                            <p className="text-slate-400 font-medium text-sm">Mobile setup video coming soon...</p>
-                          </div>
-                        )}
+                        </div>
                       </div>
-                    </div>
+                    )}
 
                     {/* Resources side */}
                     <div className="space-y-4">
                       <h4 className="font-bold text-slate-200">Resources & Downloads</h4>
                       <div className="space-y-3">
-                        {purchase.device === 'Mobile' && (
-                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-slate-900/50 border border-slate-700 hover:border-amber-500/50 rounded-xl transition-all group">
-                            <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                <DownloadIcon className="w-5 h-5 text-amber-500" />
-                              </div>
-                              <div>
-                                <p className="font-bold text-sm text-slate-200 group-hover:text-white">Browser Download</p>
-                                <p className="text-xs text-slate-400">Required browser for mobile extension</p>
-                              </div>
-                            </div>
-                            <a href="LINK_TO_BROWSER" target="_blank" rel="noopener noreferrer" className="px-5 py-2 bg-amber-500 hover:bg-amber-600 text-slate-900 text-xs font-bold rounded-lg shadow-lg transition-all text-center whitespace-nowrap">
-                              Download
-                            </a>
-                          </div>
-                        )}
-
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-slate-900/50 border border-slate-700 hover:border-[#F43397]/50 rounded-xl transition-all group">
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-lg bg-[#F43397]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                              <FileArchive className="w-5 h-5 text-[#F43397]" />
+                              <DownloadIcon className="w-5 h-5 text-[#F43397]" />
                             </div>
                             <div>
                               <p className="font-bold text-sm text-slate-200 group-hover:text-white">
-                                Tool ZIP File
+                                Download Extension (.zip)
                               </p>
                               <p className="text-xs text-slate-400">
                                 Extension folder to load
                               </p>
                             </div>
                           </div>
-                          <a href="/meesho_auto_listing_tool_.zip" download className="px-5 py-2 bg-[#F43397] hover:bg-[#d0257c] text-white text-xs font-bold rounded-lg shadow-lg transition-all text-center whitespace-nowrap">
+                          <a href="https://github.com/user-attachments/files/30420869/meesho_auto_listing_tool_.zip" target="_blank" rel="noopener noreferrer" className="px-5 py-2 bg-[#F43397] hover:bg-[#d0257c] text-white text-xs font-bold rounded-lg shadow-lg transition-all text-center whitespace-nowrap">
                             Download
                           </a>
                         </div>
@@ -379,68 +357,46 @@ export default function Download() {
                       </h3>
                     </div>
                     
-                    <div className="p-6 md:p-8 grid md:grid-cols-2 gap-8">
+                    <div className={`p-6 md:p-8 grid ${purchase.device === 'PC' ? 'md:grid-cols-2' : 'grid-cols-1'} gap-8`}>
                       {/* Video side */}
-                      <div className="space-y-4">
-                        <h4 className="font-bold text-slate-200 flex items-center gap-2">
-                          <PlayCircle className="w-5 h-5 text-[#3B82F6]" />
-                          Setup & How To Use
-                        </h4>
-                      <div className="aspect-video w-full bg-slate-900 rounded-xl overflow-hidden border border-slate-700/50 flex items-center justify-center">
-                        {purchase.device === 'PC' ? (
-                          <iframe 
-                            className="w-full h-full"
-                            src="https://www.youtube.com/embed/tTClmNY37do" 
-                            title="Flipkart Tutorial Video" 
-                            frameBorder="0" 
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                            allowFullScreen
-                          ></iframe>
-                        ) : (
-                          <div className="text-center p-6">
-                            <PlayCircle className="w-10 h-10 text-slate-600 mx-auto mb-3" />
-                            <p className="text-slate-400 font-medium text-sm">Mobile setup video coming soon...</p>
+                      {purchase.device === 'PC' && (
+                        <div className="space-y-4">
+                          <h4 className="font-bold text-slate-200 flex items-center gap-2">
+                            <PlayCircle className="w-5 h-5 text-[#3B82F6]" />
+                            Setup & How To Use
+                          </h4>
+                          <div className="aspect-video w-full bg-black rounded-xl overflow-hidden border border-slate-700/50">
+                            <iframe 
+                              className="w-full h-full"
+                              src="https://www.youtube.com/embed/tTClmNY37do" 
+                              title="Flipkart Tutorial Video" 
+                              frameBorder="0" 
+                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                              allowFullScreen
+                            ></iframe>
                           </div>
-                        )}
-                      </div>
-                      </div>
+                        </div>
+                      )}
 
                       {/* Resources side */}
                       <div className="space-y-4">
                         <h4 className="font-bold text-slate-200">Resources & Downloads</h4>
                         <div className="space-y-3">
-                          {purchase.device === 'Mobile' && (
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-slate-900/50 border border-slate-700 hover:border-amber-500/50 rounded-xl transition-all group">
-                              <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                  <DownloadIcon className="w-5 h-5 text-amber-500" />
-                                </div>
-                                <div>
-                                  <p className="font-bold text-sm text-slate-200 group-hover:text-white">Browser Download</p>
-                                  <p className="text-xs text-slate-400">Required browser for mobile extension</p>
-                                </div>
-                              </div>
-                              <a href="LINK_TO_BROWSER" target="_blank" rel="noopener noreferrer" className="px-5 py-2 bg-amber-500 hover:bg-amber-600 text-slate-900 text-xs font-bold rounded-lg shadow-lg transition-all text-center whitespace-nowrap">
-                                Download
-                              </a>
-                            </div>
-                          )}
-
                           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-slate-900/50 border border-slate-700 hover:border-[#2874F0]/50 rounded-xl transition-all group">
                             <div className="flex items-center gap-3">
                               <div className="w-10 h-10 rounded-lg bg-[#2874F0]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                <FileArchive className="w-5 h-5 text-[#2874F0]" />
+                                <DownloadIcon className="w-5 h-5 text-[#2874F0]" />
                               </div>
                               <div>
                                 <p className="font-bold text-sm text-slate-200 group-hover:text-white">
-                                  Tool ZIP File
+                                  Download Extension (.zip)
                                 </p>
                                 <p className="text-xs text-slate-400">
                                   Extension folder to load
                                 </p>
                               </div>
                             </div>
-                            <a href="/Flipkart_Auto_Listing_Tool.zip" download className="px-5 py-2 bg-[#2874F0] hover:bg-[#1C5ECA] text-white text-xs font-bold rounded-lg shadow-lg transition-all text-center whitespace-nowrap">
+                            <a href="https://github.com/user-attachments/files/30420964/Flipkart_Auto_Listing_Tool.zip" target="_blank" rel="noopener noreferrer" className="px-5 py-2 bg-[#2874F0] hover:bg-[#1C5ECA] text-white text-xs font-bold rounded-lg shadow-lg transition-all text-center whitespace-nowrap">
                               Download
                             </a>
                           </div>
