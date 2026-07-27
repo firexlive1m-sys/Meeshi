@@ -270,6 +270,18 @@ export default function Download() {
                   </>
                 )}
               </button>
+
+              <div className="mt-6 text-center">
+                <a
+                  href={`https://wa.me/91${CONFIG.whatsappNumber}?text=${encodeURIComponent('Hello, I need help with my device selection.')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-[#25D366]/10 hover:bg-[#25D366]/20 text-[#25D366] border border-[#25D366]/30 rounded-xl transition-all text-sm font-bold mx-auto"
+                >
+                  <MessageCircle className="w-4 h-4" />
+                  Need Help? Connect on WhatsApp
+                </a>
+              </div>
             </div>
           </div>
         ) : (
@@ -442,22 +454,24 @@ export default function Download() {
         )}
 
         {/* Dashboard Need Help Section */}
-        <div className="mt-12 bg-gradient-to-br from-[#1E293B] to-[#0F172A] border border-slate-700/50 rounded-2xl p-8 text-center shadow-xl">
-          <MessageCircle className="w-10 h-10 text-[#25D366] mx-auto mb-4" />
-          <h3 className="text-xl font-bold text-white mb-2">Need Help with Your Purchase?</h3>
-          <p className="text-slate-400 mb-6 max-w-lg mx-auto">
-            Are you facing any issues while downloading, setting up, or using the tool? Our support team is here to assist you.
-          </p>
-          <a
-            href={`https://wa.me/91${CONFIG.whatsappNumber}?text=${encodeURIComponent('Hello, I need help on the download dashboard for the Auto Listing Tool.')}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-8 py-3 bg-[#25D366] hover:bg-[#20bd5a] text-slate-900 font-bold rounded-xl transition-all shadow-[0_0_20px_rgba(37,211,102,0.3)] hover:shadow-[0_0_30px_rgba(37,211,102,0.5)] transform hover:-translate-y-0.5"
-          >
-            <MessageCircle className="w-5 h-5" />
-            Contact WhatsApp Support
-          </a>
-        </div>
+        {(purchase && purchase.device) && (
+          <div className="mt-12 bg-gradient-to-br from-[#1E293B] to-[#0F172A] border border-slate-700/50 rounded-2xl p-8 text-center shadow-xl">
+            <MessageCircle className="w-10 h-10 text-[#25D366] mx-auto mb-4" />
+            <h3 className="text-xl font-bold text-white mb-2">Need Help with Your Purchase?</h3>
+            <p className="text-slate-400 mb-6 max-w-lg mx-auto">
+              Are you facing any issues while downloading, setting up, or using the tool? Our support team is here to assist you.
+            </p>
+            <a
+              href={`https://wa.me/91${CONFIG.whatsappNumber}?text=${encodeURIComponent('Hello, I need help on the download dashboard for the Auto Listing Tool.')}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-8 py-3 bg-[#25D366] hover:bg-[#20bd5a] text-slate-900 font-bold rounded-xl transition-all shadow-[0_0_20px_rgba(37,211,102,0.3)] hover:shadow-[0_0_30px_rgba(37,211,102,0.5)] transform hover:-translate-y-0.5"
+            >
+              <MessageCircle className="w-5 h-5" />
+              Contact WhatsApp Support
+            </a>
+          </div>
+        )}
       </div>
     </div>
   );
