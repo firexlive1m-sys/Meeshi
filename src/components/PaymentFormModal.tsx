@@ -114,27 +114,28 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
     setSetupInstruction(null);
 
     const isNameInvalid = !name.trim();
-    const isPhoneInvalid = !phone.trim() || !/^\d{10}$/.test(phone);
+    const isEmailInvalid = !email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
     setNameTouched(true);
-    setPhoneTouched(true);
+    setEmailTouched(true);
     setNameError(isNameInvalid);
-    setPhoneError(isPhoneInvalid);
+    setEmailError(isEmailInvalid);
 
     // Validate inputs
     if (isNameInvalid) {
       setError('Please enter your full name (Apna naam daalein)');
       return;
     }
-    if (isPhoneInvalid) {
-      setError('Please enter a valid 10-digit mobile number (10-digit mobile number daalein)');
+    if (isEmailInvalid) {
+      setError('Please enter a valid email address (Apna email id daalein)');
       return;
     }
 
     setLoading(true);
 
     const computedName = name.trim() || 'Customer';
-    const computedEmail = phone.trim() + '@gmail.com';
+    const computedEmail = email.trim();
+    const dummyPhone = '9999999999'; // Cashfree might require a phone, so we pass a dummy one if not collected.
 
     try {
       // 1. Create order on Express backend
@@ -147,7 +148,7 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
           amount: finalTotal,
           customerName: computedName,
           customerEmail: computedEmail,
-          customerPhone: phone,
+          customerPhone: dummyPhone,
           planName: finalPlanName
         }),
       });
@@ -180,7 +181,7 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
       try {
         localStorage.setItem('pending_purchase_name', computedName);
         localStorage.setItem('pending_purchase_email', computedEmail);
-        localStorage.setItem('pending_purchase_phone', phone);
+        localStorage.setItem('pending_purchase_phone', dummyPhone);
         localStorage.setItem('pending_purchase_plan', finalPlanName);
         localStorage.setItem('pending_purchase_price', finalTotal.toString());
       } catch (e) {
@@ -190,7 +191,7 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
       // 3. Initiate checkout (V3 Web Checkout)
       trackInitiateCheckout(finalTotal, 'INR', {
         email: computedEmail,
-        phone: phone,
+        phone: dummyPhone,
         firstName: computedName
       });
       await cashfree.checkout({
@@ -303,47 +304,45 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
                       )}
                     </div>
 
-                    {/* Phone Number Input Container */}
+                    {/* Email Input Container */}
                     <div className="space-y-1 text-left">
-                      <label htmlFor="customerPhone" className="block text-[13px] font-semibold text-slate-700">
-                        Phone number *
+                      <label htmlFor="customerEmail" className="block text-[13px] font-semibold text-slate-700">
+                        Email Address *
                       </label>
                       <div className={`border rounded-xl py-2.5 px-3 bg-white transition-all duration-150 ${
-                        phoneTouched && phoneError
+                        emailTouched && emailError
                           ? 'border-red-500 ring-1 ring-red-500 bg-red-50/10'
                           : 'border-slate-200 focus-within:border-blue-600 focus-within:ring-1 focus-within:ring-blue-600'
                       }`}>
                         <input
-                          id="customerPhone"
-                          type="tel"
+                          id="customerEmail"
+                          type="email"
                           required
-                          pattern="\d{10}"
-                          maxLength={10}
-                          value={phone}
+                          value={email}
                           onChange={(e) => {
-                            const val = e.target.value.replace(/\D/g, '');
-                            setPhone(val);
-                            if (phoneTouched) {
-                              setPhoneError(!val.trim() || !/^\d{10}$/.test(val));
+                            const val = e.target.value;
+                            setEmail(val);
+                            if (emailTouched) {
+                              setEmailError(!val.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val));
                             }
                           }}
                           onBlur={() => {
-                            setPhoneTouched(true);
-                            setPhoneError(!phone.trim() || !/^\d{10}$/.test(phone));
+                            setEmailTouched(true);
+                            setEmailError(!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email));
                           }}
-                          placeholder="Enter your phone number"
+                          placeholder="Enter your email address"
                           className="block w-full bg-transparent text-slate-800 font-medium text-sm focus:outline-none border-0 p-0 font-sans"
                         />
                       </div>
-                      {phoneTouched && phoneError && (
+                      {emailTouched && emailError && (
                         <p className="text-[11px] font-semibold text-red-500 animate-fade-in text-left">
-                          Please enter a valid 10-digit phone number
+                          Please enter a valid email address
                         </p>
                       )}
                       <div className="mt-2.5 bg-amber-50/80 border border-amber-200/60 p-2.5 rounded-lg flex items-start gap-2">
                         <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
                         <p className="text-[11px] leading-snug font-medium text-amber-900 text-left">
-                          <strong>Note:</strong> Tool access will be tied to this Phone number and your Email. Please ensure it is correct, as access cannot be transferred.
+                          <strong>Note:</strong> Tool access will be tied to this Email address. Please ensure it is correct and you can log into it, as access cannot be transferred.
                         </p>
                       </div>
                     </div>
