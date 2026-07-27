@@ -533,10 +533,10 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
                   </div>
                 </div>
 
-                {/* Sticky Bottom Footer Area with Shadow */}
-                <div className="w-full border-t border-slate-100 bg-white p-4 shrink-0 flex justify-center sticky bottom-0 z-10 shadow-[0_-4px_16px_rgba(0,0,0,0.04)]">
-                  <div className="max-w-lg w-full space-y-3">
-                    {/* Pay Action Button (Exactly like screenshots) */}
+                {/* Action Area */}
+                <div className="w-full flex justify-center px-4 pb-6 mt-4">
+                  <div className="max-w-lg w-full">
+                    {/* Pay Action Button */}
                     <button
                       type="submit"
                       disabled={loading}
@@ -554,14 +554,6 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
                         </>
                       )}
                     </button>
-
-                    {/* Secure Trust Badge Footer */}
-                    <div className="flex flex-col items-center gap-1 select-none">
-                      <div className="flex items-center justify-center gap-1.5 text-slate-400 text-[9px] font-bold uppercase tracking-wider">
-                        <Shield className="w-3.5 h-3.5 text-slate-400 stroke-[2.5]" />
-                        <span>UPI, Cards & Net Banking Secured by Cashfree Payments</span>
-                      </div>
-                    </div>
                   </div>
                 </div>
               </form>
