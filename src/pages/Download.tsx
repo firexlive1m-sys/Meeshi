@@ -3,13 +3,15 @@ import { motion } from 'motion/react';
 import { LogOut, Download as DownloadIcon, PlayCircle, Loader2, Sparkles, CheckCircle2 } from 'lucide-react';
 import { auth, db, googleProvider } from '../firebase';
 import { signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { Link } from 'react-router-dom';
 
 export default function Download() {
   const [user, setUser] = useState<any>(null);
   const [purchase, setPurchase] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [selectedDevice, setSelectedDevice] = useState<string>('Mobile');
+  const [savingDevice, setSavingDevice] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -43,6 +45,22 @@ export default function Download() {
   const handleLogout = () => {
     signOut(auth);
     setPurchase(null);
+  };
+
+  const handleSaveDevice = async () => {
+    if (!user?.email) return;
+    setSavingDevice(true);
+    try {
+      const docRef = doc(db, 'purchases', user.email);
+      await setDoc(docRef, { device: selectedDevice }, { merge: true });
+      // Update local state
+      setPurchase({ ...purchase, device: selectedDevice });
+    } catch (err) {
+      console.error("Error saving device", err);
+      alert("Failed to save device. Please try again.");
+    } finally {
+      setSavingDevice(false);
+    }
   };
 
   if (loading) {
@@ -114,8 +132,102 @@ export default function Download() {
               Purchase Now
             </Link>
           </div>
+        ) : !purchase.device ? (
+          /* User has purchase but NO device selected */
+          <div className="max-w-2xl mx-auto space-y-6">
+            <div className="bg-[#1E293B] border-2 border-emerald-500/30 rounded-3xl p-6 md:p-10 shadow-[0_20px_50px_rgba(16,185,129,0.15)] text-center">
+              <motion.div 
+                className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 text-xs font-bold text-emerald-400 uppercase tracking-wider mx-auto mb-6"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
+                <span>Action Required</span>
+              </motion.div>
+              
+              <h3 className="text-2xl md:text-3xl font-black text-white font-display tracking-tight leading-snug mb-2">
+                Aap Kis Device Me Use Karenge?
+              </h3>
+              <p className="text-emerald-400 font-mono text-[11px] font-semibold tracking-wider uppercase mb-6">
+                Device Selection
+              </p>
+
+              <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-4 text-left space-y-2 text-xs mb-8">
+                <p className="text-amber-400 font-bold flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                  Important Note / ज़रूरी सूचना:
+                </p>
+                <div className="space-y-1.5 text-gray-300 leading-relaxed font-medium">
+                  <p>
+                    Aap jis device me tool chalana chahte hain, <span className="text-white font-bold underline decoration-amber-400/50">usi device ko select karein</span>. Har purchase par sirf <span className="text-amber-300 font-bold">1 Single Device</span> ka access generate hoga.
+                  </p>
+                  <p className="text-[11px] text-gray-400 italic">
+                    (Please select the exact device you will use. Access is limited to only 1 device per purchase and cannot be changed later.)
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-3 pt-1 text-left mb-8">
+                {[
+                  { 
+                    id: 'Mobile', 
+                    label: '📱 Mobile (Smartphone)', 
+                    sub: 'Android ya iPhone par chalane ke liye' 
+                  },
+                  { 
+                    id: 'PC', 
+                    label: '🖥️ PC / Laptop', 
+                    sub: 'Computer ya Laptop me setup karne ke liye' 
+                  }
+                ].map((opt) => {
+                  const isSelected = selectedDevice === opt.id;
+                  return (
+                    <motion.button
+                      key={opt.id}
+                      type="button"
+                      onClick={() => setSelectedDevice(opt.id)}
+                      className={`w-full flex items-center justify-between p-4 rounded-2xl border text-left transition-all cursor-pointer ${
+                        isSelected 
+                          ? 'bg-emerald-500/10 border-emerald-500 text-white shadow-[0_4px_15px_rgba(16,185,129,0.15)] ring-1 ring-emerald-500/20' 
+                          : 'bg-slate-900/40 border-slate-800 text-gray-300 hover:border-slate-700 hover:bg-slate-900/80'
+                      }`}
+                    >
+                      <div className="flex-1 min-w-0 pr-2">
+                        <p className={`text-sm md:text-base font-bold transition-colors ${isSelected ? 'text-emerald-400' : 'text-slate-200'}`}>
+                          {opt.label}
+                        </p>
+                        <p className="text-xs text-gray-400 mt-1 leading-normal transition-colors">
+                          {opt.sub}
+                        </p>
+                      </div>
+                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${
+                        isSelected 
+                          ? 'border-emerald-500 bg-emerald-500' 
+                          : 'border-slate-600 bg-transparent'
+                      }`}>
+                        {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                      </div>
+                    </motion.button>
+                  );
+                })}
+              </div>
+
+              <button
+                onClick={handleSaveDevice}
+                disabled={savingDevice}
+                className="w-full h-14 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-extrabold text-sm sm:text-base flex items-center justify-center gap-2 border border-emerald-400/20 shadow-lg cursor-pointer transition-all duration-150 disabled:opacity-70"
+              >
+                {savingDevice ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <>
+                    <CheckCircle2 className="w-5 h-5" />
+                    <span>Confirm & Get Access</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
         ) : (
-          /* User has purchase! */
+          /* User has purchase and DEVICE is selected! */
           <div className="space-y-8">
             <div className="bg-gradient-to-br from-[#1E293B] to-[#0F172A] border border-emerald-500/20 rounded-2xl p-6 md:p-8 shadow-xl">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
@@ -125,20 +237,44 @@ export default function Download() {
                   </div>
                   <h2 className="text-2xl font-bold text-white">{purchase.plan || 'Meesho Automation Tool'}</h2>
                   <p className="text-gray-400 text-sm mt-1">
-                    Device: {purchase.device || 'Not selected'} | Order ID: {purchase.orderId}
+                    Device: <span className="font-bold text-emerald-400">{purchase.device}</span> | Order ID: {purchase.orderId}
                   </p>
                 </div>
                 <a 
-                  href="https://link-to-your-actual-download-file.zip" 
+                  href={purchase.device === 'Mobile' ? 'https://link-to-mobile-app' : 'https://link-to-pc-extension'} 
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center justify-center gap-2 px-6 py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-bold rounded-xl transition-all shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)] transform hover:-translate-y-0.5"
                 >
                   <DownloadIcon className="w-5 h-5" />
-                  Download Files
+                  Download for {purchase.device}
                 </a>
               </div>
             </div>
+
+            {/* Custom Content Based on Device */}
+            {purchase.device === 'Mobile' && (
+              <div className="bg-[#1E293B] border border-slate-700/50 rounded-2xl p-6 md:p-8 shadow-lg">
+                <h3 className="text-xl font-bold text-white mb-4">📱 Mobile Instructions</h3>
+                <ul className="list-disc list-inside text-gray-300 space-y-2">
+                  <li>Download the APK file using the button above.</li>
+                  <li>Install the app on your Android device (you may need to allow "Install from unknown sources").</li>
+                  <li>Open the app and log in with your email.</li>
+                </ul>
+              </div>
+            )}
+
+            {purchase.device !== 'Mobile' && (
+              <div className="bg-[#1E293B] border border-slate-700/50 rounded-2xl p-6 md:p-8 shadow-lg">
+                <h3 className="text-xl font-bold text-white mb-4">🖥️ PC / Laptop Instructions</h3>
+                <ul className="list-disc list-inside text-gray-300 space-y-2">
+                  <li>Download the ZIP file containing the extension.</li>
+                  <li>Extract the ZIP file to a folder on your computer.</li>
+                  <li>Open Chrome and go to <code className="bg-black px-2 py-1 rounded text-emerald-400">chrome://extensions/</code>.</li>
+                  <li>Enable "Developer mode" and click "Load unpacked", then select the extracted folder.</li>
+                </ul>
+              </div>
+            )}
 
             <div className="bg-[#1E293B] border border-slate-700/50 rounded-2xl overflow-hidden shadow-lg">
               <div className="p-6 md:p-8 border-b border-slate-700/50">

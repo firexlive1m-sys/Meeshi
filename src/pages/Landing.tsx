@@ -85,7 +85,6 @@ export default function Landing() {
     const orderId = params.get('order_id');
     
     if (status === 'success') {
-      setPaymentSuccess(true);
       if (orderId) setPaymentOrderId(orderId);
 
       // Load initial info from localStorage
@@ -95,55 +94,50 @@ export default function Landing() {
       const storedPlan = localStorage.getItem('pending_purchase_plan') || 'Meesho Instant Listing Pack';
       const storedPrice = localStorage.getItem('pending_purchase_price') ? Number(localStorage.getItem('pending_purchase_price')) : 199;
 
-      setCustomerDetails({
-        name: storedName,
-        email: storedEmail,
-        phone: storedPhone,
-        planName: storedPlan,
-        price: storedPrice
-      });
+      // Ensure we navigate after saving
+      const saveAndNavigate = async () => {
+        let customerEmail = storedEmail;
+        let customerName = storedName;
+        let customerPhone = storedPhone;
+        let price = storedPrice;
 
-      // Backup fetch from endpoint in case localStorage was cleared/not-present
-      if (orderId) {
-        fetch(`/api/get-cashfree-order/${orderId}`)
-          .then(res => {
-            if (res.ok) return res.json();
-            throw new Error('Failed to fetch details');
-          })
-          .then(async data => {
-            if (data && data.customer_details) {
-              const customerEmail = data.customer_details.customer_email || storedEmail;
-              setCustomerDetails(prev => ({
-                ...prev,
-                name: data.customer_details.customer_name || prev.name,
-                email: customerEmail,
-                phone: data.customer_details.customer_phone || prev.phone,
-                price: data.order_amount || prev.price
-              }));
-
-              // Save Purchase to Firebase
-              try {
-                if (customerEmail) {
-                  // Save record
-                  await setDoc(doc(db, 'purchases', customerEmail), {
-                    plan: storedPlan,
-                    price: data.order_amount || storedPrice,
-                    orderId: orderId,
-                    purchasedAt: new Date().toISOString(),
-                    name: data.customer_details.customer_name || storedName,
-                    phone: data.customer_details.customer_phone || storedPhone
-                  }, { merge: true });
-                }
-              } catch (firebaseErr) {
-                console.error("Firebase save/link error:", firebaseErr);
+        if (orderId) {
+          try {
+            const res = await fetch(`/api/get-cashfree-order/${orderId}`);
+            if (res.ok) {
+              const data = await res.json();
+              if (data && data.customer_details) {
+                customerEmail = data.customer_details.customer_email || storedEmail;
+                customerName = data.customer_details.customer_name || storedName;
+                customerPhone = data.customer_details.customer_phone || storedPhone;
+                price = data.order_amount || storedPrice;
               }
             }
-          })
-          .catch(err => console.warn('Backup fetch order details failed:', err));
-      }
+          } catch (err) {
+            console.warn('Backup fetch order details failed:', err);
+          }
+        }
 
-      // Clean up URL parameters so refresh doesn't trigger it again
-      window.history.replaceState({}, document.title, window.location.pathname);
+        try {
+          if (customerEmail) {
+             await setDoc(doc(db, 'purchases', customerEmail), {
+               plan: storedPlan,
+               price: price,
+               orderId: orderId,
+               purchasedAt: new Date().toISOString(),
+               name: customerName,
+               phone: customerPhone
+             }, { merge: true });
+          }
+        } catch (firebaseErr) {
+          console.error("Firebase save/link error:", firebaseErr);
+        }
+
+        window.history.replaceState({}, document.title, window.location.pathname);
+        navigate('/download');
+      };
+
+      saveAndNavigate();
     } else if (status === 'failed') {
       setPaymentSuccess(false);
       if (orderId) setPaymentOrderId(orderId);
@@ -285,193 +279,11 @@ export default function Landing() {
     }
   };
 
-  const handleRedirectToWhatsapp = (device: string) => {
-    const isCombo = customerDetails.planName.toLowerCase().includes('combo');
-    const planTypeText = isCombo ? "Combo" : "Single";
-    
-    const message = `👋 Hello Auto Listing Team
-
-Maine aapka Automated Tool successfully purchase kar liya hai.
-
-📋 Purchase Information
-━━━━━━━━━━━━━━━━━━━━
-👤 Customer Name: ${customerDetails.name}
-📱 Mobile Number: ${customerDetails.phone || 'N/A'}
-💻 Device: ${device}
-📦 Purchased Plan: ${planTypeText}
-💰 Amount Paid: ₹${customerDetails.price}
-━━━━━━━━━━━━━━━━━━━━
-
-Kindly meri payment verify kar dijiye. Verification complete hone ke baad tool & setup and how to use video bhej dijiye
-
-Agar kisi aur information ki zarurat ho to mujhe batayiye.
-
-Dhanyavaad! 🙏`;
-
-    const encodedText = encodeURIComponent(message);
-    const whatsappUrl = `https://wa.me/91${whatsappNumber}?text=${encodedText}`;
-    
-    // Redirect current window to WhatsApp
-    window.location.href = whatsappUrl;
-  };
-
-  if (paymentSuccess) {
-    return (
-      <div id="download-panel-root" className="min-h-screen w-full relative overflow-x-hidden bg-[#0F172A] text-[#F8FAFC] font-sans selection:bg-[#3B82F6] selection:text-white py-12 md:py-20 flex items-center justify-center ">
-        {/* Modern glowing background accents */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[400px] bg-gradient-to-b from-emerald-950/20 via-slate-900/10 to-transparent blur-3xl pointer-events-none" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[450px] h-[450px] bg-emerald-500/5 blur-[120px] rounded-full pointer-events-none" />
-
-        <div className="max-w-md w-full mx-auto px-4 relative z-10">
-          <motion.div
-            className="relative w-full bg-[#1E293B] border-2 border-emerald-500/30 rounded-3xl p-6 sm:p-8 shadow-[0_20px_50px_rgba(16,185,129,0.15)] text-center font-sans space-y-6"
-          >
-            {/* Success badge */}
-            <motion.div 
-              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 text-xs font-bold text-emerald-400 uppercase tracking-wider mx-auto"
-            >
-              <Sparkles className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
-              <span>Purchase Successful</span>
-            </motion.div>
-
-            {/* Title & Description */}
-            <div className="space-y-3">
-              <h3 className="text-xl sm:text-2xl font-black text-white font-display tracking-tight leading-snug ">
-                Aap Kis Device Me Use Karenge?
-              </h3>
-              <p className="text-emerald-400 font-mono text-[11px] font-semibold tracking-wider uppercase">
-                Device Selection / Device Select Karein
-              </p>
-              <div className="h-px bg-slate-800 my-1" />
-              
-              {/* Professional Warning/Info Callout */}
-              <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-3.5 text-left space-y-2 text-xs">
-                <p className="text-amber-400 font-bold flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
-                  Important Note / ज़रूरी सूचना:
-                </p>
-                <div className="space-y-1.5 text-gray-300 leading-relaxed font-medium">
-                  <p>
-                    Aap jis device me tool chalana chahte hain, <span className="text-white font-bold underline decoration-amber-400/50">usi device ko select karein</span>. Har purchase par sirf <span className="text-amber-300 font-bold">1 Single Device</span> ka access generate hoga aur aap kisi doosre device me isse nahi chala payenge.
-                  </p>
-                  <p className="text-[11px] text-gray-400 italic">
-                    (Please select the exact device you will use. Access is limited to only 1 device per purchase and cannot be transferred later.)
-                  </p>
-                </div>
-              </div>
-
-              <p className="text-gray-300 text-xs sm:text-sm leading-relaxed pt-1">
-                Device select karke niche green button par click karein aur WhatsApp par code & direct download files lein.
-              </p>
-            </div>
-
-            {/* Options list */}
-            <div className="space-y-3 pt-1">
-              {[
-                { 
-                  id: 'Mobile', 
-                  label: '📱 Mobile (Smartphone)', 
-                  sub: 'Android ya iPhone par chalane ke liye (To run on smartphone)' 
-                },
-                { 
-                  id: 'PC', 
-                  label: '🖥️ PC (Desktop Computer)', 
-                  sub: 'Computer me setup karne ke liye (To run on desktop PC)' 
-                },
-                { 
-                  id: 'Laptop', 
-                  label: '💻 Laptop', 
-                  sub: 'Laptop par extension run karne ke liye (To run on laptop)' 
-                }
-              ].map((opt, idx) => {
-                const isSelected = selectedDevice === opt.id;
-                return (
-                  <motion.button
-                    key={opt.id}
-                    type="button"
-                    onClick={() => setSelectedDevice(opt.id)}
-                    className={`w-full flex items-center justify-between p-4 rounded-2xl border text-left transition-all cursor-pointer ${
-                      isSelected 
-                        ? 'bg-emerald-500/10 border-emerald-500 text-white shadow-[0_4px_15px_rgba(16,185,129,0.15)] ring-1 ring-emerald-500/20' 
-                        : 'bg-slate-900/40 border-slate-800 text-gray-300 hover:border-slate-700 hover:bg-slate-900/80'
-                    }`}
-                  >
-                    <div className="flex-1 min-w-0 pr-2">
-                      <p className={`text-sm font-bold transition-colors ${isSelected ? 'text-emerald-400' : 'text-slate-200'}`}>
-                        {opt.label}
-                      </p>
-                      <p className="text-[11px] text-gray-400 mt-1 leading-normal transition-colors">
-                        {opt.sub}
-                      </p>
-                    </div>
-                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${
-                      isSelected 
-                        ? 'border-emerald-500 bg-emerald-500' 
-                        : 'border-slate-600 bg-transparent'
-                    }`}>
-                      {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
-                    </div>
-                  </motion.button>
-                );
-              })}
-            </div>
-
-            {/* Action Buttons */}
-            <div className="space-y-4 pt-2">
-              <motion.button
-                type="button"
-                whileHover={{ scale: 1.01 }}
-                whileTap={{ scale: 0.99 }}
-                onClick={async () => {
-                  try {
-                    // Update purchase record with selected device
-                    if (customerDetails.email) {
-                       await setDoc(doc(db, 'purchases', customerDetails.email), {
-                         device: selectedDevice
-                       }, { merge: true });
-                    }
-                    navigate('/download');
-                  } catch (e) {
-                     navigate('/download');
-                  }
-                }}
-                className="w-full h-14 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-extrabold text-sm sm:text-base flex items-center justify-center gap-2 border border-emerald-400/20 shadow-lg cursor-pointer transition-all duration-150"
-              >
-                <Download className="w-5 h-5 fill-current text-white animate-pulse" />
-                <span>Save Device & Go to Download Page</span>
-              </motion.button>
-              
-              <p className="text-xs text-gray-400">
-                A secure login link has been configured for <strong>{customerDetails.email || 'your email'}</strong>.
-              </p>
-
-              <div className="flex items-center justify-center gap-1.5 text-[11px] text-gray-500 font-mono">
-                <Lock className="w-3.5 h-3.5 text-gray-600" />
-                <span>Secure Billing & Verification ID: {paymentOrderId || 'Pending'}</span>
-              </div>
-            </div>
-
-          </motion.div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div id="landing-page-root" className="min-h-screen w-full relative overflow-x-hidden bg-[#0F172A] text-[#F8FAFC] font-sans selection:bg-[#3B82F6] selection:text-white">
       
       {/* 1. TOP HERO SECTION (MOST IMPORTANT) */}
       <header className="relative pt-2 pb-16 md:pt-4 md:pb-24 overflow-hidden">
-        {/* Top bar with Login */}
-        <div className="absolute top-4 right-4 z-50">
-          <Link
-            to="/download"
-            className="px-4 py-2 bg-[#1E293B] border border-slate-700 hover:bg-slate-800 text-sm font-semibold rounded-full shadow-lg transition-all text-white flex items-center gap-2"
-          >
-             <Lock className="w-4 h-4 text-emerald-400" />
-             Member Login
-          </Link>
-        </div>
 
         {/* Ambient color blobs */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[500px] bg-gradient-to-b from-blue-900/10 via-sky-900/5 to-transparent blur-3xl pointer-events-none" />
@@ -958,16 +770,10 @@ Dhanyavaad! 🙏`;
             <div className="space-y-3">
               <h4 className="text-xs font-bold uppercase tracking-widest text-[#3B82F6] font-mono">Instant Support</h4>
               <p className="text-xs text-gray-400 font-sans leading-relaxed">
-                Need manual setting assistance or direct billing files? Send an email or message on WhatsApp.
+                Need manual setting assistance or direct billing files? Send an email to our support team.
               </p>
               
               <div className="space-y-1.5 font-mono text-xs">
-                <div className="flex items-center gap-2 text-[#3B82F6]">
-                  <MessageSquare className="w-4 h-4" />
-                  <a href={`https://wa.me/91${whatsappNumber}`} target="_blank" rel="noopener noreferrer" className="hover:underline">
-                    WhatsApp: +91 {whatsappNumber}
-                  </a>
-                </div>
                 <div className="flex items-center gap-2 text-[#3B82F6]">
                   <Layers className="w-4 h-4" />
                   <span>Support: {CONFIG.supportEmail}</span>
@@ -1102,7 +908,7 @@ Dhanyavaad! 🙏`;
                     </p>
                     <p>
                       We collect basic personal information to handle your registration and transaction through our partner Cashfree:
-                      <br />• <strong>Personal Information:</strong> Name, Email Address, Contact/WhatsApp Phone Number, and Billing Details.
+                      <br />• <strong>Personal Information:</strong> Name, Email Address, Contact Phone Number, and Billing Details.
                       <br />• <strong>Non-Personal Data:</strong> IP Address, browser type, cookies, and standard session details.
                     </p>
                     <p className="font-bold text-[#3B82F6]">
@@ -1119,7 +925,7 @@ Dhanyavaad! 🙏`;
                       All checkout transactions are processed via our verified secure payment partner gateway, <strong>Cashfree Payments</strong>. Your transaction, card details, or UPI information are fully encrypted using SSL with AES-256 standards. We never store credit cards, UPI codes, or bank passwords inside our server environments.
                     </p>
                     <p className="font-bold text-[#3B82F6]">
-                      4. WhatsApp & Customer Support Interactions
+                      4. Customer Support Interactions
                     </p>
                     <p>
                       When you contact our active customer help hotline, we use your phone number and name solely to dispatch setup credentials, manual backup templates, and offer troubleshooting guides. We strictly never sell or rent your contact details to third parties.
@@ -1193,7 +999,7 @@ Dhanyavaad! 🙏`;
                     </p>
                     <p>
                       We want you to be fully successful. If you face any technical difficulties, setup lags, or device compatibility errors after purchase:
-                      <br />• You must contact our customer support desk on WhatsApp (<strong>+91 6295429762</strong>) or email (<strong>ska80ali@gmail.com</strong>).
+                      <br />• You must contact our customer support desk on email (<strong>ska80ali@gmail.com</strong>).
                       <br />• Our engineering team will assist you to set up the tool or provide manual customized configuration sheets matching your device within 24-48 hours.
                       <br />• In the rare scenario that our support specialists cannot resolve the technical problem and the tool remains completely unusable on your specified device, a <strong>full refund of ₹199</strong> will be approved immediately.
                     </p>
@@ -1227,13 +1033,12 @@ Dhanyavaad! 🙏`;
                     <p>
                       • <strong>Instant Web Redirect:</strong> Immediately after completing payment via Cashfree, our secure billing system will redirect you automatically to our high-speed secure download page inside 2 seconds.
                       <br />• <strong>Automatic Email Delivery:</strong> A confirmation email enclosing download credentials, setup files, and video tutorial links is dispatched to your registered billing email within <strong>5 to 10 minutes</strong>.
-                      <br />• <strong>WhatsApp Backup:</strong> A backup link with manual templates is also sent to your registered billing WhatsApp contact number automatically.
                     </p>
                     <p className="font-bold text-[#3B82F6]">
                       2. Delayed Delivery Handling
                     </p>
                     <p>
-                      If you do not receive the email or WhatsApp message within 10 minutes due to unexpected network congestion or incorrect email/phone entry, please contact us at <strong>ska80ali@gmail.com</strong> or WhatsApp us directly at <strong>+91 6295429762</strong>. Our specialized support operator will manually handload and send the files to you directly within 1 hour.
+                      If you do not receive the email within 10 minutes due to unexpected network congestion or incorrect email/phone entry, please contact us at <strong>ska80ali@gmail.com</strong>. Our specialized support operator will manually handload and send the files to you directly within 1 hour.
                     </p>
                   </div>
                 </div>
@@ -1256,9 +1061,9 @@ Dhanyavaad! 🙏`;
                           <MessageSquare className="w-5 h-5 flex-shrink-0" />
                         </div>
                         <div>
-                          <p className="text-[10px] text-gray-400 uppercase font-mono">Immediate WhatsApp Support</p>
-                          <a href={`https://wa.me/91${whatsappNumber}`} target="_blank" rel="noopener noreferrer" className="text-xs sm:text-sm font-bold text-white hover:underline hover:text-emerald-300 transition-colors break-all">
-                            WhatsApp: +91 {whatsappNumber}
+                          <p className="text-[10px] text-gray-400 uppercase font-mono">Immediate Email Support</p>
+                          <a href="mailto:ska80ali@gmail.com" className="text-xs sm:text-sm font-bold text-white hover:underline hover:text-emerald-300 transition-colors break-all">
+                            Email: ska80ali@gmail.com
                           </a>
                         </div>
                       </div>
@@ -1331,7 +1136,7 @@ Dhanyavaad! 🙏`;
             <div className="space-y-1">
               <h4 className="font-bold text-white text-sm">Payment Cancelled or Failed</h4>
               <p className="text-xs text-gray-300 leading-normal">
-                Koi baat nahi! Aap fir se try kar sakte hain. Agar transaction cancel hua ya failure dikha rha h, to direct WhatsApp par connect karke UPI QR code through direct safe list update buy kar sakte hain.
+                Koi baat nahi! Aap fir se try kar sakte hain. Agar transaction cancel hua ya failure dikha rha h, to email par connect karke support le sakte hain.
               </p>
               <div className="flex gap-3 pt-1.5">
                 <button

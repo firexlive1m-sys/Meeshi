@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import { Link } from 'react-router-dom';
 import { 
   X, 
   Shield, 
@@ -230,7 +231,7 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
                           <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
                         </span>
                         <p className="text-[10px] xs:text-[11px] font-bold text-emerald-800 leading-tight">
-                          Instant Access will be sent on WhatsApp
+                          Secure & Instant Download Access
                         </p>
                       </div>
                       <button
@@ -242,6 +243,12 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
                         <X className="w-4 h-4 stroke-[2.5]" />
                       </button>
                     </div>
+
+                    {/* Already Purchased Link */}
+                    <Link to="/download" className="block w-full py-2.5 px-3 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-xl text-center text-blue-700 text-xs sm:text-sm font-bold shadow-sm transition-colors flex items-center justify-center gap-2">
+                      <Lock className="w-3.5 h-3.5" />
+                      Already Purchased? Login Here
+                    </Link>
 
                     {/* Error Message Panel if exists */}
                     {error && (
@@ -336,7 +343,7 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
                       <div className="mt-2.5 bg-amber-50/80 border border-amber-200/60 p-2.5 rounded-lg flex items-start gap-2">
                         <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
                         <p className="text-[11px] leading-snug font-medium text-amber-900 text-left">
-                          <strong>Note:</strong> Tool access will be delivered <strong>ONLY</strong> to this WhatsApp number. Please ensure it is correct, as access cannot be transferred.
+                          <strong>Note:</strong> Tool access will be tied to this Phone number and your Email. Please ensure it is correct, as access cannot be transferred.
                         </p>
                       </div>
                     </div>

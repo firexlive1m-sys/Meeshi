@@ -74,15 +74,13 @@ export default function FAQSection() {
         {/* Call support helper link bottom */}
         <div className="mt-8 text-center p-4 rounded-xl bg-[#1E293B] border border-[#334155] max-w-md mx-auto">
           <p className="text-xs text-gray-400 font-sans">
-            Have different, specific questions? Feel free to write to us on WhatsApp.
+            Have different, specific questions? Feel free to write to us on Email.
           </p>
           <a
-            href="https://wa.me/916295429762?text=Hi! I have some questions about Meesho Auto listing tool"
-            target="_blank"
-            rel="noopener noreferrer"
+            href="mailto:ska80ali@gmail.com?subject=Questions about Meesho Auto listing tool"
             className="inline-flex items-center gap-1.5 text-xs font-bold text-[#3B82F6] mt-2 hover:text-[#2563EB] hover:underline"
           >
-            <span>Ask Direct on WhatsApp</span>
+            <span>Ask Direct on Email</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </a>
         </div>

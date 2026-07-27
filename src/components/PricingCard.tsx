@@ -55,7 +55,7 @@ export default function PricingCard({ onBuyClick }: PricingCardProps) {
     { title: "📦 Low Shipping Charge Formula", desc: "Calibrate package dimensions to accurately qualify for the lowest shipping tiers legally", value: "₹1,499" },
     { title: "📱 Mobile Upload Bypass Template", desc: "Upload and manage listings directly from your iOS or Android smartphone", value: "₹999" },
     { title: "🎥 Step-by-Step Video Tutorial (Hindi)", desc: "Clear, screen-recorded visual walkthrough with no complex jargon", value: "₹499" },
-    { title: "💬 1-on-1 Dedicated WhatsApp Support", desc: "Receive direct, expert assistance for setup and configuration anytime", value: "₹999" }
+    { title: "💬 1-on-1 Dedicated Support", desc: "Receive direct, expert assistance for setup and configuration anytime via email", value: "₹999" }
   ];
 
   const totalActualWorth = 5995;

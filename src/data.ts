@@ -194,7 +194,7 @@ export const REVIEWS: Testimonial[] = [
     avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=150&q=80",
     rating: 5,
     date: "1 Week ago",
-    review: "Outstanding customer service as well! I messaged them on WhatsApp via the button and got support setup help within 10 minutes. Extremely trustworthy brand, do not hesitate 🌟",
+    review: "Outstanding customer service as well! I got support setup help within 10 minutes. Extremely trustworthy brand, do not hesitate 🌟",
     verified: true
   }
 ];
@@ -230,7 +230,7 @@ export const FAQS: FAQItem[] = [
   {
     id: "faq-3",
     question: "How do I access the tool after payment?",
-    answer: "Immediately after your payment is completed, you will be automatically redirected to a secure download page in under 2 seconds. From there, you can download the tool with a single click and watch the step-by-step Hinglish video guide instantly. Additionally, we will instantly send backup download links and support info to your email address and WhatsApp number."
+    answer: "Immediately after your payment is completed, you will be automatically redirected to a secure download page. From there, you can log in, select your device, and download the tool with a single click and watch the step-by-step Hinglish video guide instantly."
   },
   {
     id: "faq-4",
