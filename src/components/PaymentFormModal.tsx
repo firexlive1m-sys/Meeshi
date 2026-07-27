@@ -534,7 +534,7 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
                 </div>
 
                 {/* Action Area */}
-                <div className="w-full flex justify-center px-4 pb-6 mt-4">
+                <div className="w-full flex justify-center px-4 pb-3 mt-4">
                   <div className="max-w-lg w-full">
                     {/* Pay Action Button */}
                     <button
