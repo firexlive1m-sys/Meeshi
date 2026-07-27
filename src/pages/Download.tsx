@@ -294,7 +294,7 @@ export default function Download() {
                       <div className="aspect-video w-full bg-black rounded-xl overflow-hidden border border-slate-700/50">
                         <iframe 
                           className="w-full h-full"
-                          src="https://www.youtube.com/embed/YOUR_MEESHO_VIDEO_ID" 
+                          src={purchase.device === 'PC' ? "https://www.youtube.com/embed/PzlDlTJQr_Q" : "https://www.youtube.com/embed/YOUR_MOBILE_MEESHO_VIDEO_ID"} 
                           title="Meesho Tutorial Video" 
                           frameBorder="0" 
                           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
@@ -338,7 +338,7 @@ export default function Download() {
                               </p>
                             </div>
                           </div>
-                          <a href="LINK_TO_MEESHO_ZIP" target="_blank" rel="noopener noreferrer" className="px-5 py-2 bg-[#F43397] hover:bg-[#d0257c] text-white text-xs font-bold rounded-lg shadow-lg transition-all text-center whitespace-nowrap">
+                          <a href="/Meesho%20auto%20listing%20tool.zip" target="_blank" rel="noopener noreferrer" className="px-5 py-2 bg-[#F43397] hover:bg-[#d0257c] text-white text-xs font-bold rounded-lg shadow-lg transition-all text-center whitespace-nowrap">
                             Download
                           </a>
                         </div>
@@ -353,7 +353,7 @@ export default function Download() {
                               <p className="text-xs text-slate-400">Click to open link</p>
                             </div>
                           </div>
-                          <a href="LINK_TO_IMAGE_TOOL" target="_blank" rel="noopener noreferrer" className="px-5 py-2 bg-[#3B82F6] hover:bg-[#2563eb] text-white text-xs font-bold rounded-lg shadow-lg transition-all text-center whitespace-nowrap">
+                          <a href="https://reduce-shipping-charge.vercel.app/" target="_blank" rel="noopener noreferrer" className="px-5 py-2 bg-[#3B82F6] hover:bg-[#2563eb] text-white text-xs font-bold rounded-lg shadow-lg transition-all text-center whitespace-nowrap">
                             Open
                           </a>
                         </div>
@@ -382,7 +382,7 @@ export default function Download() {
                         <div className="aspect-video w-full bg-black rounded-xl overflow-hidden border border-slate-700/50">
                           <iframe 
                             className="w-full h-full"
-                            src="https://www.youtube.com/embed/YOUR_FLIPKART_VIDEO_ID" 
+                            src={purchase.device === 'PC' ? "https://www.youtube.com/embed/tTClmNY37do" : "https://www.youtube.com/embed/YOUR_MOBILE_FLIPKART_VIDEO_ID"} 
                             title="Flipkart Tutorial Video" 
                             frameBorder="0" 
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
@@ -426,7 +426,7 @@ export default function Download() {
                                 </p>
                               </div>
                             </div>
-                            <a href="LINK_TO_FLIPKART_ZIP" target="_blank" rel="noopener noreferrer" className="px-5 py-2 bg-[#2874F0] hover:bg-[#1C5ECA] text-white text-xs font-bold rounded-lg shadow-lg transition-all text-center whitespace-nowrap">
+                            <a href="/Flipkart%20auto%20listing%20tool.zip" target="_blank" rel="noopener noreferrer" className="px-5 py-2 bg-[#2874F0] hover:bg-[#1C5ECA] text-white text-xs font-bold rounded-lg shadow-lg transition-all text-center whitespace-nowrap">
                               Download
                             </a>
                           </div>
@@ -441,7 +441,7 @@ export default function Download() {
                                 <p className="text-xs text-slate-400">Click to open link</p>
                               </div>
                             </div>
-                            <a href="LINK_TO_IMAGE_TOOL" target="_blank" rel="noopener noreferrer" className="px-5 py-2 bg-[#3B82F6] hover:bg-[#2563eb] text-white text-xs font-bold rounded-lg shadow-lg transition-all text-center whitespace-nowrap">
+                            <a href="https://reduce-shipping-charge.vercel.app/" target="_blank" rel="noopener noreferrer" className="px-5 py-2 bg-[#3B82F6] hover:bg-[#2563eb] text-white text-xs font-bold rounded-lg shadow-lg transition-all text-center whitespace-nowrap">
                               Open
                             </a>
                           </div>
