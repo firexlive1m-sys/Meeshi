@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
-import { LogOut, MessageCircle, Download as DownloadIcon, PlayCircle, Loader2, Sparkles, CheckCircle2, FileArchive, Link as LinkIcon, FileText, ShoppingCart, Image as ImageIcon } from 'lucide-react';
+import { LogOut, MessageCircle, Download as DownloadIcon, PlayCircle, Loader2, Sparkles, CheckCircle2, FileArchive, Link as LinkIcon, FileText, ShoppingCart } from 'lucide-react';
 import { auth, db, googleProvider } from '../firebase';
 import { signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
@@ -329,6 +329,21 @@ export default function Download() {
                             Download
                           </a>
                         </div>
+                        
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-slate-900/50 border border-slate-700 hover:border-[#3B82F6]/50 rounded-xl transition-all group">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-lg bg-[#3B82F6]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                              <LinkIcon className="w-5 h-5 text-[#3B82F6]" />
+                            </div>
+                            <div>
+                              <p className="font-bold text-sm text-slate-200 group-hover:text-white">Image Generation Tool</p>
+                              <p className="text-xs text-slate-400">Click to open link</p>
+                            </div>
+                          </div>
+                          <a href="https://reduce-shipping-charge.vercel.app/" target="_blank" rel="noopener noreferrer" className="px-5 py-2 bg-[#3B82F6] hover:bg-[#2563eb] text-white text-xs font-bold rounded-lg shadow-lg transition-all text-center whitespace-nowrap">
+                            Open
+                          </a>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -387,6 +402,21 @@ export default function Download() {
                               Download
                             </a>
                           </div>
+                          
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-slate-900/50 border border-slate-700 hover:border-[#3B82F6]/50 rounded-xl transition-all group">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-lg bg-[#3B82F6]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <LinkIcon className="w-5 h-5 text-[#3B82F6]" />
+                              </div>
+                              <div>
+                                <p className="font-bold text-sm text-slate-200 group-hover:text-white">Image Generation Tool</p>
+                                <p className="text-xs text-slate-400">Click to open link</p>
+                              </div>
+                            </div>
+                            <a href="https://reduce-shipping-charge.vercel.app/" target="_blank" rel="noopener noreferrer" className="px-5 py-2 bg-[#3B82F6] hover:bg-[#2563eb] text-white text-xs font-bold rounded-lg shadow-lg transition-all text-center whitespace-nowrap">
+                              Open
+                            </a>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -407,32 +437,6 @@ export default function Download() {
                     </a>
                   </div>
                 )}
-
-                {/* Image Generation Tool Section */}
-                <div className="bg-[#1E293B] border-t-4 border-[#3B82F6] rounded-2xl overflow-hidden shadow-xl">
-                  <div className="p-6 border-b border-slate-700/50 bg-slate-800/30">
-                    <h3 className="text-2xl font-black text-white flex items-center gap-3">
-                      <ImageIcon className="w-6 h-6 text-[#3B82F6]" />
-                      Image Generation Tool
-                    </h3>
-                  </div>
-                  <div className="p-6 md:p-8">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 bg-slate-900/50 border border-slate-700 hover:border-[#3B82F6]/50 rounded-xl transition-all group">
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-xl bg-[#3B82F6]/10 flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
-                          <LinkIcon className="w-6 h-6 text-[#3B82F6]" />
-                        </div>
-                        <div>
-                          <p className="font-bold text-lg text-slate-200 group-hover:text-white">Image Generation Tool (Web App)</p>
-                          <p className="text-sm text-slate-400 mt-1">Reduce shipping charge with this tool</p>
-                        </div>
-                      </div>
-                      <a href="https://reduce-shipping-charge.vercel.app/" target="_blank" rel="noopener noreferrer" className="px-8 py-3 bg-[#3B82F6] hover:bg-[#2563eb] text-white text-sm font-bold rounded-xl shadow-lg transition-all text-center whitespace-nowrap">
-                        Open Tool
-                      </a>
-                    </div>
-                  </div>
-                </div>
               </div>
           </div>
         )}
