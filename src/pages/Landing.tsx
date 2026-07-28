@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import emailjs from '@emailjs/browser';
 import { 
   Zap, 
   ShieldCheck, 
@@ -24,8 +23,7 @@ import {
   RotateCcw,
   RotateCw,
   Volume2,
-  VolumeX,
-  Loader2
+  VolumeX
 } from 'lucide-react';
 
 // Data configs
@@ -42,9 +40,8 @@ import PricingCard from '../components/PricingCard';
 import LiveSalesNotification from '../components/LiveSalesNotification';
 import PaymentFormModal from '../components/PaymentFormModal';
 import { initPixel, trackPageView } from '../pixel';
-import { db, auth } from '../firebase';
+import { db } from '../firebase';
 import { doc, setDoc } from 'firebase/firestore';
-import { signOut } from 'firebase/auth';
 import { useNavigate, Link } from 'react-router-dom';
 
 export default function Landing() {
@@ -65,18 +62,6 @@ export default function Landing() {
   // Payment Status State from URL Query Parameters
   const [paymentSuccess, setPaymentSuccess] = useState<boolean | null>(null);
   const [paymentOrderId, setPaymentOrderId] = useState<string>('');
-  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
-
-  useEffect(() => {
-    if (isProcessingPayment) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [isProcessingPayment]);
 
   // Device Selection Popup States
   const [isDevicePopupOpen, setIsDevicePopupOpen] = useState(true);
@@ -97,12 +82,9 @@ export default function Landing() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const status = params.get('payment_status');
-    console.log("PAYMENT STATUS FROM URL:", status);
-    console.log("ORDER ID FROM URL:", params.get('order_id'));
     const orderId = params.get('order_id');
     
     if (status === 'success') {
-      setIsProcessingPayment(true);
       if (orderId) setPaymentOrderId(orderId);
 
       // Load initial info from localStorage
@@ -136,62 +118,9 @@ export default function Landing() {
           }
         }
 
-        console.log("EMAIL STEP STARTED");
-
-        console.log("Checkout Email:", customerEmail);
-
-        console.log("Order ID:", orderId);
-
-             if (orderId) {
-               const emailSentKey = `email_sent_${orderId}`;
-               if (!localStorage.getItem(emailSentKey)) {
-                 const templateParams = {
-                   to_email: customerEmail || 'fallback@example.com',
-                   customer_name: customerName || 'Customer',
-                   order_id: orderId,
-                   product_name: storedPlan,
-                   amount: price,
-                   payment_id: orderId,
-                   purchase_date: new Date().toLocaleDateString(),
-                   download_link: window.location.origin + '/download',
-                   support_email: 'support@mail.com',
-                   website_name: 'Our Service'
-                 };
-                 console.log("EmailJS: Attempting to send email with params:", templateParams);
-                 
-                 console.log("EmailJS templateParams:", templateParams);
-                 
-                 try {
-
-                 
-                   console.log("EmailJS request sent");
-
-                 
-                   const response = await emailjs.send(
-                     'service_9naplmf',
-                     'template_cubn7ut',
-                     templateParams,
-                     'CSaUWIrxqThIBwIRF'
-                   );
-                   localStorage.setItem(emailSentKey, 'true');
-                   console.log("EmailJS SUCCESS - Status:", response.status, "Text:", response.text);
-                 } catch (emailErr) {
-                   console.error("EmailJS FAILED - Error details:", emailErr);
-                 }
-               }
-             }
-
-
         try {
-
-
           if (customerEmail) {
-
-
-            const lowerEmail = customerEmail.toLowerCase();
-
-
-            await setDoc(doc(db, 'purchases', lowerEmail), {
+             await setDoc(doc(db, 'purchases', customerEmail), {
                plan: storedPlan,
                price: price,
                orderId: orderId,
@@ -204,22 +133,11 @@ export default function Landing() {
           console.error("Firebase save/link error:", firebaseErr);
         }
 
-        try {
-          await signOut(auth);
-        } catch (e) {
-          console.error("Logout error", e);
-        }
-
         window.history.replaceState({}, document.title, window.location.pathname);
+        navigate('/download');
       };
 
-      saveAndNavigate().then(() => {
-        console.log("saveAndNavigate finished, navigating to /download");
-        navigate('/download');
-      }).catch(err => {
-        console.error("saveAndNavigate failed:", err);
-        navigate('/download');
-      });
+      saveAndNavigate();
     } else if (status === 'failed') {
       setPaymentSuccess(false);
       if (orderId) setPaymentOrderId(orderId);
@@ -364,36 +282,6 @@ export default function Landing() {
   return (
     <div id="landing-page-root" className="min-h-screen w-full relative overflow-x-hidden bg-[#0F172A] text-[#F8FAFC] font-sans selection:bg-[#3B82F6] selection:text-white">
       
-      {/* FULL SCREEN PAYMENT PROCESSING OVERLAY */}
-      <AnimatePresence>
-        {isProcessingPayment && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[9999] bg-[#0F172A] flex flex-col items-center justify-center text-white"
-          >
-            <Loader2 className="w-12 h-12 text-blue-500 animate-spin mb-6" />
-            <motion.h2 
-              initial={{ y: 10, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.2 }}
-              className="text-2xl md:text-3xl font-black text-white mb-2 text-center tracking-tight"
-            >
-              Payment Successful!
-            </motion.h2>
-            <motion.p 
-              initial={{ y: 10, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.3 }}
-              className="text-slate-400 font-medium max-w-sm text-center px-4 leading-relaxed"
-            >
-              Securing your tools and generating your dashboard access...
-            </motion.p>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
       {/* 1. TOP HERO SECTION (MOST IMPORTANT) */}
       <header className="relative pt-2 pb-16 md:pt-4 md:pb-24 overflow-hidden">
 
