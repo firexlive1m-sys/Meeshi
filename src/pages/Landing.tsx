@@ -151,7 +151,7 @@ export default function Landing() {
                  'service_9naplmf',
                  'template_cubn7ut',
                  {
-                   email: customerEmail,
+                   email: customerEmail, to_email: customerEmail,
                    name: customerName,
                    order_id: orderId || 'N/A',
                    plan: storedPlan,
