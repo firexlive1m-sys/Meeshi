@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
 import emailjs from '@emailjs/browser';
+import { motion, AnimatePresence } from 'motion/react';
 import { 
   Zap, 
   ShieldCheck, 
@@ -134,27 +134,33 @@ export default function Landing() {
           console.error("Firebase save/link error:", firebaseErr);
         }
 
+        
+        // Automated Email Sending Logic using EmailJS
         try {
+          const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID || 'service_9naplmf';
+          const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID || 'template_zbzfxdh';
+          const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY || 'CSaUWlrxqThlBwlRF';
+          
           if (customerEmail) {
-             await emailjs.send(
-               'service_9naplmf',
-               'template_zbzfxdh',
-               {
-                 name: customerName,
-                 email: customerEmail,
-                 plan_name: storedPlan,
-                 order_id: orderId || 'N/A',
-                 download_link: window.location.origin + '/download'
-               },
-               'CSaUWlrxqThlBwlRF'
-             );
-             console.log("Email sent successfully!");
+            await emailjs.send(
+              serviceId,
+              templateId,
+              {
+                name: customerName,
+                email: customerEmail,
+                plan_name: storedPlan,
+                order_id: orderId || 'N/A',
+                download_link: window.location.origin + '/download'
+              },
+              publicKey
+            );
+            console.log("Automated email sent successfully!");
           }
         } catch (emailErr) {
-          console.error("EmailJS sending error:", emailErr);
+          console.error("Failed to send automated email:", emailErr);
         }
-
         window.history.replaceState({}, document.title, window.location.pathname);
+
         navigate('/download');
       };
 
