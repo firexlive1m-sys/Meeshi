@@ -42,8 +42,9 @@ import PricingCard from '../components/PricingCard';
 import LiveSalesNotification from '../components/LiveSalesNotification';
 import PaymentFormModal from '../components/PaymentFormModal';
 import { initPixel, trackPageView } from '../pixel';
-import { db } from '../firebase';
+import { db, auth } from '../firebase';
 import { doc, setDoc } from 'firebase/firestore';
+import { signOut } from 'firebase/auth';
 import { useNavigate, Link } from 'react-router-dom';
 
 export default function Landing() {
@@ -135,7 +136,8 @@ export default function Landing() {
 
         try {
           if (customerEmail) {
-             await setDoc(doc(db, 'purchases', customerEmail), {
+             const lowerEmail = customerEmail.toLowerCase();
+             await setDoc(doc(db, 'purchases', lowerEmail), {
                plan: storedPlan,
                price: price,
                orderId: orderId,
@@ -158,12 +160,19 @@ export default function Landing() {
                  },
                  'CSaUWIrxqThIBwIRF'
                );
+               console.log("Confirmation email sent successfully!");
              } catch (emailErr) {
                console.error("Failed to send confirmation email:", emailErr);
              }
           }
         } catch (firebaseErr) {
           console.error("Firebase save/link error:", firebaseErr);
+        }
+
+        try {
+          await signOut(auth);
+        } catch (e) {
+          console.error("Logout error", e);
         }
 
         window.history.replaceState({}, document.title, window.location.pathname);
