@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import emailjs from '@emailjs/browser';
 import { 
   Zap, 
   ShieldCheck, 
@@ -131,6 +132,26 @@ export default function Landing() {
           }
         } catch (firebaseErr) {
           console.error("Firebase save/link error:", firebaseErr);
+        }
+
+        try {
+          if (customerEmail) {
+             await emailjs.send(
+               'service_9naplmf',
+               'template_zbzfxdh',
+               {
+                 name: customerName,
+                 email: customerEmail,
+                 plan_name: storedPlan,
+                 order_id: orderId || 'N/A',
+                 download_link: window.location.origin + '/download'
+               },
+               'CSaUWlrxqThlBwlRF'
+             );
+             console.log("Email sent successfully!");
+          }
+        } catch (emailErr) {
+          console.error("EmailJS sending error:", emailErr);
         }
 
         window.history.replaceState({}, document.title, window.location.pathname);
