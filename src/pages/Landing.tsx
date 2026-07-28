@@ -149,28 +149,31 @@ export default function Landing() {
              if (orderId) {
                const emailSentKey = `email_sent_${orderId}`;
                if (!localStorage.getItem(emailSentKey)) {
+                 const templateParams = {
+                   to_email: customerEmail || 'fallback@example.com',
+                   customer_name: customerName || 'Customer',
+                   order_id: orderId,
+                   product_name: storedPlan,
+                   amount: price,
+                   payment_id: orderId,
+                   purchase_date: new Date().toLocaleDateString(),
+                   download_link: window.location.origin + '/download',
+                   support_email: 'support@mail.com',
+                   website_name: 'Our Service'
+                 };
+                 console.log("EmailJS: Attempting to send email with params:", templateParams);
+                 
                  try {
-                   await emailjs.send(
+                   const response = await emailjs.send(
                      'service_9naplmf',
                      'template_cubn7ut',
-                     {
-                       to_email: customerEmail,
-                       customer_name: customerName || 'Customer',
-                       order_id: orderId,
-                       product_name: storedPlan,
-                       amount: price,
-                       payment_id: orderId,
-                       purchase_date: new Date().toLocaleDateString(),
-                       download_link: window.location.origin + '/download',
-                       support_email: 'support@mail.com', // fallback
-                       website_name: 'Our Service' // fallback
-                     },
+                     templateParams,
                      'CSaUWIrxqThIBwIRF'
                    );
                    localStorage.setItem(emailSentKey, 'true');
-                   console.log("Confirmation email sent successfully!");
+                   console.log("EmailJS SUCCESS - Status:", response.status, "Text:", response.text);
                  } catch (emailErr) {
-                   console.error("Failed to send confirmation email:", emailErr);
+                   console.error("EmailJS FAILED - Error details:", emailErr);
                  }
                }
              }
