@@ -86,14 +86,18 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice,
   }, [isOpen, isDetailOpen]);
 
   // Dynamic pricing calculation
-  const basePrice = planPrice; // ₹199 or ₹149 if upgrade
+  const basePrice = isUpgrade ? 199 : planPrice; 
   const addonPrice = 149;
   const originalAddonPrice = 199;
   
   const subTotal = basePrice + (!isUpgrade && isAddonChecked ? addonPrice : 0);
-  const discountAmount = isPromoApplied 
-    ? (appliedPromo === 'SKALI' ? Math.floor(subTotal * 0.999) : 20)
+  const baseDiscount = isUpgrade ? 50 : 0;
+  
+  const promoDiscount = isPromoApplied 
+    ? (appliedPromo === 'SKALI' ? Math.floor((subTotal - baseDiscount) * 0.999) : 20)
     : 0;
+    
+  const discountAmount = baseDiscount + promoDiscount;
   const finalTotal = subTotal - discountAmount;
   const finalPlanName = !isUpgrade && isAddonChecked 
     ? `${planName} + Flipkart Auto Listing Combo` 
@@ -555,17 +559,24 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice,
                         <span className="text-slate-800 font-bold">₹{basePrice}</span>
                       </div>
 
-                      {isAddonChecked && (
+                      {isAddonChecked && !isUpgrade && (
                         <div className="flex justify-between items-center">
                           <span>Add On</span>
                           <span className="text-slate-800 font-bold">₹{addonPrice}</span>
                         </div>
                       )}
 
+                      {isUpgrade && (
+                        <div className="flex justify-between items-center text-emerald-600">
+                          <span>Upgrade Discount</span>
+                          <span className="font-bold">-₹50</span>
+                        </div>
+                      )}
+
                       {isPromoApplied && (
                         <div className="flex justify-between items-center text-emerald-600">
-                          <span>Discount</span>
-                          <span className="font-bold">-₹{discountAmount}</span>
+                          <span>Promo Discount</span>
+                          <span className="font-bold">-₹{promoDiscount}</span>
                         </div>
                       )}
 
