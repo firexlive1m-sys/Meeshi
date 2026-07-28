@@ -97,6 +97,8 @@ export default function Landing() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const status = params.get('payment_status');
+    console.log("PAYMENT STATUS FROM URL:", status);
+    console.log("ORDER ID FROM URL:", params.get('order_id'));
     const orderId = params.get('order_id');
     
     if (status === 'success') {
@@ -140,20 +142,6 @@ export default function Landing() {
 
         console.log("Order ID:", orderId);
 
-        try {
-
-
-          if (customerEmail) {
-             const lowerEmail = customerEmail.toLowerCase();
-             await setDoc(doc(db, 'purchases', lowerEmail), {
-               plan: storedPlan,
-               price: price,
-               orderId: orderId,
-               purchasedAt: new Date().toISOString(),
-               name: customerName,
-               phone: customerPhone
-             }, { merge: true });
-
              if (orderId) {
                const emailSentKey = `email_sent_${orderId}`;
                if (!localStorage.getItem(emailSentKey)) {
@@ -192,6 +180,25 @@ export default function Landing() {
                  }
                }
              }
+
+
+        try {
+
+
+          if (customerEmail) {
+
+
+            const lowerEmail = customerEmail.toLowerCase();
+
+
+            await setDoc(doc(db, 'purchases', lowerEmail), {
+               plan: storedPlan,
+               price: price,
+               orderId: orderId,
+               purchasedAt: new Date().toISOString(),
+               name: customerName,
+               phone: customerPhone
+             }, { merge: true });
           }
         } catch (firebaseErr) {
           console.error("Firebase save/link error:", firebaseErr);
