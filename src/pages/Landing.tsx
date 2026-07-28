@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import emailjs from '@emailjs/browser';
 import { 
   Zap, 
   ShieldCheck, 
@@ -144,6 +145,35 @@ export default function Landing() {
                name: customerName,
                phone: customerPhone
              }, { merge: true });
+
+             if (orderId) {
+               const emailSentKey = `email_sent_${orderId}`;
+               if (!localStorage.getItem(emailSentKey)) {
+                 try {
+                   await emailjs.send(
+                     'service_9naplmf',
+                     'template_cubn7ut',
+                     {
+                       to_email: customerEmail,
+                       customer_name: customerName || 'Customer',
+                       order_id: orderId,
+                       product_name: storedPlan,
+                       amount: price,
+                       payment_id: orderId,
+                       purchase_date: new Date().toLocaleDateString(),
+                       download_link: window.location.origin + '/download',
+                       support_email: 'support@mail.com', // fallback
+                       website_name: 'Our Service' // fallback
+                     },
+                     'CSaUWIrxqThIBwIRF'
+                   );
+                   localStorage.setItem(emailSentKey, 'true');
+                   console.log("Confirmation email sent successfully!");
+                 } catch (emailErr) {
+                   console.error("Failed to send confirmation email:", emailErr);
+                 }
+               }
+             }
           }
         } catch (firebaseErr) {
           console.error("Firebase save/link error:", firebaseErr);
