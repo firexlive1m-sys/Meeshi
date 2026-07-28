@@ -224,20 +224,10 @@ Tone: Strictly text-oriented. No voice calls, mics, speaking, voice playback ref
         return res.status(400).json({ error: "Name, email, and 10-digit phone number are required." });
       }
 
-      let appId = process.env.CASHFREE_APP_ID;
-      let secretKey = process.env.CASHFREE_SECRET_KEY;
-      let cashfreeEnv = process.env.CASHFREE_ENV || "sandbox";
-
-      // Fallback to test credentials
-      if (!appId || appId.trim() === "" || appId.includes("YOUR_CASHFREE") || appId === "undefined") {
-        appId = "TEST111" + "31002d11" + "86c8bdd6239" + "14eae220013111";
-      }
-      if (!secretKey || secretKey.trim() === "" || secretKey.includes("YOUR_CASHFREE") || secretKey === "undefined") {
-        secretKey = "cfsk_ma_test_" + "9312bc020bb" + "9c46f8f71aa" + "46077eb195_7551cbe5";
-      }
-      if (!process.env.CASHFREE_ENV || process.env.CASHFREE_ENV.trim() === "") {
-        cashfreeEnv = "sandbox";
-      }
+      // Force Test Mode Credentials
+      let appId = "TEST111" + "31002d11" + "86c8bdd6239" + "14eae220013111";
+      let secretKey = "cfsk_ma_test_" + "9312bc020bb" + "9c46f8f71aa" + "46077eb195_7551cbe5";
+      let cashfreeEnv = "sandbox";
 
       // Secure handling of missing credentials - fails gracefully instead of crashing server!
       if (!appId || !secretKey || appId.trim() === "" || secretKey.trim() === "") {
@@ -353,20 +343,10 @@ Tone: Strictly text-oriented. No voice calls, mics, speaking, voice playback ref
         return res.status(400).json({ error: "Order ID is required." });
       }
 
-      let appId = process.env.CASHFREE_APP_ID;
-      let secretKey = process.env.CASHFREE_SECRET_KEY;
-      let cashfreeEnv = process.env.CASHFREE_ENV || "sandbox";
-
-      // Fallback to test credentials
-      if (!appId || appId.trim() === "" || appId.includes("YOUR_CASHFREE") || appId === "undefined") {
-        appId = "TEST111" + "31002d11" + "86c8bdd6239" + "14eae220013111";
-      }
-      if (!secretKey || secretKey.trim() === "" || secretKey.includes("YOUR_CASHFREE") || secretKey === "undefined") {
-        secretKey = "cfsk_ma_test_" + "9312bc020bb" + "9c46f8f71aa" + "46077eb195_7551cbe5";
-      }
-      if (!process.env.CASHFREE_ENV || process.env.CASHFREE_ENV.trim() === "") {
-        cashfreeEnv = "sandbox";
-      }
+      // Force Test Mode Credentials
+      let appId = "TEST111" + "31002d11" + "86c8bdd6239" + "14eae220013111";
+      let secretKey = "cfsk_ma_test_" + "9312bc020bb" + "9c46f8f71aa" + "46077eb195_7551cbe5";
+      let cashfreeEnv = "sandbox";
 
       // Secure handling of missing credentials
       if (!appId || !secretKey || appId.trim() === "" || secretKey.trim() === "") {
@@ -483,20 +463,10 @@ Tone: Strictly text-oriented. No voice calls, mics, speaking, voice playback ref
     const { order_id } = req.query;
     let isPaid = false;
 
-    let appId = process.env.CASHFREE_APP_ID;
-    let secretKey = process.env.CASHFREE_SECRET_KEY;
-    let cashfreeEnv = process.env.CASHFREE_ENV || "sandbox";
-
-    // Fallback to test credentials
-    if (!appId || appId.trim() === "" || appId.includes("YOUR_CASHFREE") || appId === "undefined") {
-      appId = "TEST111" + "31002d11" + "86c8bdd6239" + "14eae220013111";
-    }
-    if (!secretKey || secretKey.trim() === "" || secretKey.includes("YOUR_CASHFREE") || secretKey === "undefined") {
-      secretKey = "cfsk_ma_test_" + "9312bc020bb" + "9c46f8f71aa" + "46077eb195_7551cbe5";
-    }
-    if (!process.env.CASHFREE_ENV || process.env.CASHFREE_ENV.trim() === "") {
-      cashfreeEnv = "sandbox";
-    }
+    // Force Test Mode Credentials
+    let appId = "TEST111" + "31002d11" + "86c8bdd6239" + "14eae220013111";
+    let secretKey = "cfsk_ma_test_" + "9312bc020bb" + "9c46f8f71aa" + "46077eb195_7551cbe5";
+    let cashfreeEnv = "sandbox";
 
     // Robust Auto-detect Sandbox vs Production environment based on Key Prefixes
     let finalEnv = "sandbox";
