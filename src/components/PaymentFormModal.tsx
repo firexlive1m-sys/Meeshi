@@ -127,12 +127,14 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice,
     setError(null);
     setSetupInstruction(null);
 
-    const isNameInvalid = !name.trim();
+    const isNameInvalid = !isUpgrade && !name.trim();
     const isEmailInvalid = !email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-    setNameTouched(true);
+    if (!isUpgrade) {
+      setNameTouched(true);
+      setNameError(isNameInvalid);
+    }
     setEmailTouched(true);
-    setNameError(isNameInvalid);
     setEmailError(isEmailInvalid);
 
     // Validate inputs
@@ -260,10 +262,26 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice,
                     </div>
 
                     {/* Already Purchased Link */}
-                    <Link to="/download" className="block w-full py-2.5 px-3 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-xl text-center text-blue-700 text-xs sm:text-sm font-bold shadow-sm transition-colors flex items-center justify-center gap-2">
-                      <Lock className="w-3.5 h-3.5" />
-                      Already Purchased? Login Here
-                    </Link>
+                    {!isUpgrade && (
+                      <Link to="/download" className="block w-full py-2.5 px-3 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-xl text-center text-blue-700 text-xs sm:text-sm font-bold shadow-sm transition-colors flex items-center justify-center gap-2">
+                        <Lock className="w-3.5 h-3.5" />
+                        Already Purchased? Login Here
+                      </Link>
+                    )}
+
+                    {isUpgrade && (
+                      <div className="bg-blue-50/80 border border-blue-200/80 rounded-xl p-3 text-left space-y-2">
+                        <h4 className="text-xs font-bold text-blue-900 flex items-center gap-1.5">
+                          <Sparkles className="w-3.5 h-3.5 text-blue-600" />
+                          Combo Plan Upgrade (₹50 OFF)
+                        </h4>
+                        <p className="text-[11px] text-blue-800/80 leading-relaxed font-medium">
+                          You currently have the <strong className="text-blue-900">Meesho Auto Listing Tool</strong>. You are upgrading to the <strong className="text-blue-900">Combo Plan (Meesho + Flipkart)</strong>.
+                          <br /><br />
+                          You only need to pay for the Flipkart tool right now, which includes an exclusive ₹50 discount. After purchase, the Flipkart tool will automatically unlock on your dashboard using this exact same email address!
+                        </p>
+                      </div>
+                    )}
 
                     {/* Error Message Panel if exists */}
                     {error && (
@@ -283,40 +301,42 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice,
                     )}
 
                     {/* Name Input Container */}
-                    <div className="space-y-1 text-left">
-                      <label htmlFor="customerName" className="block text-[13px] font-semibold text-slate-700">
-                        Full Name *
-                      </label>
-                      <div className={`border rounded-xl py-2.5 px-3 bg-white transition-all duration-150 ${
-                        nameTouched && nameError
-                          ? 'border-red-500 ring-1 ring-red-500 bg-red-50/10'
-                          : 'border-slate-200 focus-within:border-blue-600 focus-within:ring-1 focus-within:ring-blue-600'
-                      }`}>
-                        <input
-                          id="customerName"
-                          type="text"
-                          required
-                          value={name}
-                          onChange={(e) => {
-                            setName(e.target.value);
-                            if (nameTouched) {
-                              setNameError(!e.target.value.trim());
-                            }
-                          }}
-                          onBlur={() => {
-                            setNameTouched(true);
-                            setNameError(!name.trim());
-                          }}
-                          placeholder="Enter your full name"
-                          className="block w-full bg-transparent text-slate-800 font-medium text-sm focus:outline-none border-0 p-0"
-                        />
+                    {!isUpgrade && (
+                      <div className="space-y-1 text-left">
+                        <label htmlFor="customerName" className="block text-[13px] font-semibold text-slate-700">
+                          Full Name *
+                        </label>
+                        <div className={`border rounded-xl py-2.5 px-3 bg-white transition-all duration-150 ${
+                          nameTouched && nameError
+                            ? 'border-red-500 ring-1 ring-red-500 bg-red-50/10'
+                            : 'border-slate-200 focus-within:border-blue-600 focus-within:ring-1 focus-within:ring-blue-600'
+                        }`}>
+                          <input
+                            id="customerName"
+                            type="text"
+                            required
+                            value={name}
+                            onChange={(e) => {
+                              setName(e.target.value);
+                              if (nameTouched) {
+                                setNameError(!e.target.value.trim());
+                              }
+                            }}
+                            onBlur={() => {
+                              setNameTouched(true);
+                              setNameError(!name.trim());
+                            }}
+                            placeholder="Enter your full name"
+                            className="block w-full bg-transparent text-slate-800 font-medium text-sm focus:outline-none border-0 p-0"
+                          />
+                        </div>
+                        {nameTouched && nameError && (
+                          <p className="text-[11px] font-semibold text-red-500 animate-fade-in text-left">
+                            Please enter your full name
+                          </p>
+                        )}
                       </div>
-                      {nameTouched && nameError && (
-                        <p className="text-[11px] font-semibold text-red-500 animate-fade-in text-left">
-                          Please enter your full name
-                        </p>
-                      )}
-                    </div>
+                    )}
 
                     {/* Email Input Container */}
                     <div className="space-y-1 text-left">

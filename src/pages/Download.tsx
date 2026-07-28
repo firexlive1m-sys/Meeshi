@@ -449,18 +449,33 @@ export default function Download() {
                     </div>
                   </div>
                 ) : (
-                  <div className="bg-[#1E293B] border-t-4 border-slate-600 rounded-2xl overflow-hidden shadow-xl p-8 text-center">
-                    <ShoppingCart className="w-12 h-12 text-slate-600 mx-auto mb-4 opacity-50" />
-                    <h3 className="text-2xl font-black text-slate-400 mb-2">Flipkart Auto Listing Tool</h3>
-                    <p className="text-slate-500 max-w-md mx-auto mb-6 text-sm">
-                      You are currently on the Single Plan. Upgrade to the Combo Plan to get access to the Flipkart Auto Listing Tool as well.
+                  <div className="bg-[#1E293B] border border-slate-700/50 rounded-2xl overflow-hidden shadow-xl p-8 text-center relative overflow-hidden">
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#2874F0] to-transparent"></div>
+                    <ShoppingCart className="w-12 h-12 text-[#2874F0] mx-auto mb-4 opacity-80" />
+                    <h3 className="text-2xl font-black text-white mb-2">Flipkart Auto Listing Tool</h3>
+                    <p className="text-slate-400 max-w-md mx-auto mb-6 text-sm">
+                      You are currently on the Single Plan. Upgrade your account to get <strong>Lifetime Access</strong> to the Flipkart Auto Listing Tool with <strong>Unlimited Uses</strong>.
                     </p>
+                    
+                    <div className="flex flex-wrap justify-center gap-2 mb-6">
+                      <span className="px-3 py-1 bg-[#2874F0]/10 text-[#2874F0] rounded-full text-xs font-bold border border-[#2874F0]/20">
+                        ₹50 OFF Discount Applied
+                      </span>
+                      <span className="px-3 py-1 bg-emerald-500/10 text-emerald-400 rounded-full text-xs font-bold border border-emerald-500/20">
+                        Lifetime Access
+                      </span>
+                    </div>
+
+                    <p className="text-amber-400/90 text-xs mb-6 max-w-sm mx-auto font-medium">
+                      Note: After purchase, the Flipkart tool will automatically be unlocked right here on this dashboard for your account!
+                    </p>
+
                     <button 
                       onClick={() => setIsUpgradeModalOpen(true)}
                       className="inline-flex items-center gap-2 bg-[#2874F0] hover:bg-[#1C5ECA] text-white font-bold py-3 px-8 rounded-xl transition-all shadow-lg hover:shadow-xl cursor-pointer"
                     >
                       <ShoppingCart className="w-5 h-5" />
-                      Buy Flipkart Tool (₹149)
+                      Upgrade & Buy Flipkart Tool (₹149)
                     </button>
                   </div>
                 )}
