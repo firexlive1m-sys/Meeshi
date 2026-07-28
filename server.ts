@@ -5,6 +5,7 @@ import { GoogleGenAI } from "@google/genai";
 import dotenv from "dotenv";
 import crypto from "crypto";
 import { Resend } from "resend";
+import nodemailer from "nodemailer";
 
 dotenv.config();
 
@@ -16,6 +17,20 @@ function getResendClient() {
     resendClient = new Resend(process.env.RESEND_API_KEY);
   }
   return resendClient;
+}
+
+let nodemailerTransporter: nodemailer.Transporter | null = null;
+function getNodemailerTransporter() {
+  if (!nodemailerTransporter && process.env.SMTP_USER && process.env.SMTP_PASS) {
+    nodemailerTransporter = nodemailer.createTransport({
+      service: 'gmail', // You can change this to another service if not using Gmail
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS
+      }
+    });
+  }
+  return nodemailerTransporter;
 }
 
 async function startServer() {
@@ -578,30 +593,45 @@ Tone: Strictly text-oriented. No voice calls, mics, speaking, voice playback ref
               const customerEmail = data.customer_details?.customer_email;
               const customerName = data.customer_details?.customer_name || "Customer";
               const resend = getResendClient();
+              const transporter = getNodemailerTransporter();
               
-              if (resend && customerEmail) {
+              if ((resend || transporter) && customerEmail) {
                 // Determine host and protocol
                 let protocol = req.protocol || 'https';
                 let host = req.get('host') || 'localhost:3000';
                 
+                const emailHtml = `
+                  <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+                    <h2 style="color: #2563EB;">Thank you for your purchase, ${customerName}!</h2>
+                    <p>Your payment was successful and your order (ID: <strong>${orderIdStr}</strong>) is confirmed.</p>
+                    <p>You can download and access your automation tool using the secure link below:</p>
+                    <div style="margin: 25px 0;">
+                      <a href="${protocol}://${host}/download" style="background: #2563EB; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Access Tool Now</a>
+                    </div>
+                    <p style="color: #666; font-size: 14px;">If you have any questions or need setup support, please contact our help desk via WhatsApp.</p>
+                  </div>
+                `;
+                
                 try {
-                  await resend.emails.send({
-                    from: 'Support <onboarding@resend.dev>',
-                    to: customerEmail,
-                    subject: 'Purchase Successful! Here is your access',
-                    html: `
-                      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
-                        <h2 style="color: #2563EB;">Thank you for your purchase, ${customerName}!</h2>
-                        <p>Your payment was successful and your order (ID: <strong>${orderIdStr}</strong>) is confirmed.</p>
-                        <p>You can download and access your automation tool using the secure link below:</p>
-                        <div style="margin: 25px 0;">
-                          <a href="${protocol}://${host}/download" style="background: #2563EB; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Access Tool Now</a>
-                        </div>
-                        <p style="color: #666; font-size: 14px;">If you have any questions or need setup support, please contact our help desk via WhatsApp.</p>
-                      </div>
-                    `
-                  });
-                  console.log(`Successfully sent confirmation email to ${customerEmail}`);
+                  if (transporter) {
+                    // Send using Nodemailer
+                    await transporter.sendMail({
+                      from: `"Support" <${process.env.SMTP_USER}>`,
+                      to: customerEmail,
+                      subject: 'Purchase Successful! Here is your access',
+                      html: emailHtml
+                    });
+                    console.log(`Successfully sent confirmation email via Nodemailer to ${customerEmail}`);
+                  } else if (resend) {
+                    // Send using Resend
+                    await resend.emails.send({
+                      from: 'Support <support@autolisting.online>',
+                      to: customerEmail,
+                      subject: 'Purchase Successful! Here is your access',
+                      html: emailHtml
+                    });
+                    console.log(`Successfully sent confirmation email via Resend to ${customerEmail}`);
+                  }
                 } catch (emailErr) {
                   console.error("Failed to send confirmation email:", emailErr);
                 }
