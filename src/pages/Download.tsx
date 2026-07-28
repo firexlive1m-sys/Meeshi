@@ -475,7 +475,7 @@ export default function Download() {
                       className="inline-flex items-center gap-2 bg-[#2874F0] hover:bg-[#1C5ECA] text-white font-bold py-3 px-8 rounded-xl transition-all shadow-lg hover:shadow-xl cursor-pointer"
                     >
                       <ShoppingCart className="w-5 h-5" />
-                      Upgrade & Buy Flipkart Tool (₹149)
+                      Buy Flipkart Tool (₹149)
                     </button>
                   </div>
                 )}
@@ -510,6 +510,7 @@ export default function Download() {
         planName="Combo Plan Upgrade" 
         planPrice={149}
         initialEmail={user?.email}
+        initialName={purchase?.name}
         isEmailLocked={true}
         isUpgrade={true}
       />

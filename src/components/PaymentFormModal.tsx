@@ -29,12 +29,13 @@ interface PaymentFormModalProps {
   planName: string;
   planPrice: number;
   initialEmail?: string;
+  initialName?: string;
   isEmailLocked?: boolean;
   isUpgrade?: boolean;
 }
 
-export default function PaymentFormModal({ isOpen, onClose, planName, planPrice, initialEmail, isEmailLocked, isUpgrade }: PaymentFormModalProps) {
-  const [name, setName] = useState('');
+export default function PaymentFormModal({ isOpen, onClose, planName, planPrice, initialEmail, initialName, isEmailLocked, isUpgrade }: PaymentFormModalProps) {
+  const [name, setName] = useState(initialName || '');
   const [email, setEmail] = useState(initialEmail || '');
 
   const [phone, setPhone] = useState('');
@@ -64,8 +65,13 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice,
       } else {
         setEmail('');
       }
+      if (initialName) {
+        setName(initialName);
+      } else {
+        setName('');
+      }
     }
-  }, [isOpen, initialEmail]);
+  }, [isOpen, initialEmail, initialName]);
 
   // Lock background body scroll when checkout modal or demo modal is open
   React.useEffect(() => {
