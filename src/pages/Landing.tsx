@@ -134,7 +134,15 @@ export default function Landing() {
           }
         }
 
+        console.log("EMAIL STEP STARTED");
+
+        console.log("Checkout Email:", customerEmail);
+
+        console.log("Order ID:", orderId);
+
         try {
+
+
           if (customerEmail) {
              const lowerEmail = customerEmail.toLowerCase();
              await setDoc(doc(db, 'purchases', lowerEmail), {
@@ -163,7 +171,14 @@ export default function Landing() {
                  };
                  console.log("EmailJS: Attempting to send email with params:", templateParams);
                  
+                 console.log("EmailJS templateParams:", templateParams);
+                 
                  try {
+
+                 
+                   console.log("EmailJS request sent");
+
+                 
                    const response = await emailjs.send(
                      'service_9naplmf',
                      'template_cubn7ut',
@@ -189,10 +204,15 @@ export default function Landing() {
         }
 
         window.history.replaceState({}, document.title, window.location.pathname);
-        navigate('/download');
       };
 
-      saveAndNavigate();
+      saveAndNavigate().then(() => {
+        console.log("saveAndNavigate finished, navigating to /download");
+        navigate('/download');
+      }).catch(err => {
+        console.error("saveAndNavigate failed:", err);
+        navigate('/download');
+      });
     } else if (status === 'failed') {
       setPaymentSuccess(false);
       if (orderId) setPaymentOrderId(orderId);
