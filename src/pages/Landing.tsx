@@ -41,8 +41,9 @@ import PricingCard from '../components/PricingCard';
 import LiveSalesNotification from '../components/LiveSalesNotification';
 import PaymentFormModal from '../components/PaymentFormModal';
 import { initPixel, trackPageView } from '../pixel';
-import { db } from '../firebase';
+import { db, auth } from '../firebase';
 import { doc, setDoc } from 'firebase/firestore';
+import { signOut } from 'firebase/auth';
 import { useNavigate, Link } from 'react-router-dom';
 
 export default function Landing() {
@@ -63,6 +64,13 @@ export default function Landing() {
   // Payment Status State from URL Query Parameters
   const [paymentSuccess, setPaymentSuccess] = useState<boolean | null>(null);
   const [paymentOrderId, setPaymentOrderId] = useState<string>('');
+  const [isProcessingPayment, setIsProcessingPayment] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('payment_status') === 'success';
+    }
+    return false;
+  });
 
   // Device Selection Popup States
   const [isDevicePopupOpen, setIsDevicePopupOpen] = useState(true);
@@ -121,14 +129,19 @@ export default function Landing() {
 
         try {
           if (customerEmail) {
-             await setDoc(doc(db, 'purchases', customerEmail), {
+             const purchaseData = {
                plan: storedPlan,
                price: price,
                orderId: orderId,
                purchasedAt: new Date().toISOString(),
                name: customerName,
                phone: customerPhone
-             }, { merge: true });
+             };
+             // Save to local storage for the Download page to pick up and sync
+             localStorage.setItem('verified_purchase', JSON.stringify({ email: customerEmail, data: purchaseData }));
+             
+             // Try to save directly if already logged in as the correct user
+             await setDoc(doc(db, 'purchases', customerEmail), purchaseData, { merge: true });
           }
         } catch (firebaseErr) {
           console.error("Firebase save/link error:", firebaseErr);
@@ -152,6 +165,15 @@ export default function Landing() {
           }
         } catch (emailErr) {
           console.error("EmailJS sending error:", emailErr);
+        }
+
+        // Force logout if the logged-in user doesn't match the purchase email
+        if (auth.currentUser && auth.currentUser.email !== customerEmail) {
+          try {
+            await signOut(auth);
+          } catch (err) {
+            console.error("Failed to sign out previous user", err);
+          }
         }
 
         window.history.replaceState({}, document.title, window.location.pathname);
@@ -299,6 +321,16 @@ export default function Landing() {
       });
     }
   };
+
+  if (isProcessingPayment) {
+    return (
+      <div className="min-h-screen w-full bg-[#0F172A] flex flex-col items-center justify-center p-4">
+        <div className="w-16 h-16 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin mb-6"></div>
+        <h2 className="text-2xl md:text-3xl font-bold text-white mb-2 text-center">Verifying Payment...</h2>
+        <p className="text-slate-400 text-center max-w-md">Please wait while we secure your account and prepare your dashboard. Do not close or refresh this page.</p>
+      </div>
+    );
+  }
 
   return (
     <div id="landing-page-root" className="min-h-screen w-full relative overflow-x-hidden bg-[#0F172A] text-[#F8FAFC] font-sans selection:bg-[#3B82F6] selection:text-white">

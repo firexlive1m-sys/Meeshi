@@ -23,6 +23,18 @@ export default function Download() {
       setUser(currentUser);
       if (currentUser && currentUser.email) {
         try {
+          // Check if there is a pending verified purchase in local storage
+          const pendingPurchaseStr = localStorage.getItem('verified_purchase');
+          if (pendingPurchaseStr) {
+            const pendingPurchase = JSON.parse(pendingPurchaseStr);
+            // If the logged in user matches the purchase email, save it to Firestore
+            if (pendingPurchase.email === currentUser.email) {
+              await setDoc(doc(db, 'purchases', currentUser.email), pendingPurchase.data, { merge: true });
+              // Clear it once saved
+              localStorage.removeItem('verified_purchase');
+            }
+          }
+
           const docRef = doc(db, 'purchases', currentUser.email);
           const docSnap = await getDoc(docRef);
           if (docSnap.exists()) {
@@ -31,7 +43,7 @@ export default function Download() {
             setPurchase(null);
           }
         } catch (err) {
-          console.error("Error fetching purchase", err);
+          console.error("Error fetching/syncing purchase", err);
         }
       }
       setLoading(false);
