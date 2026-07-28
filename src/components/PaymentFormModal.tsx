@@ -34,9 +34,8 @@ interface PaymentFormModalProps {
   isUpgrade?: boolean;
 }
 
-export default function PaymentFormModal({ isOpen, onClose, planName, planPrice, initialEmail, initialName, isEmailLocked, isUpgrade }: PaymentFormModalProps) {
-  const [name, setName] = useState(initialName || '');
-  const [email, setEmail] = useState(initialEmail || '');
+export default function PaymentFormModal({ isOpen, onClose, planName, planPrice, initialEmail, isEmailLocked, isUpgrade }: PaymentFormModalProps) {
+    const [email, setEmail] = useState(initialEmail || '');
 
   const [phone, setPhone] = useState('');
   const [isAddonChecked, setIsAddonChecked] = useState(false);
@@ -47,11 +46,9 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice,
   const [promoError, setPromoError] = useState<string | null>(null);
   const [showPromoInput, setShowPromoInput] = useState(false);
 
-  const [nameTouched, setNameTouched] = useState(false);
-  const [emailTouched, setEmailTouched] = useState(false);
+    const [emailTouched, setEmailTouched] = useState(false);
   const [phoneTouched, setPhoneTouched] = useState(false);
-  const [nameError, setNameError] = useState(false);
-  const [emailError, setEmailError] = useState(false);
+    const [emailError, setEmailError] = useState(false);
   const [phoneError, setPhoneError] = useState(false);
   
   const [loading, setLoading] = useState(false);
@@ -65,13 +62,9 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice,
       } else {
         setEmail('');
       }
-      if (initialName) {
-        setName(initialName);
-      } else {
-        setName('');
-      }
+      
     }
-  }, [isOpen, initialEmail, initialName]);
+  }, [isOpen, initialEmail]);
 
   // Lock background body scroll when checkout modal or demo modal is open
   React.useEffect(() => {
@@ -137,19 +130,19 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice,
     setError(null);
     setSetupInstruction(null);
 
-    const isNameInvalid = !isUpgrade && !name.trim();
+    const isPhoneInvalid = !phone.trim() || phone.trim().length < 10;
     const isEmailInvalid = !email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
     if (!isUpgrade) {
-      setNameTouched(true);
-      setNameError(isNameInvalid);
+      setPhoneTouched(true);
+      setPhoneError(isPhoneInvalid);
     }
     setEmailTouched(true);
     setEmailError(isEmailInvalid);
 
     // Validate inputs
-    if (isNameInvalid) {
-      setError('Please enter your full name (Apna naam daalein)');
+    if (isPhoneInvalid) {
+      setError('Please enter a valid 10-digit phone number (Apna phone number daalein)');
       return;
     }
     if (isEmailInvalid) {
@@ -159,9 +152,10 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice,
 
     setLoading(true);
 
-    const computedName = name.trim() || 'Customer';
+    const computedName = email.split('@')[0] || 'Customer';
+    const computedPhone = phone.trim() || '9999999999';
     const computedEmail = email.trim();
-    const dummyPhone = '9999999999'; // Cashfree might require a phone, so we pass a dummy one if not collected.
+    // Cashfree might require a phone, so we pass a dummy one if not collected.
 
     try {
       // 1. Create order on Express backend
@@ -174,7 +168,7 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice,
           amount: finalTotal,
           customerName: computedName,
           customerEmail: computedEmail,
-          customerPhone: dummyPhone,
+          customerPhone: computedPhone,
           planName: finalPlanName
         }),
       });
@@ -207,7 +201,7 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice,
       try {
         localStorage.setItem('pending_purchase_name', computedName);
         localStorage.setItem('pending_purchase_email', computedEmail);
-        localStorage.setItem('pending_purchase_phone', dummyPhone);
+        localStorage.setItem('pending_purchase_phone', computedPhone);
         localStorage.setItem('pending_purchase_plan', finalPlanName);
         localStorage.setItem('pending_purchase_price', finalTotal.toString());
       } catch (e) {
@@ -217,7 +211,7 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice,
       // 3. Initiate checkout (V3 Web Checkout)
       trackInitiateCheckout(finalTotal, 'INR', {
         email: computedEmail,
-        phone: dummyPhone,
+        phone: computedPhone,
         firstName: computedName
       });
       await cashfree.checkout({
@@ -310,39 +304,40 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice,
                       </div>
                     )}
 
-                    {/* Name Input Container */}
+                    {/* Phone Number Input Container */}
                     {!isUpgrade && (
                       <div className="space-y-1 text-left">
-                        <label htmlFor="customerName" className="block text-[13px] font-semibold text-slate-700">
-                          Full Name *
+                        <label htmlFor="customerPhone" className="block text-[13px] font-semibold text-slate-700">
+                          Phone Number *
                         </label>
                         <div className={`border rounded-xl py-2.5 px-3 bg-white transition-all duration-150 ${
-                          nameTouched && nameError
+                          phoneTouched && phoneError
                             ? 'border-red-500 ring-1 ring-red-500 bg-red-50/10'
                             : 'border-slate-200 focus-within:border-blue-600 focus-within:ring-1 focus-within:ring-blue-600'
                         }`}>
                           <input
-                            id="customerName"
-                            type="text"
+                            id="customerPhone"
+                            type="tel"
                             required
-                            value={name}
+                            value={phone}
                             onChange={(e) => {
-                              setName(e.target.value);
-                              if (nameTouched) {
-                                setNameError(!e.target.value.trim());
+                              const val = e.target.value.replace(/\D/g, '').slice(0, 10);
+                              setPhone(val);
+                              if (phoneTouched) {
+                                setPhoneError(val.length < 10);
                               }
                             }}
                             onBlur={() => {
-                              setNameTouched(true);
-                              setNameError(!name.trim());
+                              setPhoneTouched(true);
+                              setPhoneError(phone.length < 10);
                             }}
-                            placeholder="Enter your full name"
+                            placeholder="Enter your 10-digit mobile number"
                             className="block w-full bg-transparent text-slate-800 font-medium text-sm focus:outline-none border-0 p-0"
                           />
                         </div>
-                        {nameTouched && nameError && (
+                        {phoneTouched && phoneError && (
                           <p className="text-[11px] font-semibold text-red-500 animate-fade-in text-left">
-                            Please enter your full name
+                            Please enter a valid 10-digit phone number
                           </p>
                         )}
                       </div>
