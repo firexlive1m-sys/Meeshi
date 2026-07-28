@@ -24,7 +24,8 @@ import {
   RotateCcw,
   RotateCw,
   Volume2,
-  VolumeX
+  VolumeX,
+  Loader2
 } from 'lucide-react';
 
 // Data configs
@@ -63,6 +64,18 @@ export default function Landing() {
   // Payment Status State from URL Query Parameters
   const [paymentSuccess, setPaymentSuccess] = useState<boolean | null>(null);
   const [paymentOrderId, setPaymentOrderId] = useState<string>('');
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+
+  useEffect(() => {
+    if (isProcessingPayment) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isProcessingPayment]);
 
   // Device Selection Popup States
   const [isDevicePopupOpen, setIsDevicePopupOpen] = useState(true);
@@ -86,6 +99,7 @@ export default function Landing() {
     const orderId = params.get('order_id');
     
     if (status === 'success') {
+      setIsProcessingPayment(true);
       if (orderId) setPaymentOrderId(orderId);
 
       // Load initial info from localStorage
@@ -140,6 +154,7 @@ export default function Landing() {
                    order_id: orderId || 'N/A',
                    plan: storedPlan,
                    price: price,
+                   login_link: window.location.origin + '/download',
                  },
                  'CSaUWIrxqThIBwIRF'
                );
@@ -300,6 +315,36 @@ export default function Landing() {
   return (
     <div id="landing-page-root" className="min-h-screen w-full relative overflow-x-hidden bg-[#0F172A] text-[#F8FAFC] font-sans selection:bg-[#3B82F6] selection:text-white">
       
+      {/* FULL SCREEN PAYMENT PROCESSING OVERLAY */}
+      <AnimatePresence>
+        {isProcessingPayment && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[9999] bg-[#0F172A] flex flex-col items-center justify-center text-white"
+          >
+            <Loader2 className="w-12 h-12 text-blue-500 animate-spin mb-6" />
+            <motion.h2 
+              initial={{ y: 10, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.2 }}
+              className="text-2xl md:text-3xl font-black text-white mb-2 text-center tracking-tight"
+            >
+              Payment Successful!
+            </motion.h2>
+            <motion.p 
+              initial={{ y: 10, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.3 }}
+              className="text-slate-400 font-medium max-w-sm text-center px-4 leading-relaxed"
+            >
+              Securing your tools and generating your dashboard access...
+            </motion.p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* 1. TOP HERO SECTION (MOST IMPORTANT) */}
       <header className="relative pt-2 pb-16 md:pt-4 md:pb-24 overflow-hidden">
 
