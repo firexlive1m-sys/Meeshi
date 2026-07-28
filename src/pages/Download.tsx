@@ -523,6 +523,7 @@ export default function Download() {
         planPrice={149}
         initialEmail={user?.email}
         initialName={purchase?.name}
+        initialPhone={purchase?.phone}
         isEmailLocked={true}
         isUpgrade={true}
       />

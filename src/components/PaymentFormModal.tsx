@@ -30,15 +30,14 @@ interface PaymentFormModalProps {
   planPrice: number;
   initialEmail?: string;
   initialName?: string;
+  initialPhone?: string;
   isEmailLocked?: boolean;
   isUpgrade?: boolean;
 }
 
-export default function PaymentFormModal({ isOpen, onClose, planName, planPrice, initialEmail, initialName, isEmailLocked, isUpgrade }: PaymentFormModalProps) {
-  const [name, setName] = useState(initialName || '');
+export default function PaymentFormModal({ isOpen, onClose, planName, planPrice, initialEmail, initialName, initialPhone, isEmailLocked, isUpgrade }: PaymentFormModalProps) {
   const [email, setEmail] = useState(initialEmail || '');
-
-  const [phone, setPhone] = useState('');
+  const [phone, setPhone] = useState(initialPhone || '');
   const [isAddonChecked, setIsAddonChecked] = useState(false);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [promoCode, setPromoCode] = useState('');
@@ -47,10 +46,8 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice,
   const [promoError, setPromoError] = useState<string | null>(null);
   const [showPromoInput, setShowPromoInput] = useState(false);
 
-  const [nameTouched, setNameTouched] = useState(false);
   const [emailTouched, setEmailTouched] = useState(false);
   const [phoneTouched, setPhoneTouched] = useState(false);
-  const [nameError, setNameError] = useState(false);
   const [emailError, setEmailError] = useState(false);
   const [phoneError, setPhoneError] = useState(false);
   
@@ -65,13 +62,13 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice,
       } else {
         setEmail('');
       }
-      if (initialName) {
-        setName(initialName);
+      if (initialPhone) {
+        setPhone(initialPhone);
       } else {
-        setName('');
+        setPhone('');
       }
     }
-  }, [isOpen, initialEmail, initialName]);
+  }, [isOpen, initialEmail, initialPhone]);
 
   // Lock background body scroll when checkout modal or demo modal is open
   React.useEffect(() => {
@@ -137,31 +134,38 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice,
     setError(null);
     setSetupInstruction(null);
 
-    const isNameInvalid = !isUpgrade && !name.trim();
     const isEmailInvalid = !email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    const isPhoneInvalid = !phone.trim() || !/^\d{10}$/.test(phone.replace(/\D/g, ''));
 
     if (!isUpgrade) {
-      setNameTouched(true);
-      setNameError(isNameInvalid);
+      setPhoneTouched(true);
+      setPhoneError(isPhoneInvalid);
     }
     setEmailTouched(true);
     setEmailError(isEmailInvalid);
 
     // Validate inputs
-    if (isNameInvalid) {
-      setError('Please enter your full name (Apna naam daalein)');
-      return;
-    }
     if (isEmailInvalid) {
       setError('Please enter a valid email address (Apna email id daalein)');
+      return;
+    }
+    if (isPhoneInvalid) {
+      setError('Please enter a valid 10-digit phone number (Apna 10-digit phone number daalein)');
       return;
     }
 
     setLoading(true);
 
-    const computedName = name.trim() || 'Customer';
-    const computedEmail = email.trim();
-    const dummyPhone = '9999999999'; // Cashfree might require a phone, so we pass a dummy one if not collected.
+    const emailStr = email.trim();
+    // Auto-generate name from email or use initialName
+    let baseName = initialName || 'Customer';
+    if (!initialName && emailStr.includes('@')) {
+      const prefix = emailStr.split('@')[0];
+      baseName = prefix.charAt(0).toUpperCase() + prefix.slice(1).replace(/[^a-zA-Z]/g, ' ').trim() || 'Customer';
+    }
+    const computedName = baseName;
+    const computedEmail = emailStr;
+    const computedPhone = phone.replace(/\D/g, '');
 
     try {
       // 1. Create order on Express backend
@@ -174,7 +178,7 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice,
           amount: finalTotal,
           customerName: computedName,
           customerEmail: computedEmail,
-          customerPhone: dummyPhone,
+          customerPhone: computedPhone,
           planName: finalPlanName
         }),
       });
@@ -207,7 +211,7 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice,
       try {
         localStorage.setItem('pending_purchase_name', computedName);
         localStorage.setItem('pending_purchase_email', computedEmail);
-        localStorage.setItem('pending_purchase_phone', dummyPhone);
+        localStorage.setItem('pending_purchase_phone', computedPhone);
         localStorage.setItem('pending_purchase_plan', finalPlanName);
         localStorage.setItem('pending_purchase_price', finalTotal.toString());
       } catch (e) {
@@ -217,7 +221,7 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice,
       // 3. Initiate checkout (V3 Web Checkout)
       trackInitiateCheckout(finalTotal, 'INR', {
         email: computedEmail,
-        phone: dummyPhone,
+        phone: computedPhone,
         firstName: computedName
       });
       await cashfree.checkout({
@@ -310,43 +314,49 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice,
                       </div>
                     )}
 
-                    {/* Name Input Container */}
-                    {!isUpgrade && (
-                      <div className="space-y-1 text-left">
-                        <label htmlFor="customerName" className="block text-[13px] font-semibold text-slate-700">
-                          Full Name *
-                        </label>
-                        <div className={`border rounded-xl py-2.5 px-3 bg-white transition-all duration-150 ${
-                          nameTouched && nameError
-                            ? 'border-red-500 ring-1 ring-red-500 bg-red-50/10'
-                            : 'border-slate-200 focus-within:border-blue-600 focus-within:ring-1 focus-within:ring-blue-600'
-                        }`}>
+                    {/* Phone Input Container */}
+                    <div className="space-y-1 text-left">
+                      <label htmlFor="customerPhone" className="block text-[13px] font-semibold text-slate-700">
+                        Phone Number *
+                      </label>
+                      <div className={`border rounded-xl py-2.5 px-3 transition-all duration-150 ${
+                        phoneTouched && phoneError
+                          ? 'border-red-500 ring-1 ring-red-500 bg-red-50/10'
+                          : isEmailLocked ? 'border-slate-200 bg-slate-100' : 'border-slate-200 bg-white focus-within:border-blue-600 focus-within:ring-1 focus-within:ring-blue-600'
+                      }`}>
+                        <div className="flex items-center">
+                          <span className="text-slate-500 font-medium text-sm mr-2">+91</span>
                           <input
-                            id="customerName"
-                            type="text"
+                            id="customerPhone"
+                            type="tel"
                             required
-                            value={name}
+                            disabled={isEmailLocked}
+                            value={phone}
                             onChange={(e) => {
-                              setName(e.target.value);
-                              if (nameTouched) {
-                                setNameError(!e.target.value.trim());
+                              if (isEmailLocked) return;
+                              const val = e.target.value.replace(/\D/g, '').slice(0, 10);
+                              setPhone(val);
+                              if (phoneTouched) {
+                                setPhoneError(val.length !== 10);
                               }
                             }}
                             onBlur={() => {
-                              setNameTouched(true);
-                              setNameError(!name.trim());
+                              if (isEmailLocked) return;
+                              setPhoneTouched(true);
+                              setPhoneError(phone.length !== 10);
                             }}
-                            placeholder="Enter your full name"
-                            className="block w-full bg-transparent text-slate-800 font-medium text-sm focus:outline-none border-0 p-0"
+                            placeholder="Enter 10-digit mobile number"
+                            className={`block w-full bg-transparent text-slate-800 font-medium text-sm focus:outline-none border-0 p-0 font-sans ${isEmailLocked ? 'cursor-not-allowed opacity-70' : ''}`}
+                            maxLength={10}
                           />
                         </div>
-                        {nameTouched && nameError && (
-                          <p className="text-[11px] font-semibold text-red-500 animate-fade-in text-left">
-                            Please enter your full name
-                          </p>
-                        )}
                       </div>
-                    )}
+                      {phoneTouched && phoneError && (
+                        <p className="text-[11px] font-semibold text-red-500 animate-fade-in text-left">
+                          Please enter a valid 10-digit phone number
+                        </p>
+                      )}
+                    </div>
 
                     {/* Email Input Container */}
                     <div className="space-y-1 text-left">
