@@ -1,4 +1,4 @@
-import { Testimonial, FAQItem, ScreenshotSlide, FeatureItem } from './types';
+import { Testimonial, VideoReview, FAQItem, ScreenshotSlide, FeatureItem } from './types';
 
 // ==========================================
 // GLOBAL CONFIGURATION (EASY TO EDIT)
@@ -199,6 +199,22 @@ export const REVIEWS: Testimonial[] = [
   }
 ];
 
+export const VIDEO_REVIEWS: VideoReview[] = [
+  {
+    id: "v1",
+    name: "Rahul Verma (Meesho Master)",
+    role: "Rs. 4.5 Lakhs Monthly Profit Seller",
+    thumbnail: "https://images.unsplash.com/photo-1542744094-3a31f103e35f?auto=format&fit=crop&w=600&q=80",
+    videoUrl: "https://res.cloudinary.com/ddkdxc1lj/video/upload/v1779724680/InShot_20260525_211127373_wjvbit.mp4"
+  },
+  {
+    id: "v2",
+    name: "Simran K. (Handicraft Vendor)",
+    role: "Jaipur Boutique Owner",
+    thumbnail: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=600&q=80",
+    videoUrl: "https://res.cloudinary.com/ddkdxc1lj/video/upload/v1779724689/InShot_20260525_211250193_qokyly.mp4"
+  }
+];
 
 export const FAQS: FAQItem[] = [
   {

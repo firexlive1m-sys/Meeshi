@@ -9,6 +9,13 @@ export interface Testimonial {
   verified: boolean;
 }
 
+export interface VideoReview {
+  id: string;
+  name: string;
+  role: string;
+  thumbnail: string;
+  videoUrl: string;
+}
 
 export interface FAQItem {
   id: string;
