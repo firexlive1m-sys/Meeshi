@@ -105,7 +105,7 @@ export default function Landing() {
 
       // Ensure we navigate after saving
       const saveAndNavigate = async () => {
-        let customerEmail = storedEmail;
+        let customerEmail = storedEmail.toLowerCase();
         let customerName = storedName;
         let customerPhone = storedPhone;
         let price = storedPrice;
@@ -116,7 +116,7 @@ export default function Landing() {
             if (res.ok) {
               const data = await res.json();
               if (data && data.customer_details) {
-                customerEmail = data.customer_details.customer_email || storedEmail;
+                customerEmail = (data.customer_details.customer_email || storedEmail).toLowerCase();
                 customerName = data.customer_details.customer_name || storedName;
                 customerPhone = data.customer_details.customer_phone || storedPhone;
                 price = data.order_amount || storedPrice;
@@ -168,7 +168,7 @@ export default function Landing() {
         }
 
         // Force logout if the logged-in user doesn't match the purchase email
-        if (auth.currentUser && auth.currentUser.email !== customerEmail) {
+        if (auth.currentUser && auth.currentUser.email && auth.currentUser.email.toLowerCase() !== customerEmail) {
           try {
             await signOut(auth);
           } catch (err) {

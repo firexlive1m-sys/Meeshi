@@ -28,14 +28,14 @@ export default function Download() {
           if (pendingPurchaseStr) {
             const pendingPurchase = JSON.parse(pendingPurchaseStr);
             // If the logged in user matches the purchase email, save it to Firestore
-            if (pendingPurchase.email === currentUser.email) {
-              await setDoc(doc(db, 'purchases', currentUser.email), pendingPurchase.data, { merge: true });
+            if (pendingPurchase.email.toLowerCase() === currentUser.email.toLowerCase()) {
+              await setDoc(doc(db, 'purchases', currentUser.email.toLowerCase()), pendingPurchase.data, { merge: true });
               // Clear it once saved
               localStorage.removeItem('verified_purchase');
             }
           }
 
-          const docRef = doc(db, 'purchases', currentUser.email);
+          const docRef = doc(db, 'purchases', currentUser.email.toLowerCase());
           const docSnap = await getDoc(docRef);
           if (docSnap.exists()) {
             setPurchase(docSnap.data());
@@ -68,7 +68,7 @@ export default function Download() {
     if (!user?.email) return;
     setSavingDevice(true);
     try {
-      const docRef = doc(db, 'purchases', user.email);
+      const docRef = doc(db, 'purchases', user.email.toLowerCase());
       await setDoc(docRef, { device: selectedDevice }, { merge: true });
       // Update local state
       setPurchase({ ...purchase, device: selectedDevice });
