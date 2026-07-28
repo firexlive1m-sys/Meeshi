@@ -6,6 +6,7 @@ import { signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { CONFIG } from '../data';
 import { Link } from 'react-router-dom';
+import PaymentFormModal from '../components/PaymentFormModal';
 
 export default function Download() {
   const [user, setUser] = useState<any>(null);
@@ -13,8 +14,9 @@ export default function Download() {
   const [loading, setLoading] = useState(true);
   const [selectedDevice, setSelectedDevice] = useState<string>('Mobile');
   const [savingDevice, setSavingDevice] = useState(false);
+  const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
 
-  const isCombo = purchase?.plan?.toLowerCase().includes('combo');
+  const isCombo = purchase?.plan?.toLowerCase().includes('combo') || purchase?.plan?.toLowerCase().includes('upgrade');
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -453,13 +455,13 @@ export default function Download() {
                     <p className="text-slate-500 max-w-md mx-auto mb-6 text-sm">
                       You are currently on the Single Plan. Upgrade to the Combo Plan to get access to the Flipkart Auto Listing Tool as well.
                     </p>
-                    <a 
-                      href="/#pricing" 
-                      className="inline-flex items-center gap-2 bg-[#2874F0] hover:bg-[#1C5ECA] text-white font-bold py-3 px-8 rounded-xl transition-all shadow-lg hover:shadow-xl"
+                    <button 
+                      onClick={() => setIsUpgradeModalOpen(true)}
+                      className="inline-flex items-center gap-2 bg-[#2874F0] hover:bg-[#1C5ECA] text-white font-bold py-3 px-8 rounded-xl transition-all shadow-lg hover:shadow-xl cursor-pointer"
                     >
                       <ShoppingCart className="w-5 h-5" />
-                      Buy Flipkart Tool
-                    </a>
+                      Buy Flipkart Tool (₹149)
+                    </button>
                   </div>
                 )}
               </div>
@@ -486,6 +488,16 @@ export default function Download() {
           </div>
         )}
       </div>
+
+      <PaymentFormModal 
+        isOpen={isUpgradeModalOpen} 
+        onClose={() => setIsUpgradeModalOpen(false)} 
+        planName="Combo Plan Upgrade" 
+        planPrice={149}
+        initialEmail={user?.email}
+        isEmailLocked={true}
+        isUpgrade={true}
+      />
     </div>
   );
 }

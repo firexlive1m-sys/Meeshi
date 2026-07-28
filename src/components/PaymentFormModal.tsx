@@ -28,11 +28,15 @@ interface PaymentFormModalProps {
   onClose: () => void;
   planName: string;
   planPrice: number;
+  initialEmail?: string;
+  isEmailLocked?: boolean;
+  isUpgrade?: boolean;
 }
 
-export default function PaymentFormModal({ isOpen, onClose, planName, planPrice }: PaymentFormModalProps) {
+export default function PaymentFormModal({ isOpen, onClose, planName, planPrice, initialEmail, isEmailLocked, isUpgrade }: PaymentFormModalProps) {
   const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(initialEmail || '');
+
   const [phone, setPhone] = useState('');
   const [isAddonChecked, setIsAddonChecked] = useState(false);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
@@ -53,6 +57,16 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
   const [error, setError] = useState<string | null>(null);
   const [setupInstruction, setSetupInstruction] = useState<string | null>(null);
 
+  React.useEffect(() => {
+    if (isOpen) {
+      if (initialEmail) {
+        setEmail(initialEmail);
+      } else {
+        setEmail('');
+      }
+    }
+  }, [isOpen, initialEmail]);
+
   // Lock background body scroll when checkout modal or demo modal is open
   React.useEffect(() => {
     if (isOpen || isDetailOpen) {
@@ -66,16 +80,16 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
   }, [isOpen, isDetailOpen]);
 
   // Dynamic pricing calculation
-  const basePrice = planPrice; // ₹199
+  const basePrice = planPrice; // ₹199 or ₹149 if upgrade
   const addonPrice = 149;
   const originalAddonPrice = 199;
   
-  const subTotal = basePrice + (isAddonChecked ? addonPrice : 0);
+  const subTotal = basePrice + (!isUpgrade && isAddonChecked ? addonPrice : 0);
   const discountAmount = isPromoApplied 
     ? (appliedPromo === 'SKALI' ? Math.floor(subTotal * 0.999) : 20)
     : 0;
   const finalTotal = subTotal - discountAmount;
-  const finalPlanName = isAddonChecked 
+  const finalPlanName = !isUpgrade && isAddonChecked 
     ? `${planName} + Flipkart Auto Listing Combo` 
     : planName;
 
@@ -309,17 +323,19 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
                       <label htmlFor="customerEmail" className="block text-[13px] font-semibold text-slate-700">
                         Email Address *
                       </label>
-                      <div className={`border rounded-xl py-2.5 px-3 bg-white transition-all duration-150 ${
+                      <div className={`border rounded-xl py-2.5 px-3 transition-all duration-150 ${
                         emailTouched && emailError
                           ? 'border-red-500 ring-1 ring-red-500 bg-red-50/10'
-                          : 'border-slate-200 focus-within:border-blue-600 focus-within:ring-1 focus-within:ring-blue-600'
+                          : isEmailLocked ? 'border-slate-200 bg-slate-100' : 'border-slate-200 bg-white focus-within:border-blue-600 focus-within:ring-1 focus-within:ring-blue-600'
                       }`}>
                         <input
                           id="customerEmail"
                           type="email"
                           required
+                          disabled={isEmailLocked}
                           value={email}
                           onChange={(e) => {
+                            if (isEmailLocked) return;
                             const val = e.target.value;
                             setEmail(val);
                             if (emailTouched) {
@@ -327,11 +343,12 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
                             }
                           }}
                           onBlur={() => {
+                            if (isEmailLocked) return;
                             setEmailTouched(true);
                             setEmailError(!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email));
                           }}
                           placeholder="Enter your email address"
-                          className="block w-full bg-transparent text-slate-800 font-medium text-sm focus:outline-none border-0 p-0 font-sans"
+                          className={`block w-full bg-transparent text-slate-800 font-medium text-sm focus:outline-none border-0 p-0 font-sans ${isEmailLocked ? 'cursor-not-allowed opacity-70' : ''}`}
                         />
                       </div>
                       {emailTouched && emailError && (
@@ -342,17 +359,18 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
                       <div className="mt-2.5 bg-amber-50/80 border border-amber-200/60 p-2.5 rounded-lg flex items-start gap-2">
                         <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
                         <p className="text-[11px] leading-snug font-medium text-amber-900 text-left">
-                          <strong>Note:</strong> Tool access will be tied to this Email address. Please ensure it is correct and you can log into it, as access cannot be transferred.
+                          <strong>Note:</strong> Tool access will be tied to this Email address. {isEmailLocked ? 'Since you are upgrading, this cannot be changed.' : 'Please ensure it is correct and you can log into it, as access cannot be transferred.'}
                         </p>
                       </div>
                     </div>
 
                     {/* Flipkart Tool Dotted/Dashed Blue Addon Card */}
-                    <div 
-                      className="p-3 rounded-xl border-dashed border-[1.5px] border-blue-400 bg-[#F0F7FF] hover:bg-[#EBF5FF] transition-all text-left shadow-sm"
-                    >
-                      {/* Addon details click triggers drawer */}
-                      <div className="space-y-2 cursor-pointer" onClick={() => setIsDetailOpen(true)}>
+                    {!isUpgrade && (
+                      <div 
+                        className="p-3 rounded-xl border-dashed border-[1.5px] border-blue-400 bg-[#F0F7FF] hover:bg-[#EBF5FF] transition-all text-left shadow-sm"
+                      >
+                        {/* Addon details click triggers drawer */}
+                        <div className="space-y-2 cursor-pointer" onClick={() => setIsDetailOpen(true)}>
                         
                         {/* Top Row: Image & Title Side-by-Side */}
                         <div className="flex gap-3 items-center">
@@ -410,6 +428,7 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice 
                         </button>
                       </div>
                     </div>
+                    )}
 
                     {/* Promo Code Row (Exactly like screenshots, whole card is clickable) */}
                     <div 
