@@ -149,7 +149,7 @@ export default function Landing() {
              try {
                await emailjs.send(
                  'service_9naplmf',
-                 'template_o9nsxhc',
+                 'template_cubn7ut',
                  {
                    email: customerEmail,
                    name: customerName,

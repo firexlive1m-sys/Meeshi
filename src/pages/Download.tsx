@@ -23,7 +23,7 @@ export default function Download() {
       setUser(currentUser);
       if (currentUser && currentUser.email) {
         try {
-          const docRef = doc(db, 'purchases', currentUser.email);
+          const docRef = doc(db, 'purchases', currentUser.email?.toLowerCase() || '');
           const docSnap = await getDoc(docRef);
           if (docSnap.exists()) {
             setPurchase(docSnap.data());
@@ -56,7 +56,7 @@ export default function Download() {
     if (!user?.email) return;
     setSavingDevice(true);
     try {
-      const docRef = doc(db, 'purchases', user.email);
+      const docRef = doc(db, 'purchases', user.email?.toLowerCase() || '');
       await setDoc(docRef, { device: selectedDevice }, { merge: true });
       // Update local state
       setPurchase({ ...purchase, device: selectedDevice });
