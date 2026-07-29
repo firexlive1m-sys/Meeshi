@@ -44,7 +44,6 @@ import { db, auth } from '../firebase';
 import { doc, setDoc } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
 import { useNavigate, Link } from 'react-router-dom';
-import { trackInitiateCheckout, trackPurchase } from '../services/analytics';
 
 export default function Landing() {
   // Global CTA Variable
@@ -54,13 +53,6 @@ export default function Landing() {
   // Payment Modal States
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [paymentPlan, setPaymentPlan] = useState({ name: 'Meesho Instant Listing Pack', price: 199 });
-
-  // Track InitiateCheckout
-  useEffect(() => {
-    if (isPaymentModalOpen) {
-      trackInitiateCheckout(paymentPlan.price);
-    }
-  }, [isPaymentModalOpen, paymentPlan.price]);
 
   // Payment Status State from URL Query Parameters
   const [paymentSuccess, setPaymentSuccess] = useState<boolean | null>(null);
@@ -140,22 +132,6 @@ export default function Landing() {
              };
              // Save to local storage for the Download page to pick up and sync
              localStorage.setItem('verified_purchase', JSON.stringify({ email: customerEmail, data: purchaseData }));
-             
-             if (orderId) {
-               const purchaseFiredKey = `fb_purchase_${orderId}`;
-               if (!localStorage.getItem(purchaseFiredKey)) {
-                 trackPurchase({
-                   value: price,
-                   currency: "INR",
-                   email: customerEmail,
-                   phone: customerPhone,
-                   first_name: customerName,
-                   external_id: orderId,
-                   event_id: orderId
-                 });
-                 localStorage.setItem(purchaseFiredKey, "true");
-               }
-             }
              
              // Try to save directly if already logged in as the correct user
              await setDoc(doc(db, 'purchases', customerEmail), purchaseData, { merge: true });
