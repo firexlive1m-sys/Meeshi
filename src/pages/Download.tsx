@@ -230,7 +230,7 @@ export default function Download() {
                   { 
                     id: 'Mobile', 
                     label: '📱 Mobile (Smartphone)', 
-                    sub: 'Android ya iPhone par chalane ke liye' 
+                    sub: 'Android par chalane ke liye' 
                   },
                   { 
                     id: 'PC', 

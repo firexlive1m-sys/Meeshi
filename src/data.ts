@@ -139,7 +139,7 @@ export const FEATURES: FeatureItem[] = [
   {
     id: "f4",
     title: "100% Mobile-Friendly Setup",
-    description: "No computer? No problem. Use our specialized mobile bypass template to upload directly from your Android or iOS device.",
+    description: "No computer? No problem. Use our specialized mobile bypass template to upload directly from your Android device.",
     icon: "Smartphone"
   },
   {
@@ -224,7 +224,7 @@ export const FAQS: FAQItem[] = [
   },
   {
     id: "faq-2",
-    question: "Does it work on Android and iOS mobile phones?",
+    question: "Does it work on Android mobile phones?",
     answer: "Yes! While many high-volume sellers prefer using a computer, we have created a specialized mobile-optimized template for Google Sheets. This allows you to set up and manage your bulk auto listings directly from your smartphone."
   },
   {
