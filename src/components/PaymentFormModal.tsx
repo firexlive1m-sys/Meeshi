@@ -217,6 +217,16 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice,
         console.warn('Failed to save to localStorage:', e);
       }
 
+      // Track InitiateCheckout Event
+      if (typeof window !== 'undefined' && (window as any).fbq) {
+        (window as any).fbq('track', 'InitiateCheckout', {
+          value: finalTotal,
+          currency: 'INR',
+          content_name: finalPlanName,
+          num_items: 1
+        });
+      }
+
       // 3. Initiate checkout (V3 Web Checkout)
       await cashfree.checkout({
         paymentSessionId: payment_session_id,
