@@ -21,7 +21,6 @@ import {
 } from 'lucide-react';
 // @ts-ignore
 import { load } from '@cashfreepayments/cashfree-js';
-import { trackInitiateCheckout } from '../pixel';
 
 interface PaymentFormModalProps {
   isOpen: boolean;
@@ -219,11 +218,6 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice,
       }
 
       // 3. Initiate checkout (V3 Web Checkout)
-      trackInitiateCheckout(finalTotal, 'INR', {
-        email: computedEmail,
-        phone: computedPhone,
-        firstName: computedName
-      });
       await cashfree.checkout({
         paymentSessionId: payment_session_id,
         redirectTarget: '_self', // Best practices for reliable redirects across all webviews & browsers
