@@ -40,6 +40,7 @@ import FAQSection from '../components/FAQSection';
 import PricingCard from '../components/PricingCard';
 import LiveSalesNotification from '../components/LiveSalesNotification';
 import PaymentFormModal from '../components/PaymentFormModal';
+import { initPixel, trackPageView } from '../pixel';
 import { db, auth } from '../firebase';
 import { doc, setDoc } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
@@ -49,6 +50,12 @@ export default function Landing() {
   // Global CTA Variable
   const globalCtaUrl = CONFIG.ctaRedirectUrl;
   const whatsappNumber = CONFIG.whatsappNumber;
+
+  // Initialize Pixel and Track PageView
+  useEffect(() => {
+    initPixel();
+    trackPageView();
+  }, []);
 
   // Payment Modal States
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
@@ -104,17 +111,8 @@ export default function Landing() {
         let price = storedPrice;
 
         if (orderId) {
-          // Track Purchase event locally
-          if (window.fbq) {
-            window.fbq('track', 'Purchase', {
-              value: storedPrice,
-              currency: 'INR',
-              contents: [{ id: storedPlan, quantity: 1 }]
-            }, { eventID: orderId });
-          }
-
           try {
-            const res = await fetch(`/api/get-cashfree-order/${orderId}?fireCapi=true&plan=${encodeURIComponent(storedPlan)}`);
+            const res = await fetch(`/api/get-cashfree-order/${orderId}`);
             if (res.ok) {
               const data = await res.json();
               if (data && data.customer_details) {

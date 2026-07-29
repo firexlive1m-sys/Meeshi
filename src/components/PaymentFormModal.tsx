@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 // @ts-ignore
 import { load } from '@cashfreepayments/cashfree-js';
+import { trackInitiateCheckout } from '../pixel';
 
 interface PaymentFormModalProps {
   isOpen: boolean;
@@ -167,16 +168,6 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice,
     const computedPhone = phone.replace(/\D/g, '');
 
     try {
-      const eventId = `init_checkout_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
-
-      if (window.fbq) {
-        window.fbq('track', 'InitiateCheckout', {
-          value: finalTotal,
-          currency: 'INR',
-          contents: [{ id: finalPlanName, quantity: 1 }]
-        }, { eventID: eventId });
-      }
-
       // 1. Create order on Express backend
       const response = await fetch('/api/create-cashfree-order', {
         method: 'POST',
@@ -188,8 +179,7 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice,
           customerName: computedName,
           customerEmail: computedEmail,
           customerPhone: computedPhone,
-          planName: finalPlanName,
-          eventId: eventId
+          planName: finalPlanName
         }),
       });
 
@@ -229,6 +219,11 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice,
       }
 
       // 3. Initiate checkout (V3 Web Checkout)
+      trackInitiateCheckout(finalTotal, 'INR', {
+        email: computedEmail,
+        phone: computedPhone,
+        firstName: computedName
+      });
       await cashfree.checkout({
         paymentSessionId: payment_session_id,
         redirectTarget: '_self', // Best practices for reliable redirects across all webviews & browsers
