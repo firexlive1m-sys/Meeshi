@@ -40,7 +40,6 @@ import FAQSection from '../components/FAQSection';
 import PricingCard from '../components/PricingCard';
 import LiveSalesNotification from '../components/LiveSalesNotification';
 import PaymentFormModal from '../components/PaymentFormModal';
-import { initPixel, trackPageView } from '../pixel';
 import { db, auth } from '../firebase';
 import { doc, setDoc } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
@@ -50,12 +49,6 @@ export default function Landing() {
   // Global CTA Variable
   const globalCtaUrl = CONFIG.ctaRedirectUrl;
   const whatsappNumber = CONFIG.whatsappNumber;
-
-  // Initialize Pixel and Track PageView
-  useEffect(() => {
-    initPixel();
-    trackPageView();
-  }, []);
 
   // Payment Modal States
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);

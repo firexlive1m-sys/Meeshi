@@ -444,58 +444,6 @@ Tone: Strictly text-oriented. No voice calls, mics, speaking, voice playback ref
     }
   });
 
-  // Facebook Conversions API (CAPI) Endpoint
-  app.post("/api/capi", async (req, res) => {
-    try {
-      const { eventName, eventId, eventUrl, userData, customData } = req.body;
-      
-      const pixelId = "1752414386118648";
-      const accessToken = "EAAOx37UtJQsBSOwtVWLXBxhBHfZBfONtCbconniMMTAHMUPqXmhUnX3kYjCrZCAHgZC2ZCcgsvcEBuRL6CmGrbbcyEbMvNXEfE7tkDiNrnylmNzqnGWENvKdwdzK3nEHXN8u3uF76USnHd73T9ZBdIkrE8i2IY9SBZA9XJ5ZBAb2llGJ77ddabaBDlpvXJgyQZDZD";
-      
-      const clientIpAddress = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
-      const clientUserAgent = req.headers['user-agent'];
-      
-      function hashData(data: string | undefined) {
-        if (!data) return undefined;
-        return crypto.createHash('sha256').update(data.trim().toLowerCase()).digest('hex');
-      }
-
-      const payload = {
-        data: [
-          {
-            event_name: eventName,
-            event_time: Math.floor(Date.now() / 1000),
-            action_source: "website",
-            event_id: eventId,
-            event_source_url: eventUrl,
-            user_data: {
-              client_ip_address: clientIpAddress,
-              client_user_agent: clientUserAgent,
-              em: hashData(userData?.email),
-              ph: hashData(userData?.phone),
-              fn: hashData(userData?.firstName),
-              fbp: userData?.fbp,
-              fbc: userData?.fbc,
-            },
-            custom_data: customData
-          }
-        ]
-      };
-      
-      const response = await fetch(`https://graph.facebook.com/v19.0/${pixelId}/events?access_token=${accessToken}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      
-      const result = await response.json();
-      res.json(result);
-    } catch (error: any) {
-      console.error('CAPI Error:', error);
-      res.status(500).json({ error: 'CAPI failed', message: error.message });
-    }
-  });
-
   // Verify Payment Status callback and Redirect
   app.get("/payment-status", async (req, res) => {
     const { order_id } = req.query;
