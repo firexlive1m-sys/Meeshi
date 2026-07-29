@@ -64,6 +64,53 @@ export default async function handler(req: any, res: any) {
         // Status can be PAID or ACTIVE depending on configuration, check Cashfree API order_status
         if (data.order_status === "PAID") {
           isPaid = true;
+
+          // Meta Conversions API (CAPI) Integration
+          const pixelId = "1752414386118648";
+          const accessToken = "EAAOx37UtJQsBSMUxZB0INUZAS9yGDDzyrGqY3ebwhxYX2RGggWSGFtH8QDXDzimWnyimbkpkZAOkanw13f5CvobBZB819MeCnYowoaKFHuCRHtZCxZAsbtfputZBhlQZCRBLsxpU0ZB1enHl3Tyu3XTojlFTkDkKqIkwOT0viHX3Hxe7N1hbHGBQemkeavwc0ngZDZD";
+          
+          if (pixelId && accessToken) {
+            const crypto = require("crypto");
+            const hashData = (str: string) => str ? crypto.createHash("sha256").update(str.trim().toLowerCase()).digest("hex") : "";
+            
+            const clientIp = req.headers['x-forwarded-for'] || req.socket?.remoteAddress;
+            const userAgent = req.headers['user-agent'];
+            
+            const capiPayload = {
+              data: [
+                {
+                  event_name: "Purchase",
+                  event_time: Math.floor(Date.now() / 1000),
+                  action_source: "website",
+                  event_id: data.order_id,
+                  user_data: {
+                    client_ip_address: clientIp,
+                    client_user_agent: userAgent,
+                    em: [hashData(data.customer_details?.customer_email || "")],
+                    ph: [hashData(data.customer_details?.customer_phone || "")],
+                    fn: [hashData(data.customer_details?.customer_name || "")]
+                  },
+                  custom_data: {
+                    currency: "INR",
+                    value: data.order_amount || 199,
+                    content_type: "product",
+                    content_name: "Meesho AutoListing Automation Suite",
+                    external_id: data.order_id
+                  }
+                }
+              ]
+            };
+            
+            fetch(`https://graph.facebook.com/v19.0/${pixelId}/events?access_token=${accessToken}`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(capiPayload)
+            }).then(r => r.json()).then(resCapi => {
+              console.log("Meta CAPI Purchase Fired:", resCapi);
+            }).catch(err => {
+              console.error("Meta CAPI Error:", err);
+            });
+          }
         }
       }
     } catch (err) {
