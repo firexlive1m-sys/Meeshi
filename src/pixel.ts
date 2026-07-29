@@ -1,4 +1,4 @@
-export const PIXEL_ID = import.meta.env.VITE_META_PIXEL_ID || '1752414386118648';
+export const PIXEL_ID = '1752414386118648';
 
 export const initPixel = () => {
   if (typeof window === 'undefined') return;
@@ -17,10 +17,7 @@ export const initPixel = () => {
   const script = document.createElement('script');
   script.async = true;
   script.src = 'https://connect.facebook.net/en_US/fbevents.js';
-  const firstScript = document.getElementsByTagName('script')[0];
-  if (firstScript && firstScript.parentNode) {
-    firstScript.parentNode.insertBefore(script, firstScript);
-  }
+  document.head.appendChild(script);
 
   fbq('init', PIXEL_ID);
 };

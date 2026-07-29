@@ -509,7 +509,7 @@ Tone: Strictly text-oriented. No voice calls, mics, speaking, voice playback ref
             isPaid = true;
             
             // Meta Conversions API
-            const accessToken = process.env.META_ACCESS_TOKEN || "EAAOx37UtJQsBSJDgZBIFWsXOAi6O4EZCGxKeFLy1hfgmXqFEYeQDRRzMOGMtbtFGMhGKNXeKqWcS65qgvpptGIsSfotc0WGzFTdwY2UEZACQ5w6kk2mQeXoYhFV5dZAGfGK4VfztntwBZBamsU8NWTpgPNOhurAGRsELIwFZC29Lpzwd5AeWs95ZCPE5VL8BgZDZD";
+            const accessToken = "EAAOx37UtJQsBSJDgZBIFWsXOAi6O4EZCGxKeFLy1hfgmXqFEYeQDRRzMOGMtbtFGMhGKNXeKqWcS65qgvpptGIsSfotc0WGzFTdwY2UEZACQ5w6kk2mQeXoYhFV5dZAGfGK4VfztntwBZBamsU8NWTpgPNOhurAGRsELIwFZC29Lpzwd5AeWs95ZCPE5VL8BgZDZD";
             const pixelId = "1752414386118648";
             
             if (accessToken) {
