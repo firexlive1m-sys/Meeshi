@@ -507,6 +507,59 @@ Tone: Strictly text-oriented. No voice calls, mics, speaking, voice playback ref
           // Status can be PAID or ACTIVE depending on configuration, check Cashfree API order_status
           if (data.order_status === "PAID") {
             isPaid = true;
+            
+            // Meta Conversions API
+            const accessToken = process.env.META_ACCESS_TOKEN || "EAAOx37UtJQsBSJDgZBIFWsXOAi6O4EZCGxKeFLy1hfgmXqFEYeQDRRzMOGMtbtFGMhGKNXeKqWcS65qgvpptGIsSfotc0WGzFTdwY2UEZACQ5w6kk2mQeXoYhFV5dZAGfGK4VfztntwBZBamsU8NWTpgPNOhurAGRsELIwFZC29Lpzwd5AeWs95ZCPE5VL8BgZDZD";
+            const pixelId = "1752414386118648";
+            
+            if (accessToken) {
+              const hash = (str?: string) => str ? crypto.createHash('sha256').update(str.trim().toLowerCase()).digest('hex') : undefined;
+              
+              const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+              const userAgent = req.headers['user-agent'];
+              
+              const cookies = req.headers.cookie || '';
+              const getCookie = (name: string) => {
+                const match = cookies.match(new RegExp(`(?:^|;\\s*)${name}=([^;]*)`));
+                return match ? match[1] : undefined;
+              };
+              
+              // We generate a deterministic UUID for event_id based on order_id for deduplication
+              const eventIdHash = crypto.createHash('md5').update(data.order_id).digest('hex');
+              const eventId = `${eventIdHash.substr(0,8)}-${eventIdHash.substr(8,4)}-${eventIdHash.substr(12,4)}-${eventIdHash.substr(16,4)}-${eventIdHash.substr(20,12)}`;
+
+              const payload = {
+                data: [{
+                  event_name: "Purchase",
+                  event_time: Math.floor(Date.now() / 1000),
+                  action_source: "website",
+                  event_source_url: `https://${req.headers.host || 'autolisting.online'}/`,
+                  event_id: eventId,
+                  user_data: {
+                    client_ip_address: clientIp,
+                    client_user_agent: userAgent,
+                    em: hash(data.customer_details?.customer_email),
+                    ph: hash(data.customer_details?.customer_phone),
+                    fn: hash(data.customer_details?.customer_name),
+                    fbp: getCookie('_fbp'),
+                    fbc: getCookie('_fbc')
+                  },
+                  custom_data: {
+                    currency: "INR",
+                    value: data.order_amount,
+                    content_name: "Meesho AutoListing Automation Suite",
+                    content_category: "Digital Product",
+                    order_id: data.order_id
+                  }
+                }]
+              };
+
+              fetch(`https://graph.facebook.com/v19.0/${pixelId}/events?access_token=${accessToken}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+              }).then(res => res.json()).then(r => console.log('CAPI Purchase Success:', r)).catch(e => console.error('CAPI Purchase Error:', e));
+            }
           }
         }
       } catch (err) {

@@ -44,11 +44,16 @@ import { db, auth } from '../firebase';
 import { doc, setDoc } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
 import { useNavigate, Link } from 'react-router-dom';
+import { trackViewContent } from '../pixel';
 
 export default function Landing() {
   // Global CTA Variable
   const globalCtaUrl = CONFIG.ctaRedirectUrl;
   const whatsappNumber = CONFIG.whatsappNumber;
+
+  useEffect(() => {
+    trackViewContent();
+  }, []);
 
   // Payment Modal States
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);

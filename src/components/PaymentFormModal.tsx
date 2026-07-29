@@ -19,6 +19,7 @@ import {
   Gift,
   ShieldCheck
 } from 'lucide-react';
+import { trackInitiateCheckout } from '../pixel';
 // @ts-ignore
 import { load } from '@cashfreepayments/cashfree-js';
 
@@ -218,6 +219,7 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice,
       }
 
       // 3. Initiate checkout (V3 Web Checkout)
+      trackInitiateCheckout(finalTotal, 'INR');
       await cashfree.checkout({
         paymentSessionId: payment_session_id,
         redirectTarget: '_self', // Best practices for reliable redirects across all webviews & browsers
