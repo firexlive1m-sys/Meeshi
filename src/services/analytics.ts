@@ -14,18 +14,25 @@ export const initMetaPixel = () => {
     n.version = '2.0';
     n.queue = [];
     const t = document.createElement('script');
-    t.async = !0;
+    t.async = true;
     t.src = 'https://connect.facebook.net/en_US/fbevents.js';
-    const s = document.getElementsByTagName('script')[0];
-    if (s && s.parentNode) s.parentNode.insertBefore(t, s);
+    
+    t.onload = () => console.log("✅ Meta Pixel Script Loaded Successfully.");
+    t.onerror = () => console.error("❌ Meta Pixel Script Failed to Load. Please disable Adblockers (Brave Shields, uBlock, etc).");
+    
+    document.head.appendChild(t);
 
     w.fbq('init', pixelId);
+    console.log("✅ Meta Pixel Initialized with ID:", pixelId);
   }
 };
 
 export const trackPageView = () => {
   if (typeof window !== 'undefined' && (window as any).fbq) {
     (window as any).fbq('track', 'PageView');
+    console.log("✅ Fired Meta Pixel PageView");
+  } else {
+    console.warn("⚠️ Meta Pixel not ready for PageView (Adblocker active?)");
   }
 };
 
@@ -35,6 +42,7 @@ export const trackInitiateCheckout = (value: number, currency: string = 'INR') =
       value,
       currency
     });
+    console.log("✅ Fired Meta Pixel InitiateCheckout:", value, currency);
   }
 };
 
@@ -48,8 +56,6 @@ export const trackPurchase = (data: {
   event_id: string; // same order_id
 }) => {
   if (typeof window !== 'undefined' && (window as any).fbq) {
-    // We can also set advanced matching right before firing the event
-    // To help with deduplication, pass the eventID in the third argument
     (window as any).fbq('init', "1752414386118648", {
       em: data.email.toLowerCase(),
       ph: data.phone,
@@ -65,5 +71,6 @@ export const trackPurchase = (data: {
     }, {
       eventID: data.event_id
     });
+    console.log("✅ Fired Meta Pixel Purchase:", data.value, data.currency);
   }
 };
