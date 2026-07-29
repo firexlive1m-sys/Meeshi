@@ -1054,6 +1054,7 @@ export default function Landing() {
                       We want you to be fully successful. If you face any technical difficulties, setup lags, or device compatibility errors after purchase:
                       <br />• You must contact our customer support desk on email (<strong>ska80ali@gmail.com</strong>).
                       <br />• Our engineering team will assist you to set up the tool or provide manual customized configuration sheets matching your device within 24-48 hours.
+                      <br />• <strong>Important:</strong> You must provide a valid screen recording or screenshot as proof of the issue. A refund will only be processed after validating the provided proof.
                       <br />• In the rare scenario that our support specialists cannot resolve the technical problem and the tool remains completely unusable on your specified device, a <strong>full refund of ₹199</strong> will be approved immediately.
                     </p>
                     <p className="font-bold text-[#3B82F6]">
