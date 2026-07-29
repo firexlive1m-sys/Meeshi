@@ -1,5 +1,5 @@
 export const initMetaPixel = () => {
-  const pixelId = import.meta.env.VITE_META_PIXEL_ID;
+  const pixelId = "1752414386118648";
   if (!pixelId) return;
 
   if (typeof window !== 'undefined') {
@@ -50,7 +50,7 @@ export const trackPurchase = (data: {
   if (typeof window !== 'undefined' && (window as any).fbq) {
     // We can also set advanced matching right before firing the event
     // To help with deduplication, pass the eventID in the third argument
-    (window as any).fbq('init', import.meta.env.VITE_META_PIXEL_ID, {
+    (window as any).fbq('init', "1752414386118648", {
       em: data.email.toLowerCase(),
       ph: data.phone,
       fn: data.first_name,

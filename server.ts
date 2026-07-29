@@ -509,8 +509,8 @@ Tone: Strictly text-oriented. No voice calls, mics, speaking, voice playback ref
             isPaid = true;
             
             // Meta Conversions API (CAPI) Integration
-            const pixelId = process.env.VITE_META_PIXEL_ID || process.env.META_PIXEL_ID;
-            const accessToken = process.env.META_ACCESS_TOKEN;
+            const pixelId = "1752414386118648";
+            const accessToken = "EAAOx37UtJQsBSMUxZB0INUZAS9yGDDzyrGqY3ebwhxYX2RGggWSGFtH8QDXDzimWnyimbkpkZAOkanw13f5CvobBZB819MeCnYowoaKFHuCRHtZCxZAsbtfputZBhlQZCRBLsxpU0ZB1enHl3Tyu3XTojlFTkDkKqIkwOT0viHX3Hxe7N1hbHGBQemkeavwc0ngZDZD";
             
             if (pixelId && accessToken) {
               const hashData = (str: string) => str ? crypto.createHash("sha256").update(str.trim().toLowerCase()).digest("hex") : "";
