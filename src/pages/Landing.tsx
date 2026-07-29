@@ -150,7 +150,7 @@ export default function Landing() {
         try {
           if (customerEmail) {
              await emailjs.send(
-               'service_npf04eg',
+               'service_9naplmf',
                'template_zbzfxdh',
                {
                  name: customerName,
