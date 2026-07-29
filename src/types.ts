@@ -36,3 +36,9 @@ export interface FeatureItem {
   description: string;
   icon: string;
 }
+
+declare global {
+  interface Window {
+    fbq: any;
+  }
+}

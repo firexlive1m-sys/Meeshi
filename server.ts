@@ -7,9 +7,82 @@ import crypto from "crypto";
 
 dotenv.config();
 
+// Meta Conversions API Helper
+async function sendCAPIEvent(
+  eventName: string,
+  eventId: string,
+  userData: any,
+  customData: any,
+  req: express.Request
+) {
+  const pixelId = process.env.VITE_META_PIXEL_ID;
+  const token = process.env.META_CAPI_TOKEN;
+
+  if (!pixelId || !token) {
+    console.warn("CAPI config missing. Skipping server-side event tracking.");
+    return;
+  }
+
+  // Get Client IP Address safely
+  let clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '';
+  if (Array.isArray(clientIp)) {
+    clientIp = clientIp[0];
+  } else if (typeof clientIp === 'string' && clientIp.includes(',')) {
+    clientIp = clientIp.split(',')[0];
+  }
+
+  const userAgent = req.headers['user-agent'] || '';
+
+  // Hash user data fields securely (SHA256 required by Facebook)
+  const hashField = (field?: string) => {
+    if (!field) return undefined;
+    return crypto.createHash('sha256').update(field.trim().toLowerCase()).digest('hex');
+  };
+
+  const payload = {
+    data: [
+      {
+        event_name: eventName,
+        event_time: Math.floor(Date.now() / 1000),
+        event_id: eventId,
+        action_source: "website",
+        user_data: {
+          em: userData.email ? [hashField(userData.email)] : undefined,
+          ph: userData.phone ? [hashField(userData.phone)] : undefined,
+          client_ip_address: clientIp,
+          client_user_agent: userAgent
+        },
+        custom_data: customData,
+      }
+    ]
+  };
+
+  try {
+    const response = await fetch(`https://graph.facebook.com/v19.0/${pixelId}/events?access_token=${token}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload)
+    });
+
+    const result = await response.json();
+    if (!response.ok) {
+      console.error(`Meta CAPI Error for ${eventName}:`, result);
+    } else {
+      console.log(`Meta CAPI Event ${eventName} successfully sent (ID: ${eventId})`);
+    }
+  } catch (err) {
+    console.error("Meta CAPI Fetch Error:", err);
+  }
+}
+
 async function startServer() {
   const app = express();
   const PORT = 3000;
+  
+  // Trust proxy to ensure correct client IP for CAPI
+  app.set('trust proxy', true);
 
   app.use(express.json());
 
@@ -218,10 +291,21 @@ Tone: Strictly text-oriented. No voice calls, mics, speaking, voice playback ref
   // Create Order on Cashfree Gateway (Server-side API keys hidden from client)
   app.post("/api/create-cashfree-order", async (req, res) => {
     try {
-      const { amount, customerName, customerEmail, customerPhone, planName } = req.body;
+      const { amount, customerName, customerEmail, customerPhone, planName, eventId } = req.body;
 
       if (!amount || !customerName || !customerEmail || !customerPhone) {
         return res.status(400).json({ error: "Name, email, and 10-digit phone number are required." });
+      }
+
+      // Fire CAPI event for InitiateCheckout
+      if (eventId) {
+        sendCAPIEvent(
+          "InitiateCheckout",
+          eventId,
+          { email: customerEmail, phone: customerPhone },
+          { value: amount, currency: "INR", contents: [{ id: planName, quantity: 1 }] },
+          req
+        );
       }
 
       let appId = process.env.CASHFREE_APP_ID;
@@ -425,6 +509,26 @@ Tone: Strictly text-oriented. No voice calls, mics, speaking, voice playback ref
           error: data.message || "Failed to fetch order details.",
           details: data
         });
+      }
+
+      // Fire CAPI event for Purchase if requested and paid
+      const fireCapi = req.query.fireCapi === 'true';
+      const planName = req.query.plan || 'Plan';
+      if (fireCapi && data.order_status === 'PAID') {
+        sendCAPIEvent(
+          "Purchase",
+          orderId, // Use orderId as the deduplication eventId
+          { 
+            email: data.customer_details?.customer_email, 
+            phone: data.customer_details?.customer_phone 
+          },
+          { 
+            value: data.order_amount, 
+            currency: "INR", 
+            contents: [{ id: planName, quantity: 1 }] 
+          },
+          req
+        );
       }
 
       return res.json({

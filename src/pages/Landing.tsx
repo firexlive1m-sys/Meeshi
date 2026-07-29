@@ -104,8 +104,17 @@ export default function Landing() {
         let price = storedPrice;
 
         if (orderId) {
+          // Track Purchase event locally
+          if (window.fbq) {
+            window.fbq('track', 'Purchase', {
+              value: storedPrice,
+              currency: 'INR',
+              contents: [{ id: storedPlan, quantity: 1 }]
+            }, { eventID: orderId });
+          }
+
           try {
-            const res = await fetch(`/api/get-cashfree-order/${orderId}`);
+            const res = await fetch(`/api/get-cashfree-order/${orderId}?fireCapi=true&plan=${encodeURIComponent(storedPlan)}`);
             if (res.ok) {
               const data = await res.json();
               if (data && data.customer_details) {
