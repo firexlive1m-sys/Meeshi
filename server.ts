@@ -4,21 +4,8 @@ import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
 import dotenv from "dotenv";
 import crypto from "crypto";
-import { initializeApp } from "firebase/app";
-import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
 
 dotenv.config();
-
-const firebaseConfig = {
-  apiKey: "AIzaSyAz03aMpvhVpNN641_FcGm0MkicXI4v02Y",
-  authDomain: "meesho-auto-listing-tool.firebaseapp.com",
-  projectId: "meesho-auto-listing-tool",
-  storageBucket: "meesho-auto-listing-tool.firebasestorage.app",
-  messagingSenderId: "697269821379",
-  appId: "1:697269821379:web:f21348736a18096af9e776"
-};
-const firebaseApp = initializeApp(firebaseConfig, "serverApp");
-const db = getFirestore(firebaseApp);
 
 async function startServer() {
   const app = express();
@@ -454,103 +441,6 @@ Tone: Strictly text-oriented. No voice calls, mics, speaking, voice playback ref
     } catch (err: any) {
       console.error("Error retrieving Cashfree order details:", err);
       return res.status(500).json({ error: "Internal server error", message: err.message });
-    }
-  });
-
-  // Cashfree Webhook Handler for 100% Reliability
-  app.post("/api/cashfree-webhook", async (req, res) => {
-    try {
-      const orderId = req.body?.data?.order?.order_id || req.body?.orderId;
-      const status = req.body?.data?.payment?.payment_status || req.body?.txStatus;
-      
-      if (!orderId) {
-        return res.status(200).send("No order ID"); // Acknowledge to prevent retries
-      }
-
-      if (status !== "SUCCESS") {
-        return res.status(200).send("Not a success event");
-      }
-
-      // We will verify the order via GET API directly to prevent spoofing
-      let appId = process.env.CASHFREE_APP_ID;
-      let secretKey = process.env.CASHFREE_SECRET_KEY;
-      let cashfreeEnv = process.env.CASHFREE_ENV || "sandbox";
-
-      if (!appId || appId.trim() === "" || appId.includes("YOUR_CASHFREE") || appId === "undefined") {
-        const a1 = "1328720fa";
-        const a2 = "4876cfc5f2d";
-        const a3 = "083d40b0278231";
-        appId = a1 + a2 + a3;
-      }
-      if (!secretKey || secretKey.trim() === "" || secretKey.includes("YOUR_CASHFREE") || secretKey === "undefined") {
-        const k1 = "cfsk_ma_prod_";
-        const k2 = "191a5a5fa4c7f489f3101dbe6712549a";
-        const k3 = "fcb45fb9";
-        secretKey = k1 + k2 + "_" + k3;
-      }
-      if (!process.env.CASHFREE_ENV || process.env.CASHFREE_ENV.trim() === "" || process.env.CASHFREE_ENV === "sandbox") {
-        if (appId.includes("1328720fa") && appId.includes("083d40b0278231")) {
-          cashfreeEnv = "production";
-        }
-      }
-
-      let finalEnv = "sandbox";
-      if (secretKey.trim().toLowerCase().includes("prod") || appId.trim().match(/^\d/) || cashfreeEnv === "production") {
-        finalEnv = "production";
-      }
-
-      const url = finalEnv === "production"
-        ? `https://api.cashfree.com/pg/orders/${orderId}`
-        : `https://sandbox.cashfree.com/pg/orders/${orderId}`;
-
-      const response = await fetch(url, {
-        method: "GET",
-        headers: {
-          "x-api-version": "2023-08-01",
-          "x-client-id": appId,
-          "x-client-secret": secretKey
-        }
-      });
-
-      if (response.ok) {
-        const data: any = await response.json();
-        
-        if (data.order_status === "PAID" && data.customer_details?.customer_email) {
-          const customerEmail = data.customer_details.customer_email.toLowerCase();
-          
-          // Ensure we have plan details from pending orders if available
-          let planName = "Meesho Instant Listing Pack"; // Default
-          try {
-            const pendingRef = doc(db, 'pending_orders', customerEmail);
-            const pendingSnap = await getDoc(pendingRef);
-            if (pendingSnap.exists()) {
-              planName = pendingSnap.data().plan || planName;
-            }
-          } catch (e) {
-            console.warn("Could not fetch pending order:", e);
-          }
-
-          // Save directly to Firebase Purchases collection
-          const purchaseData = {
-            plan: planName,
-            price: data.order_amount,
-            orderId: orderId,
-            purchasedAt: new Date().toISOString(),
-            name: data.customer_details.customer_name || 'Customer',
-            phone: data.customer_details.customer_phone || ''
-          };
-
-          await setDoc(doc(db, 'purchases', customerEmail), purchaseData, { merge: true });
-          console.log(`[Webhook] Successfully fulfilled order ${orderId} for ${customerEmail}`);
-        }
-      }
-      
-      // Always return 200 OK to Cashfree so it stops retrying
-      return res.status(200).send("Webhook received and processed");
-    } catch (err) {
-      console.error("Webhook processing error:", err);
-      // Even on error, it's often best to return 200 so we don't get spammed, or 500 if we want retries
-      return res.status(500).send("Internal Error");
     }
   });
 

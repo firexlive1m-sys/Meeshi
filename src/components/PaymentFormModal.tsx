@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Link } from 'react-router-dom';
-import { db } from '../firebase';
-import { doc, setDoc } from 'firebase/firestore';
 import { 
   X, 
   Shield, 
@@ -231,21 +229,6 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice,
         localStorage.setItem('pending_purchase_price', finalTotal.toString());
       } catch (e) {
         console.warn('Failed to save to localStorage:', e);
-      }
-
-      // Save to Firebase as PENDING so it can be recovered even if user closes tab
-      try {
-        await setDoc(doc(db, 'pending_orders', computedEmail.toLowerCase()), {
-          orderId: data.order_id,
-          plan: finalPlanName,
-          price: finalTotal,
-          name: computedName,
-          phone: computedPhone,
-          status: 'PENDING',
-          createdAt: new Date().toISOString()
-        });
-      } catch (err) {
-        console.warn('Failed to save pending order to Firebase:', err);
       }
 
       // Track InitiateCheckout Event
