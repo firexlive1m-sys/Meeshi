@@ -81,6 +81,20 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice,
     };
   }, [isOpen, isDetailOpen]);
 
+  // Handle case where user navigates back from the payment gateway using browser back button
+  React.useEffect(() => {
+    const handlePageShow = (event: PageTransitionEvent) => {
+      if (event.persisted) {
+        setLoading(false);
+        setError('Payment was interrupted or cancelled. Please try again.');
+      }
+    };
+    window.addEventListener('pageshow', handlePageShow);
+    return () => {
+      window.removeEventListener('pageshow', handlePageShow);
+    };
+  }, []);
+
   // Dynamic pricing calculation
   const basePrice = isUpgrade ? 199 : planPrice; 
   const addonPrice = 149;
@@ -231,6 +245,11 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice,
       await cashfree.checkout({
         paymentSessionId: payment_session_id,
         redirectTarget: '_self', // Best practices for reliable redirects across all webviews & browsers
+      }).then((result: any) => {
+        if (result && result.error) {
+          setLoading(false);
+          setError(result.error.message || 'Payment was cancelled or failed. Please try again.');
+        }
       });
 
     } catch (err: any) {
