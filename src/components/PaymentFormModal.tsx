@@ -320,22 +320,7 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice,
                       </div>
                     )}
 
-                    {/* Error Message Panel if exists */}
-                    {error && (
-                      <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-800 text-xs space-y-1 animate-fade-in text-left">
-                        <div className="flex gap-2 items-start">
-                          <AlertCircle className="w-4.5 h-4.5 shrink-0 text-red-500 mt-0.5" />
-                          <div>
-                            <p className="font-bold">{error}</p>
-                            {setupInstruction && (
-                              <p className="mt-1.5 text-slate-600 font-mono text-[10px] bg-white p-2 rounded border border-slate-200">
-                                {setupInstruction}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    )}
+                    {/* Error Message Panel Removed to use Popup Modal instead */}
 
                     {/* Phone Input Container */}
                     <div className="space-y-1 text-left">
@@ -646,6 +631,71 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice,
                   </div>
                 </div>
               </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {loading && (
+          <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-white/80 backdrop-blur-md"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="relative flex flex-col items-center justify-center z-10 text-center"
+            >
+              <div className="w-20 h-20 rounded-2xl bg-white shadow-2xl flex items-center justify-center mb-5 border border-slate-100">
+                <Loader2 className="w-10 h-10 text-blue-600 animate-spin" />
+              </div>
+              <h3 className="text-xl font-bold text-slate-900 mb-2">Creating Secure Checkout</h3>
+              <p className="text-sm text-slate-600 font-medium max-w-[280px]">
+                Please wait a moment while we redirect you to the payment gateway...
+              </p>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {error && !loading && (
+          <div className="fixed inset-0 z-[80] flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm"
+              onClick={() => setError(null)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="relative w-full max-w-sm bg-white rounded-3xl shadow-2xl p-7 text-center z-10"
+            >
+              <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-5">
+                <AlertCircle className="w-8 h-8 text-red-500" />
+              </div>
+              <h3 className="text-[19px] font-black text-slate-900 mb-2 font-sans tracking-tight">Payment Failed</h3>
+              <p className="text-[14px] text-slate-600 mb-6 font-medium leading-relaxed">{error}</p>
+              {setupInstruction && (
+                <p className="mt-2 mb-5 text-slate-600 font-mono text-[10px] bg-slate-50 p-2 rounded-lg border border-slate-200">
+                  {setupInstruction}
+                </p>
+              )}
+              <button
+                type="button"
+                onClick={() => setError(null)}
+                className="w-full h-13 bg-black text-white font-bold text-[15px] rounded-xl hover:bg-slate-900 transition-colors shadow-md"
+              >
+                Try Again
+              </button>
             </motion.div>
           </div>
         )}
