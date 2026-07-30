@@ -40,6 +40,40 @@ export default function Download() {
           if (docSnap.exists()) {
             setPurchase(docSnap.data());
           } else {
+            // Check for a pending order
+            try {
+              const pendingRef = doc(db, 'pending_orders', currentUser.email.toLowerCase());
+              const pendingSnap = await getDoc(pendingRef);
+              if (pendingSnap.exists()) {
+                const pendingData = pendingSnap.data();
+                
+                // Verify with backend if it's actually PAID
+                if (pendingData.orderId) {
+                  const res = await fetch(`/api/get-cashfree-order/${pendingData.orderId}`);
+                  if (res.ok) {
+                    const orderData = await res.json();
+                    if (orderData.order_status === "PAID") {
+                      // It is paid! Move it to purchases
+                      const finalPurchase = {
+                        plan: pendingData.plan,
+                        price: pendingData.price,
+                        orderId: pendingData.orderId,
+                        purchasedAt: pendingData.createdAt || new Date().toISOString(),
+                        name: pendingData.name,
+                        phone: pendingData.phone
+                      };
+                      
+                      await setDoc(doc(db, 'purchases', currentUser.email.toLowerCase()), finalPurchase, { merge: true });
+                      setPurchase(finalPurchase);
+                      return;
+                    }
+                  }
+                }
+              }
+            } catch (pendingErr) {
+              console.error("Error checking pending orders:", pendingErr);
+            }
+            
             setPurchase(null);
           }
         } catch (err) {
