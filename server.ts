@@ -4,14 +4,33 @@ import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
 import dotenv from "dotenv";
 import crypto from "crypto";
+import { initializeApp } from "firebase/app";
+import { getFirestore, doc, setDoc } from "firebase/firestore";
 
 dotenv.config();
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAz03aMpvhVpNN641_FcGm0MkicXI4v02Y",
+  authDomain: "meesho-auto-listing-tool.firebaseapp.com",
+  projectId: "meesho-auto-listing-tool",
+  storageBucket: "meesho-auto-listing-tool.firebasestorage.app",
+  messagingSenderId: "697269821379",
+  appId: "1:697269821379:web:f21348736a18096af9e776"
+};
+
+const firebaseApp = initializeApp(firebaseConfig);
+const db = getFirestore(firebaseApp);
 
 async function startServer() {
   const app = express();
   const PORT = 3000;
 
-  app.use(express.json());
+  // Add raw body access for webhook verification
+  app.use(express.json({
+    verify: (req: any, res, buf) => {
+      req.rawBody = buf;
+    }
+  }));
 
   // Lazy Initialization of Gemini SDK safegaurded against missing / empty keys
   let aiClient: GoogleGenAI | null = null;
@@ -308,7 +327,12 @@ Tone: Strictly text-oriented. No voice calls, mics, speaking, voice playback ref
           customer_email: customerEmail
         },
         order_meta: {
-          return_url: returnUrl
+          return_url: returnUrl,
+          notify_url: `https://autolisting.online/api/webhook/cashfree`
+        },
+        order_tags: {
+          plan: (planName || "Lifetime").substring(0, 50),
+          email: customerEmail.substring(0, 50)
         }
       };
 
@@ -352,6 +376,49 @@ Tone: Strictly text-oriented. No voice calls, mics, speaking, voice playback ref
     } catch (err: any) {
       console.error("Error creating Cashfree order:", err);
       return res.status(500).json({ error: "Internal payment processing error", message: err.message });
+    }
+  });
+
+  // Webhook for Cashfree
+  app.post("/api/webhook/cashfree", async (req: any, res) => {
+    try {
+      // Respond to Cashfree immediately with 200 OK
+      res.status(200).send("OK");
+      
+      const payload = req.body;
+      
+      // Basic webhook validation
+      if (!payload || !payload.data || !payload.data.order) {
+        console.warn("Invalid webhook payload received");
+        return;
+      }
+      
+      if (payload.type === "PAYMENT_SUCCESS_WEBHOOK") {
+        const orderId = payload.data.order.order_id;
+        const customerEmail = payload.data.customer_details?.customer_email || payload.data.order.order_tags?.email;
+        const planName = payload.data.order.order_tags?.plan || "Lifetime";
+        
+        if (customerEmail) {
+          const emailLower = customerEmail.toLowerCase();
+          const purchaseData = {
+             plan: planName,
+             amount: payload.data.order.order_amount,
+             currency: payload.data.order.order_currency,
+             orderId: orderId,
+             timestamp: Date.now(),
+             isPaymentComplete: true,
+             paymentStatus: "PAID",
+             updatedByWebhook: true
+          };
+          
+          await setDoc(doc(db, 'purchases', emailLower), purchaseData, { merge: true });
+          console.log(`[Webhook] Successfully saved purchase for ${emailLower} - Order: ${orderId}`);
+        } else {
+          console.error(`[Webhook] No customer email found in webhook payload for order ${orderId}`);
+        }
+      }
+    } catch (err) {
+      console.error("[Webhook] processing error:", err);
     }
   });
 
