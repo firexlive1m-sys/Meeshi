@@ -109,7 +109,12 @@ export default async function handler(req: any, res: any) {
         customer_email: customerEmail
       },
       order_meta: {
-        return_url: returnUrl
+        return_url: returnUrl,
+        notify_url: `https://autolisting.online/api/webhook/cashfree`
+      },
+      order_tags: {
+        plan: (planName || "Lifetime").substring(0, 50),
+        email: customerEmail.substring(0, 50)
       }
     };
 
