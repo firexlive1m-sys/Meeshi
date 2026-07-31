@@ -376,7 +376,7 @@ export default function Download() {
                               </p>
                             </div>
                           </div>
-                          <a href="https://github.com/user-attachments/files/30420869/meesho_auto_listing_tool_.zip" target="_blank" rel="noopener noreferrer" className="px-5 py-2 bg-[#F43397] hover:bg-[#d0257c] text-white text-xs font-bold rounded-lg shadow-lg transition-all text-center whitespace-nowrap">
+                          <a href="https://github.com/user-attachments/files/30583332/meesho_auto_listing_tool_.zip" target="_blank" rel="noopener noreferrer" className="px-5 py-2 bg-[#F43397] hover:bg-[#d0257c] text-white text-xs font-bold rounded-lg shadow-lg transition-all text-center whitespace-nowrap">
                             Download
                           </a>
                         </div>
