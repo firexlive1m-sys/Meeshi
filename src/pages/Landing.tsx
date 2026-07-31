@@ -102,16 +102,12 @@ export default function Landing() {
         let customerName = storedName;
         let customerPhone = storedPhone;
         let price = storedPrice;
-        let isVerifiedPaid = false;
 
         if (orderId) {
           try {
             const res = await fetch(`/api/get-cashfree-order/${orderId}`);
             if (res.ok) {
               const data = await res.json();
-              if (data && data.order_status === 'PAID') {
-                isVerifiedPaid = true;
-              }
               if (data && data.customer_details) {
                 customerEmail = (data.customer_details.customer_email || storedEmail).toLowerCase();
                 customerName = data.customer_details.customer_name || storedName;
@@ -170,30 +166,6 @@ export default function Landing() {
             await signOut(auth);
           } catch (err) {
             console.error("Failed to sign out previous user", err);
-          }
-        }
-
-        // --- META PIXEL PURCHASE EVENT ---
-        // Uses the Cashfree orderId as the eventID. Meta automatically deduplicates
-        // events with the same eventID, preventing duplicate Purchase tracking.
-        if (isVerifiedPaid && orderId && typeof window !== 'undefined' && (window as any).fbq) {
-          const pixelFiredKey = `pixel_purchase_fired_${orderId}`;
-          if (!localStorage.getItem(pixelFiredKey)) {
-            try {
-              (window as any).fbq('track', 'Purchase', {
-                value: price,
-                currency: 'INR',
-                content_name: storedPlan,
-                content_type: 'product'
-              }, { eventID: orderId });
-              
-              localStorage.setItem(pixelFiredKey, 'true');
-              
-              // Allow 400ms for the pixel network request to dispatch before redirecting
-              await new Promise(resolve => setTimeout(resolve, 400));
-            } catch (pixelErr) {
-              console.error("Pixel tracking error:", pixelErr);
-            }
           }
         }
 
