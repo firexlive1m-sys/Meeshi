@@ -615,10 +615,10 @@ export default function Landing() {
                 <Cpu className="w-5.5 h-5.5" />
               </div>
               <h3 className="text-base font-bold text-white font-display group-hover:text-[#3B82F6] transition-colors">
-                Automated Bulk Listing
+                1-Click Auto Listing
               </h3>
               <p className="text-xs text-gray-400 leading-relaxed mt-2 font-sans">
-                Upload hundreds of products in minutes. Eliminate manual data entry and list entire collections with ease.
+                Upload products quickly and easily. Fully compatible with Mobile, PC, and Laptop for maximum convenience.
               </p>
             </motion.div>
 
@@ -961,7 +961,7 @@ export default function Landing() {
                       2. Client Data Security (Absolute Local Sandbox)
                     </p>
                     <p>
-                      Our 1-Click Excel script and bulk automation tools run strictly local inside your own browser tab or secure sheets. 
+                      Our Auto Listing tool and automation software run strictly local inside your own browser tab or secure sheets. 
                       We <strong>DO NOT</strong> collect, store, transmit, or share your Meesho Seller credentials, catalog descriptions, passwords, shop keys, or invoice details. All automation processes are 100% server-isolated and client-confined.
                     </p>
                     <p className="font-bold text-[#3B82F6]">

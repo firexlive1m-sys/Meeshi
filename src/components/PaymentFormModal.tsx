@@ -761,13 +761,13 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice,
                   {/* Features List with beautiful checkmarks */}
                   <div className="space-y-3 pt-1">
                     {[
-                      { text: '1-Click Bulk Listing', emoji: '' },
+                      { text: '1-Click Auto Listing', emoji: '⚡' },
+                      { text: 'Free Image Generator Tool', emoji: '🖼️' },
+                      { text: 'Shipping Reduce Method', emoji: '📦' },
+                      { text: 'Works on Mobile, PC, Laptop', emoji: '💻' },
                       { text: 'AI SEO Title Generator', emoji: '🤖' },
                       { text: 'AI Product Description Generator', emoji: '✍️' },
                       { text: 'Smart Keyword Suggestions', emoji: '🔍' },
-                      { text: 'Faster Product Upload', emoji: '🚀' },
-                      { text: 'Save Time & Increase Orders', emoji: '📈' },
-                      { text: 'Beginner Friendly + Mobile Supported', emoji: '📱' },
                     ].map((feat, index) => (
                       <div key={index} className="flex items-center gap-3">
                         <div className="w-5 h-5 rounded bg-[#22C55E] flex items-center justify-center text-white shrink-0 shadow-sm">

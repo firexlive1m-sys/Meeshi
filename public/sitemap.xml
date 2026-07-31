@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://www.autolisting.online/</loc>
+    <lastmod>2024-05-20T00:00:00+00:00</lastmod>
+    <priority>1.00</priority>
+  </url>
+  <url>
+    <loc>https://www.autolisting.online/privacy-policy</loc>
+    <priority>0.80</priority>
+  </url>
+  <url>
+    <loc>https://www.autolisting.online/terms-conditions</loc>
+    <priority>0.80</priority>
+  </url>
+  <url>
+    <loc>https://www.autolisting.online/refund-policy</loc>
+    <priority>0.80</priority>
+  </url>
+</urlset>

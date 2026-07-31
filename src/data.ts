@@ -46,8 +46,8 @@ export const STATS = [
 export const SCREENSHOT_SLIDES: ScreenshotSlide[] = [
   {
     id: "slide-1",
-    title: "1-Click Bulk Auto Listing Panel",
-    description: "Upload up to 500 catalog items simultaneously. Automatically pre-fills product descriptions, dimensions, GST rates, and optimized search keywords.",
+    title: "1-Click Auto Listing Panel",
+    description: "List unlimited products automatically on Mobile, PC, or Laptop. Automatically pre-fills product descriptions, dimensions, GST rates, and optimized search keywords.",
     imageUrl: "https://i.ibb.co/jZ44n77q/6091285828404448992.jpg"
   },
   {
@@ -68,7 +68,7 @@ export const COMPARISONS = [
   {
     criteria: "Listings per Day",
     withoutTool: "Max 5 - 10 Listings (Manual)",
-    withTool: "Unlimited (500+ in 1-Click)",
+    withTool: "Unlimited Auto Listings",
     highlight: true
   },
   {
@@ -111,7 +111,7 @@ export const PROBLEMS_SOLUTIONS = {
     { title: "Low Catalog Visibility", desc: "Creating a few manual listings makes it difficult to get noticed by the Meesho recommendation algorithm." }
   ],
   solutions: [
-    { title: "1-Click Auto Listing Tool", desc: "Our bulk tool automatically processes catalog directories and uploads listings in seconds, saving you days of work." },
+    { title: "1-Click Auto Listing Tool", desc: "Our tool automatically processes and uploads your listings in seconds on Mobile, PC, or Laptop, saving you days of work." },
     { title: "Optimized Weight Slabs", desc: "Accurately calibrate package weights and dimensional parameters to trigger Meesho's lowest local shipping slabs (₹35-₹45)." },
     { title: "Algorithmic Visibility Boost", desc: "Consistently scale your catalog volume to trigger algorithmic recommendation points and boost organic search ranking." }
   ]
@@ -120,15 +120,15 @@ export const PROBLEMS_SOLUTIONS = {
 export const FEATURES: FeatureItem[] = [
   {
     id: "f1",
-    title: "Automated Bulk Listing",
-    description: "Upload hundreds of products in minutes. Eliminate manual data entry and list entire collections with ease.",
+    title: "Fast Auto Listing",
+    description: "Upload unlimited products automatically. Eliminate manual data entry and list entire collections with ease on any device.",
     icon: "Cpu"
   },
   {
     id: "f2",
-    title: "Pre-Configured Smart Spreadsheet",
-    description: "A highly intuitive, fully set up template. Simply enter your product details and let the automation handle the rest.",
-    icon: "Table"
+    title: "Free AI Image Generator",
+    description: "Generate highly professional, attractive product images to instantly boost your click-through rates and sales.",
+    icon: "Image"
   },
   {
     id: "f3",
@@ -184,7 +184,7 @@ export const REVIEWS: Testimonial[] = [
     avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80",
     rating: 5,
     date: "4 Days ago",
-    review: "Ordered more than 50 catalogs listings using the bulk script in 15 minutes. Low shipping formula actually worked. My listing shipping cost dropped from ₹85 to ₹39. Conversions increase 3x times next week itself! Value for money.",
+    review: "Ordered more than 50 catalogs listings using the auto listing tool in 15 minutes. Low shipping formula actually worked. My listing shipping cost dropped from ₹85 to ₹39. Conversions increase 3x times next week itself! Value for money.",
     verified: true
   },
   {
@@ -225,7 +225,7 @@ export const FAQS: FAQItem[] = [
   {
     id: "faq-2",
     question: "Does it work on Android mobile phones?",
-    answer: "Yes! While many high-volume sellers prefer using a computer, we have created a specialized mobile-optimized template for Google Sheets. This allows you to set up and manage your bulk auto listings directly from your smartphone."
+    answer: "Yes! Our tool is fully compatible with Mobile, PC, and Laptop. We have a specialized mobile-optimized template, allowing you to set up and manage your auto listings directly from your smartphone, tablet, or PC."
   },
   {
     id: "faq-3",
@@ -245,7 +245,7 @@ export const FAQS: FAQItem[] = [
   {
     id: "faq-6",
     question: "How long does it take to see results?",
-    answer: "Most sellers set up and launch their first bulk catalog within 25 minutes of downloading the tool. Because Meesho's algorithm favors consistent product volume, sellers typically see a noticeable rise in listing impressions and initial orders within 24 to 48 hours."
+    answer: "Most sellers set up and launch their first catalogs within 25 minutes of downloading the tool. Because Meesho's algorithm favors consistent product volume, sellers typically see a noticeable rise in listing impressions and initial orders within 24 to 48 hours."
   },
   {
     id: "faq-7",

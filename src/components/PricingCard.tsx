@@ -51,9 +51,9 @@ export default function PricingCard({ onBuyClick }: PricingCardProps) {
   const discountPercent = Math.round(((originalPrice - price) / originalPrice) * 100);
 
   const valueStack = [
-    { title: "💻 1-Click Auto Listing Bulk Spreadsheet Script", desc: "Process and deploy 500+ catalogs automatically", value: "₹1,999" },
-    { title: "📦 Low Shipping Charge Formula", desc: "Calibrate package dimensions to accurately qualify for the lowest shipping tiers legally", value: "₹1,499" },
-    { title: "📱 Mobile Upload Bypass Template", desc: "Upload and manage listings directly from your Android smartphone", value: "₹999" },
+    { title: "💻 Meesho Auto Listing Tool", desc: "List unlimited products automatically. Works on Mobile, PC & Laptop", value: "₹1,999" },
+    { title: "📦 Reduce Shipping Charge Trick", desc: "Secret method to legally calibrate weight and reduce shipping costs drastically", value: "₹1,499" },
+    { title: "🖼️ FREE Image Generation Tool", desc: "Create high-quality product images to boost clicks and conversions", value: "₹999" },
     { title: "🎥 Step-by-Step Video Tutorial (Hindi)", desc: "Clear, screen-recorded visual walkthrough with no complex jargon", value: "₹499" },
     { title: "💬 1-on-1 Dedicated Support", desc: "Receive direct, expert assistance for setup and configuration anytime via email", value: "₹999" }
   ];
@@ -103,7 +103,7 @@ export default function PricingCard({ onBuyClick }: PricingCardProps) {
               Meesho Instant Listing Pack
             </h3>
             <p className="text-xs text-blue-300 font-sans tracking-wide">
-              Complete automated bulk toolkit + secret weight formula
+              Complete auto listing tool + image generator + shipping reducer
             </p>
           </div>
 
