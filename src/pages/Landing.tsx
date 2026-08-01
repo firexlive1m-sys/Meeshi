@@ -346,7 +346,7 @@ export default function Landing() {
               className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#334155] bg-[#1E293B] text-[10px] md:text-xs font-semibold text-[#94A3B8] uppercase tracking-widest font-mono"
             >
               <Sparkles className="w-3.5 h-3.5 text-[#3B82F6] animate-pulse" />
-              Automate Your Meesho Business with AI
+              Meesho Sellers Special Formula
             </motion.div>
 
             {/* Main Headline */}
