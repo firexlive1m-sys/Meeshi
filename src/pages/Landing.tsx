@@ -353,7 +353,7 @@ export default function Landing() {
             <motion.h1
               className="text-3xl sm:text-4xl md:text-6xl font-extrabold tracking-tight text-white leading-tight font-display"
             >
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-sky-300 to-blue-400 glow-text-purple">Meesho Auto Listing</span> Tool
+              1-Click <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-sky-300 to-blue-400 glow-text-purple">Meesho Auto Listing</span> Tool & Reduce Shipping Charges
             </motion.h1>
 
             {/* FULL WIDTH CINEMATIC VIDEO PLAYER (16:9) */}
@@ -750,7 +750,7 @@ export default function Landing() {
                   <div className="flex items-center gap-3">
                     <img 
                       src={review.avatar} 
-                      alt={`${review.name} - Meesho Seller Software User`} 
+                      alt={review.name} 
                       className="w-10 h-10 rounded-full object-cover border border-[#334155] referrerPolicy shadow-md"
                       referrerPolicy="no-referrer"
                     />

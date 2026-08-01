@@ -46,19 +46,19 @@ export const STATS = [
 export const SCREENSHOT_SLIDES: ScreenshotSlide[] = [
   {
     id: "slide-1",
-    title: "Meesho Auto Listing Tool - 1-Click Panel",
+    title: "1-Click Auto Listing Panel",
     description: "List unlimited products automatically on Mobile, PC, or Laptop. Automatically pre-fills product descriptions, dimensions, GST rates, and optimized search keywords.",
     imageUrl: "https://i.ibb.co/jZ44n77q/6091285828404448992.jpg"
   },
   {
     id: "slide-2",
-    title: "Shipping Charge Optimizer for Meesho",
+    title: "Low Shipping Pricing Custom Engine",
     description: "Our optimization formula in action. It sets Meesho weight parameters accurately to secure the lowest possible shipping tier legally.",
     imageUrl: "https://i.ibb.co/k6DY8KSJ/6091285828404448990.jpg"
   },
   {
     id: "slide-3",
-    title: "Meesho Seller Software Dashboard",
+    title: "Dynamic Smart Orders Monitor Dashboard",
     description: "Track the immediate boost in listings impressions. Watch traffic and orders grow steadily inside your official seller panel.",
     imageUrl: "https://i.ibb.co/dqq928L/6091285828404448991.jpg"
   }

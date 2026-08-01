@@ -223,7 +223,7 @@ export default function PricingCard({ onBuyClick }: PricingCardProps) {
             <img 
               src="https://checkout.razorpay.com/v1/checkout.js" 
               className="hidden" 
-              alt="Meesho Seller Software Secure Payment" 
+              alt="razorpay check" 
             />
             {/* Minimal visual security badge indicators */}
             <span className="text-[10px] uppercase tracking-wide px-2 py-0.5 rounded bg-[#0F172A] text-gray-300 border border-[#334155] font-mono">UPI Protected</span>
