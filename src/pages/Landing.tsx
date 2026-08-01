@@ -128,11 +128,23 @@ export default function Landing() {
                orderId: orderId,
                purchasedAt: new Date().toISOString(),
                name: customerName,
-               phone: customerPhone
+               phone: customerPhone,
+               googleAdsConversionSent: true
              };
              // Save to local storage for the Download page to pick up and sync
              localStorage.setItem('verified_purchase', JSON.stringify({ email: customerEmail, data: purchaseData }));
              
+             // Fire Google Ads Purchase Conversion
+             if (orderId && typeof window !== 'undefined' && !localStorage.getItem('gAds_sent_' + orderId)) {
+               if ((window as any).gtag) {
+                 (window as any).gtag('event', 'conversion', {
+                   send_to: 'AW-18364071509/emnOCIPXlNocENX81bRE',
+                   transaction_id: orderId
+                 });
+                 localStorage.setItem('gAds_sent_' + orderId, 'true');
+               }
+             }
+
              // Try to save directly if already logged in as the correct user
              await setDoc(doc(db, 'purchases', customerEmail), purchaseData, { merge: true });
           }

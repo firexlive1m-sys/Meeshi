@@ -38,27 +38,7 @@ export default function Download() {
           const docRef = doc(db, 'purchases', currentUser.email.toLowerCase());
           const docSnap = await getDoc(docRef);
           if (docSnap.exists()) {
-            const data = docSnap.data();
-            setPurchase(data);
-            
-            if (
-              data &&
-              data.isPaymentComplete &&
-              (data.paymentStatus === 'SUCCESS' || data.paymentStatus === 'PAID') &&
-              data.orderId &&
-              !data.googleAdsConversionSent
-            ) {
-              if (typeof window !== 'undefined' && (window as any).gtag) {
-                (window as any).gtag('event', 'conversion', {
-                  send_to: 'AW-18364071509/emnOCIPXlNocENX81bRE',
-                  transaction_id: data.orderId
-                });
-                
-                await setDoc(docRef, { googleAdsConversionSent: true }, { merge: true });
-                data.googleAdsConversionSent = true;
-                setPurchase(data);
-              }
-            }
+            setPurchase(docSnap.data());
           } else {
             setPurchase(null);
           }
