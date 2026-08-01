@@ -426,7 +426,7 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice,
                           <div className="relative w-[80px] h-[60px] rounded bg-[#0A192F] border border-slate-200/50 shrink-0 shadow-sm flex items-center justify-center p-0.5">
                             <img 
                               src="https://media-cdn.cosmofeed.com/chat/1000055066-2026-27-05-04-34-47.png" 
-                              alt="Flipkart Auto Listing Tool" 
+                              alt="Meesho Auto Listing Tool - Product Listing Automation Software" 
                               className="w-full h-full object-cover rounded"
                               referrerPolicy="no-referrer"
                             />
@@ -741,7 +741,7 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice,
                 <div className="w-full aspect-[1.78] overflow-hidden bg-[#0A192F] border-b border-slate-100 flex items-center justify-center">
                   <img 
                     src="https://media-cdn.cosmofeed.com/chat/1000055066-2026-27-05-04-34-47.png" 
-                    alt="Flipkart Auto Listing Banner"
+                    alt="Meesho Auto Listing Tool - Mobile and PC Supported Listing Tool"
                     className="w-full h-full object-cover"
                     referrerPolicy="no-referrer"
                   />

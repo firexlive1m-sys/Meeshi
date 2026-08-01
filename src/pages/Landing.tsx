@@ -346,14 +346,14 @@ export default function Landing() {
               className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#334155] bg-[#1E293B] text-[10px] md:text-xs font-semibold text-[#94A3B8] uppercase tracking-widest font-mono"
             >
               <Sparkles className="w-3.5 h-3.5 text-[#3B82F6] animate-pulse" />
-              Meesho Sellers Special Formula
+              Automate Your Meesho Business with AI
             </motion.div>
 
             {/* Main Headline */}
             <motion.h1
               className="text-3xl sm:text-4xl md:text-6xl font-extrabold tracking-tight text-white leading-tight font-display"
             >
-              1-Click <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-sky-300 to-blue-400 glow-text-purple">Meesho Auto Listing</span> Tool & Reduce Shipping Charges
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-sky-300 to-blue-400 glow-text-purple">Meesho Auto Listing</span> Tool
             </motion.h1>
 
             {/* FULL WIDTH CINEMATIC VIDEO PLAYER (16:9) */}
@@ -750,7 +750,7 @@ export default function Landing() {
                   <div className="flex items-center gap-3">
                     <img 
                       src={review.avatar} 
-                      alt={review.name} 
+                      alt={`${review.name} - Meesho Seller Software User`} 
                       className="w-10 h-10 rounded-full object-cover border border-[#334155] referrerPolicy shadow-md"
                       referrerPolicy="no-referrer"
                     />

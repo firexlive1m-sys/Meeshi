@@ -105,7 +105,7 @@ export default function Download() {
         <div className="max-w-md w-full bg-[#1E293B] border border-slate-700/50 rounded-3xl p-8 text-center shadow-2xl relative overflow-hidden">
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-12 bg-emerald-500/20 blur-2xl rounded-full" />
           
-          <h1 className="text-2xl font-bold mb-2">Access Your Purchase</h1>
+          <h2 className="text-2xl font-bold mb-2">Access Your Purchase</h2>
           <p className="text-gray-400 text-sm mb-8">
             Please log in with the email address you used during purchase to access your files.
           </p>
@@ -114,7 +114,7 @@ export default function Download() {
             onClick={handleLogin}
             className="w-full flex items-center justify-center gap-3 bg-white text-gray-900 font-bold py-3.5 px-4 rounded-xl hover:bg-gray-100 transition-colors"
           >
-            <img src="https://www.svgrepo.com/show/475656/google-color.svg" className="w-5 h-5" alt="Google" />
+            <img src="https://www.svgrepo.com/show/475656/google-color.svg" className="w-5 h-5" alt="Google Login for Meesho Auto Listing Tool" />
             Continue with Google
           </button>
         </div>
