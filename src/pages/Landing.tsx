@@ -145,6 +145,17 @@ export default function Landing() {
                }
              }
 
+             // Fire Facebook Pixel Purchase Conversion
+             if (orderId && typeof window !== 'undefined' && !localStorage.getItem('fb_pixel_sent_' + orderId)) {
+               if ((window as any).fbq) {
+                 (window as any).fbq('track', 'Purchase', {
+                   currency: 'INR',
+                   value: price
+                 });
+                 localStorage.setItem('fb_pixel_sent_' + orderId, 'true');
+               }
+             }
+
              // Try to save directly if already logged in as the correct user
              await setDoc(doc(db, 'purchases', customerEmail), purchaseData, { merge: true });
           }
