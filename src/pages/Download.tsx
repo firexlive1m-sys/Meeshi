@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
-import { LogOut, MessageCircle, Download as DownloadIcon, PlayCircle, Loader2, Sparkles, CheckCircle2, FileArchive, Link as LinkIcon, FileText, ShoppingCart, ArrowLeft } from 'lucide-react';
+import { LogOut, MessageCircle, Download as DownloadIcon, PlayCircle, Loader2, Sparkles, CheckCircle2, FileArchive, Link as LinkIcon, FileText, ShoppingCart, ArrowLeft, Copy, Share2, Laptop } from 'lucide-react';
 import { auth, db, googleProvider } from '../firebase';
 import { signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
@@ -238,14 +238,15 @@ export default function Download() {
               <div className="space-y-3 pt-1 text-left mb-8">
                 {[
                   { 
+                    id: 'PC', 
+                    label: '🖥️ PC / Laptop', 
+                    sub: 'Computer ya Laptop me setup karne ke liye',
+                    tag: 'Recommended'
+                  },
+                  { 
                     id: 'Mobile', 
                     label: '📱 Mobile (Smartphone)', 
                     sub: 'Android par chalane ke liye' 
-                  },
-                  { 
-                    id: 'PC', 
-                    label: '🖥️ PC / Laptop', 
-                    sub: 'Computer ya Laptop me setup karne ke liye' 
                   }
                 ].map((opt) => {
                   const isSelected = selectedDevice === opt.id;
@@ -261,9 +262,16 @@ export default function Download() {
                       }`}
                     >
                       <div className="flex-1 min-w-0 pr-2">
-                        <p className={`text-sm md:text-base font-bold transition-colors ${isSelected ? 'text-emerald-400' : 'text-slate-200'}`}>
-                          {opt.label}
-                        </p>
+                        <div className="flex items-center gap-2">
+                          <p className={`text-sm md:text-base font-bold transition-colors ${isSelected ? 'text-emerald-400' : 'text-slate-200'}`}>
+                            {opt.label}
+                          </p>
+                          {opt.tag && (
+                            <span className="text-[10px] uppercase tracking-wider bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded-full border border-amber-500/30 font-bold whitespace-nowrap">
+                              {opt.tag}
+                            </span>
+                          )}
+                        </div>
                         <p className="text-xs text-gray-400 mt-1 leading-normal transition-colors">
                           {opt.sub}
                         </p>
@@ -311,6 +319,50 @@ export default function Download() {
         ) : (
           /* User has purchase and DEVICE is selected! */
           <div className="space-y-8">
+            {purchase?.device === 'PC' && (
+              <div className="bg-[#1E293B]/80 border border-blue-500/30 rounded-2xl p-6 shadow-lg text-left">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div>
+                    <h4 className="text-lg font-bold text-white flex items-center gap-2 mb-2">
+                      <Laptop className="w-5 h-5 text-blue-400" />
+                      Access from your PC / Laptop
+                    </h4>
+                    <p className="text-sm text-slate-400">
+                      If you are on your mobile right now, share this link to your computer. Open it there and login to download the extension.
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-3 shrink-0">
+                    <button 
+                      onClick={() => {
+                        navigator.clipboard.writeText('https://www.autolisting.online/download');
+                        alert('Link Copied to Clipboard!');
+                      }}
+                      className="flex items-center gap-2 px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl transition-all border border-slate-600 text-sm font-bold shadow-sm"
+                    >
+                      <Copy className="w-4 h-4" />
+                      Copy URL
+                    </button>
+                    <button 
+                      onClick={() => {
+                        if (navigator.share) {
+                          navigator.share({
+                            title: 'Auto Listing Tool',
+                            text: 'Open this link on your PC/Laptop to download the tool:',
+                            url: 'https://www.autolisting.online/download'
+                          }).catch(() => {});
+                        } else {
+                          window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent('Open this link on your PC/Laptop to download the tool: https://www.autolisting.online/download')}`, '_blank');
+                        }
+                      }}
+                      className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl transition-all border border-blue-500 text-sm font-bold shadow-sm shadow-blue-500/20"
+                    >
+                      <Share2 className="w-4 h-4" />
+                      Share URL
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
             {/* Custom Content Based on Device */}
             <div className="space-y-8">
                 {/* Meesho Section */}
@@ -332,7 +384,7 @@ export default function Download() {
                       <div className="aspect-video w-full bg-black rounded-xl overflow-hidden border border-slate-700/50">
                         <iframe 
                           className="w-full h-full"
-                          src={purchase.device === 'Mobile' ? "https://www.youtube.com/embed/SG9UHQyu_DM" : "https://www.youtube.com/embed/PzlDlTJQr_Q"} 
+                          src={purchase.device === 'Mobile' ? "https://www.youtube.com/embed/Ho3ga7qOG0M" : "https://www.youtube.com/embed/TKVkFk_ARcw"} 
                           title="Meesho Tutorial Video" 
                           frameBorder="0" 
                           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
@@ -376,7 +428,7 @@ export default function Download() {
                               </p>
                             </div>
                           </div>
-                          <a href="https://github.com/user-attachments/files/30583332/meesho_auto_listing_tool_.zip" target="_blank" rel="noopener noreferrer" className="px-5 py-2 bg-[#F43397] hover:bg-[#d0257c] text-white text-xs font-bold rounded-lg shadow-lg transition-all text-center whitespace-nowrap">
+                          <a href="https://github.com/user-attachments/files/30836302/meesho_listing_tool.zip" target="_blank" rel="noopener noreferrer" className="px-5 py-2 bg-[#F43397] hover:bg-[#d0257c] text-white text-xs font-bold rounded-lg shadow-lg transition-all text-center whitespace-nowrap">
                             Download
                           </a>
                         </div>
