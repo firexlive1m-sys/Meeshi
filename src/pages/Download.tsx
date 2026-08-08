@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
-import { LogOut, MessageCircle, Download as DownloadIcon, PlayCircle, Loader2, Sparkles, CheckCircle2, FileArchive, Link as LinkIcon, FileText, ShoppingCart, ArrowLeft, Copy, Share2, Laptop } from 'lucide-react';
+import { LogOut, MessageCircle, Download as DownloadIcon, PlayCircle, Loader2, Sparkles, CheckCircle2, FileArchive, Link as LinkIcon, FileText, ShoppingCart, ArrowLeft, Copy, Share2, Laptop, Phone } from 'lucide-react';
 import { auth, db, googleProvider } from '../firebase';
-import { signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { signInWithPopup, signOut, onAuthStateChanged, RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult } from 'firebase/auth';
+import { doc, getDoc, setDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { CONFIG } from '../data';
 import { Link } from 'react-router-dom';
 import PaymentFormModal from '../components/PaymentFormModal';
@@ -16,32 +16,72 @@ export default function Download() {
   const [savingDevice, setSavingDevice] = useState(false);
   const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
 
+  // Phone Auth State
+  const [phoneLogin, setPhoneLogin] = useState(false);
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [otp, setOtp] = useState('');
+  const [otpSent, setOtpSent] = useState(false);
+  const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
+  const [authError, setAuthError] = useState('');
+
   const isCombo = purchase?.plan?.toLowerCase().includes('combo') || purchase?.plan?.toLowerCase().includes('upgrade');
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
-      if (currentUser && currentUser.email) {
+      if (currentUser) {
         try {
+          let foundPurchase = null;
+          let userEmailKey = currentUser.email?.toLowerCase();
+
           // Check if there is a pending verified purchase in local storage
           const pendingPurchaseStr = localStorage.getItem('verified_purchase');
           if (pendingPurchaseStr) {
             const pendingPurchase = JSON.parse(pendingPurchaseStr);
-            // If the logged in user matches the purchase email, save it to Firestore
-            if (pendingPurchase.email.toLowerCase() === currentUser.email.toLowerCase()) {
-              await setDoc(doc(db, 'purchases', currentUser.email.toLowerCase()), pendingPurchase.data, { merge: true });
+            const pendingEmail = pendingPurchase.email.toLowerCase();
+            const pendingPhone = pendingPurchase.data.phone || '';
+            
+            // If the logged in user matches the purchase email or phone, save it to Firestore
+            const emailMatch = currentUser.email && pendingEmail === currentUser.email.toLowerCase();
+            const phoneMatch = currentUser.phoneNumber && pendingPhone && currentUser.phoneNumber.includes(pendingPhone);
+            
+            if (emailMatch || phoneMatch) {
+              await setDoc(doc(db, 'purchases', pendingEmail), pendingPurchase.data, { merge: true });
               // Clear it once saved
               localStorage.removeItem('verified_purchase');
+              if (!userEmailKey) {
+                userEmailKey = pendingEmail; // Associate this email with the user for querying
+              }
             }
           }
 
-          const docRef = doc(db, 'purchases', currentUser.email.toLowerCase());
-          const docSnap = await getDoc(docRef);
-          if (docSnap.exists()) {
-            setPurchase(docSnap.data());
-          } else {
-            setPurchase(null);
+          // 1. If we have an email, try to fetch by email ID directly
+          if (userEmailKey) {
+            const docRef = doc(db, 'purchases', userEmailKey);
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+              foundPurchase = { ...docSnap.data(), emailId: userEmailKey };
+            }
           }
+
+          // 2. If not found by email, and we have a phone number, query by phone number
+          if (!foundPurchase && currentUser.phoneNumber) {
+            const cleanPhone = currentUser.phoneNumber.replace('+91', '').trim();
+            const q = query(collection(db, 'purchases'), where('phone', '==', cleanPhone));
+            const querySnapshot = await getDocs(q);
+            if (!querySnapshot.empty) {
+              foundPurchase = { ...querySnapshot.docs[0].data(), emailId: querySnapshot.docs[0].id };
+            } else {
+              // Try exact match with +91 just in case
+              const q2 = query(collection(db, 'purchases'), where('phone', '==', currentUser.phoneNumber));
+              const querySnapshot2 = await getDocs(q2);
+              if (!querySnapshot2.empty) {
+                foundPurchase = { ...querySnapshot2.docs[0].data(), emailId: querySnapshot2.docs[0].id };
+              }
+            }
+          }
+
+          setPurchase(foundPurchase);
         } catch (err) {
           console.error("Error fetching/syncing purchase", err);
         }
@@ -50,6 +90,59 @@ export default function Download() {
     });
     return unsubscribe;
   }, []);
+
+  const setupRecaptcha = () => {
+    if (!(window as any).recaptchaVerifier) {
+      (window as any).recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+        'size': 'invisible'
+      });
+    }
+  };
+
+  const handleSendOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAuthError('');
+    if (phoneNumber.length !== 10) {
+      setAuthError('Please enter a valid 10-digit phone number');
+      return;
+    }
+    
+    setLoading(true);
+    try {
+      setupRecaptcha();
+      const appVerifier = (window as any).recaptchaVerifier;
+      const formattedPhone = `+91${phoneNumber}`;
+      const confirmation = await signInWithPhoneNumber(auth, formattedPhone, appVerifier);
+      setConfirmationResult(confirmation);
+      setOtpSent(true);
+    } catch (error: any) {
+      console.error("Error sending OTP:", error);
+      setAuthError(error.message || 'Failed to send OTP. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAuthError('');
+    if (otp.length !== 6) {
+      setAuthError('Please enter a valid 6-digit OTP');
+      return;
+    }
+    
+    if (!confirmationResult) return;
+    
+    setLoading(true);
+    try {
+      await confirmationResult.confirm(otp);
+      // onAuthStateChanged will handle the rest
+    } catch (error: any) {
+      console.error("Error verifying OTP:", error);
+      setAuthError('Invalid OTP. Please try again.');
+      setLoading(false);
+    }
+  };
 
   const handleLogin = async () => {
     try {
@@ -62,13 +155,17 @@ export default function Download() {
   const handleLogout = () => {
     signOut(auth);
     setPurchase(null);
+    setPhoneLogin(false);
+    setOtpSent(false);
+    setPhoneNumber('');
+    setOtp('');
   };
 
   const handleSaveDevice = async () => {
-    if (!user?.email) return;
+    if (!purchase?.emailId) return;
     setSavingDevice(true);
     try {
-      const docRef = doc(db, 'purchases', user.email.toLowerCase());
+      const docRef = doc(db, 'purchases', purchase.emailId);
       await setDoc(docRef, { device: selectedDevice }, { merge: true });
       // Update local state
       setPurchase({ ...purchase, device: selectedDevice });
@@ -106,17 +203,113 @@ export default function Download() {
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-12 bg-emerald-500/20 blur-2xl rounded-full" />
           
           <h1 className="text-2xl font-bold mb-2">Access Your Purchase</h1>
-          <p className="text-gray-400 text-sm mb-8">
-            Please log in with the email address you used during purchase to access your files.
+          <p className="text-gray-400 text-sm mb-6">
+            Please log in with the email address or phone number you used during purchase to access your files.
           </p>
           
-          <button
-            onClick={handleLogin}
-            className="w-full flex items-center justify-center gap-3 bg-white text-gray-900 font-bold py-3.5 px-4 rounded-xl hover:bg-gray-100 transition-colors"
-          >
-            <img src="https://www.svgrepo.com/show/475656/google-color.svg" className="w-5 h-5" alt="Google" />
-            Continue with Google
-          </button>
+          {authError && (
+            <div className="mb-4 p-3 bg-red-500/10 border border-red-500/50 rounded-xl text-red-500 text-sm">
+              {authError}
+            </div>
+          )}
+
+          {!phoneLogin ? (
+            <div className="space-y-4">
+              <button
+                onClick={handleLogin}
+                className="w-full flex items-center justify-center gap-3 bg-white text-gray-900 font-bold py-3.5 px-4 rounded-xl hover:bg-gray-100 transition-colors"
+              >
+                <img src="https://www.svgrepo.com/show/475656/google-color.svg" className="w-5 h-5" alt="Google" />
+                Continue with Google
+              </button>
+              
+              <div className="relative flex items-center py-2">
+                <div className="flex-grow border-t border-slate-700"></div>
+                <span className="flex-shrink-0 mx-4 text-slate-500 text-sm font-medium">OR</span>
+                <div className="flex-grow border-t border-slate-700"></div>
+              </div>
+
+              <button
+                onClick={() => setPhoneLogin(true)}
+                className="w-full flex items-center justify-center gap-3 bg-[#0F172A] border border-slate-700 text-white font-bold py-3.5 px-4 rounded-xl hover:bg-slate-800 transition-colors"
+              >
+                <Phone className="w-5 h-5" />
+                Continue with Phone Number
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {!otpSent ? (
+                <form onSubmit={handleSendOtp} className="space-y-4">
+                  <div className="text-left space-y-1">
+                    <label className="text-sm font-medium text-slate-300">Phone Number</label>
+                    <div className="flex items-center border border-slate-700 rounded-xl bg-[#0F172A] overflow-hidden focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500">
+                      <span className="px-3 text-slate-400 border-r border-slate-700 font-medium">+91</span>
+                      <input
+                        type="tel"
+                        value={phoneNumber}
+                        onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                        className="w-full bg-transparent px-3 py-3 outline-none text-white font-medium"
+                        placeholder="Enter 10-digit number"
+                      />
+                    </div>
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-4 rounded-xl transition-colors disabled:opacity-50"
+                  >
+                    {loading ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : 'Send OTP'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPhoneLogin(false);
+                      setAuthError('');
+                    }}
+                    className="w-full text-sm text-slate-400 hover:text-white transition-colors py-2"
+                  >
+                    Back to Google Login
+                  </button>
+                </form>
+              ) : (
+                <form onSubmit={handleVerifyOtp} className="space-y-4">
+                  <div className="text-left space-y-1">
+                    <label className="text-sm font-medium text-slate-300">Enter OTP</label>
+                    <input
+                      type="text"
+                      value={otp}
+                      onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                      className="w-full bg-[#0F172A] border border-slate-700 rounded-xl px-4 py-3 outline-none text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-center tracking-[0.5em] text-lg font-bold"
+                      placeholder="------"
+                    />
+                    <p className="text-xs text-slate-400 text-center mt-2">
+                      OTP sent to +91 {phoneNumber}
+                    </p>
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 px-4 rounded-xl transition-colors disabled:opacity-50"
+                  >
+                    {loading ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : 'Verify & Login'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setOtpSent(false);
+                      setOtp('');
+                      setAuthError('');
+                    }}
+                    className="w-full text-sm text-slate-400 hover:text-white transition-colors py-2"
+                  >
+                    Change Phone Number
+                  </button>
+                </form>
+              )}
+              <div id="recaptcha-container" className="flex justify-center mt-4"></div>
+            </div>
+          )}
         </div>
 
         {/* Need Help Section */}
@@ -155,7 +348,7 @@ export default function Download() {
                 Auto Listing Tool
               </h1>
               <div className="flex items-center gap-2 mt-1">
-                <p className="text-gray-400 text-xs">Logged in as {user.email}</p>
+                <p className="text-gray-400 text-xs">Logged in as {user.email || user.phoneNumber}</p>
                 {purchase?.device && (
                   <>
                     <span className="text-gray-600">|</span>
@@ -192,8 +385,8 @@ export default function Download() {
           <div className="bg-[#1E293B] border border-red-500/20 rounded-2xl p-8 text-center shadow-xl">
             <h2 className="text-2xl font-bold text-white mb-3">No Purchase Found</h2>
             <p className="text-gray-400 mb-6 max-w-lg mx-auto">
-              We couldn't find any purchase associated with <strong>{user.email}</strong>. 
-              Please ensure you are logging in with the same email you used to purchase the tool.
+              We couldn't find any purchase associated with <strong>{user.email || user.phoneNumber}</strong>. 
+              Please ensure you are logging in with the same email or phone number you used to purchase the tool.
             </p>
             <Link 
               to="/"
