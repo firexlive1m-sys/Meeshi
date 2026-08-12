@@ -41,10 +41,10 @@ async function startServer() {
         return res.status(400).json({ error: "Name, email, and 10-digit phone number are required." });
       }
 
-      const keyId = process.env.RAZORPAY_KEY_ID || "rzp_test_mock";
-      const keySecret = process.env.RAZORPAY_KEY_SECRET || "mock_secret";
+      const keyId = process.env.RAZORPAY_KEY_ID || "rzp_live_TOszz4dY6LCHE8";
+      const keySecret = process.env.RAZORPAY_KEY_SECRET || "OeeQmB9FsBm7DoHKXfLgqreQ";
 
-      if (keyId === "rzp_test_mock" && !process.env.RAZORPAY_KEY_ID) {
+      if (keyId === "rzp_live_TOszz4dY6LCHE8" && !process.env.RAZORPAY_KEY_ID) {
         console.warn("Razorpay API keys are missing.");
         return res.status(400).json({
           error: "Razorpay API keys are not configured yet.",
@@ -105,7 +105,7 @@ async function startServer() {
   // Webhook for Razorpay
   app.post("/api/webhook/razorpay", async (req: any, res) => {
     try {
-      const secret = process.env.RAZORPAY_KEY_SECRET || "mock_secret";
+      const secret = process.env.RAZORPAY_KEY_SECRET || "OeeQmB9FsBm7DoHKXfLgqreQ";
       const signature = req.headers["x-razorpay-signature"];
 
       // Validate signature
@@ -160,8 +160,8 @@ async function startServer() {
         return res.status(400).json({ error: "Order ID is required." });
       }
 
-      const keyId = process.env.RAZORPAY_KEY_ID || "rzp_test_mock";
-      const keySecret = process.env.RAZORPAY_KEY_SECRET || "mock_secret";
+      const keyId = process.env.RAZORPAY_KEY_ID || "rzp_live_TOszz4dY6LCHE8";
+      const keySecret = process.env.RAZORPAY_KEY_SECRET || "OeeQmB9FsBm7DoHKXfLgqreQ";
       const auth = Buffer.from(`${keyId}:${keySecret}`).toString("base64");
 
       const url = `https://api.razorpay.com/v1/orders/${orderId}`;
@@ -229,7 +229,7 @@ async function startServer() {
     try {
       const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
       
-      const keySecret = process.env.RAZORPAY_KEY_SECRET || "fnLuKiMqKKJylXh41616vAE3";
+      const keySecret = process.env.RAZORPAY_KEY_SECRET || "OeeQmB9FsBm7DoHKXfLgqreQ";
 
       const body = razorpay_order_id + "|" + razorpay_payment_id;
       const expectedSignature = crypto.createHmac("sha256", keySecret)
