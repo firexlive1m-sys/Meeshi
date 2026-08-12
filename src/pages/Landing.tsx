@@ -105,7 +105,7 @@ export default function Landing() {
 
         if (orderId) {
           try {
-            const res = await fetch(`/api/get-razorpay-order/${orderId}`);
+            const res = await fetch(`/api/get-razorpay-order?orderId=${orderId}`);
             if (res.ok) {
               const data = await res.json();
               if (data && data.customer_details) {
