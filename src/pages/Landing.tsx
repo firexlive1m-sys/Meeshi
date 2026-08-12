@@ -105,7 +105,7 @@ export default function Landing() {
 
         if (orderId) {
           try {
-            const res = await fetch(`/api/get-cashfree-order/${orderId}`);
+            const res = await fetch(`/api/get-razorpay-order/${orderId}`);
             if (res.ok) {
               const data = await res.json();
               if (data && data.customer_details) {
@@ -966,7 +966,7 @@ export default function Landing() {
                       1. Information We Collect
                     </p>
                     <p>
-                      We collect basic personal information to handle your registration and transaction through our partner Cashfree:
+                      We collect basic personal information to handle your registration and transaction through our partner Razorpay:
                       <br />• <strong>Personal Information:</strong> Name, Email Address, Contact Phone Number, and Billing Details.
                       <br />• <strong>Non-Personal Data:</strong> IP Address, browser type, cookies, and standard session details.
                     </p>
@@ -978,10 +978,10 @@ export default function Landing() {
                       We <strong>DO NOT</strong> collect, store, transmit, or share your Meesho Seller credentials, catalog descriptions, passwords, shop keys, or invoice details. All automation processes are 100% server-isolated and client-confined.
                     </p>
                     <p className="font-bold text-[#3B82F6]">
-                      3. Secured Payment Processing (Cashfree Gateway)
+                      3. Secured Payment Processing (Razorpay Gateway)
                     </p>
                     <p>
-                      All checkout transactions are processed via our verified secure payment partner gateway, <strong>Cashfree Payments</strong>. Your transaction, card details, or UPI information are fully encrypted using SSL with AES-256 standards. We never store credit cards, UPI codes, or bank passwords inside our server environments.
+                      All checkout transactions are processed via our verified secure payment partner gateway, <strong>Razorpay Payments</strong>. Your transaction, card details, or UPI information are fully encrypted using SSL with AES-256 standards. We never store credit cards, UPI codes, or bank passwords inside our server environments.
                     </p>
                     <p className="font-bold text-[#3B82F6]">
                       4. Customer Support Interactions
@@ -1022,7 +1022,7 @@ export default function Landing() {
                       3. Instant Digital Fulfilment & Payments
                     </p>
                     <p>
-                      All prices listed on our platform are in Indian Rupees (INR). Payments must be cleared via our secure gateway Cashfree. Because our product is fully electronic (Google Sheets templates, coding macros, and video guides), links are dispatched instantly upon successful payment.
+                      All prices listed on our platform are in Indian Rupees (INR). Payments must be cleared via our secure gateway Razorpay. Because our product is fully electronic (Google Sheets templates, coding macros, and video guides), links are dispatched instantly upon successful payment.
                     </p>
                     <p className="font-bold text-[#3B82F6]">
                       4. Governing Law & Jurisdiction
@@ -1067,7 +1067,7 @@ export default function Landing() {
                       3. Refund Processing & Timelines
                     </p>
                     <p>
-                      Once approved, refund transactions are processed back to the original source of payment (UPI, Netbanking, or Debit/Credit Card) through our payment processor Cashfree.
+                      Once approved, refund transactions are processed back to the original source of payment (UPI, Netbanking, or Debit/Credit Card) through our payment processor Razorpay.
                       <br />• The refunded amount will typically reflect in your bank account or card statement within <strong>5 to 7 working days</strong>, as per standard banking channel settlement times.
                     </p>
                   </div>
@@ -1091,7 +1091,7 @@ export default function Landing() {
                       1. Delivery Mechanism
                     </p>
                     <p>
-                      • <strong>Instant Web Redirect:</strong> Immediately after completing payment via Cashfree, our secure billing system will redirect you automatically to our high-speed secure download page inside 2 seconds.
+                      • <strong>Instant Web Redirect:</strong> Immediately after completing payment via Razorpay, our secure billing system will redirect you automatically to our high-speed secure download page inside 2 seconds.
                       <br />• <strong>Automatic Email Delivery:</strong> A confirmation email enclosing download credentials, setup files, and video tutorial links is dispatched to your registered billing email within <strong>5 to 10 minutes</strong>.
                     </p>
                     <p className="font-bold text-[#3B82F6]">

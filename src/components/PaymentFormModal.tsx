@@ -19,8 +19,7 @@ import {
   Gift,
   ShieldCheck
 } from 'lucide-react';
-// @ts-ignore
-import { load } from '@cashfreepayments/cashfree-js';
+
 
 interface PaymentFormModalProps {
   isOpen: boolean;
@@ -181,8 +180,23 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice,
     const computedPhone = phone.replace(/\D/g, '');
 
     try {
+      // Load Razorpay Script
+      const resLoad = await new Promise((resolve) => {
+        const script = document.createElement('script');
+        script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+        script.onload = () => resolve(true);
+        script.onerror = () => resolve(false);
+        document.body.appendChild(script);
+      });
+
+      if (!resLoad) {
+        setLoading(false);
+        setError('Razorpay SDK failed to load. Please check your connection.');
+        return;
+      }
+
       // 1. Create order on Express backend
-      const response = await fetch('/api/create-cashfree-order', {
+      const response = await fetch('/api/create-razorpay-order', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -207,18 +221,13 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice,
         return;
       }
 
-      const { payment_session_id, env } = data;
+      const { order_id, amount, currency, key_id } = data;
 
-      if (!payment_session_id) {
+      if (!order_id) {
         setLoading(false);
-        setError('Payment Gateway returned an empty session ID. Please configure credentials properly.');
+        setError('Payment Gateway returned an empty order ID. Please configure credentials properly.');
         return;
       }
-
-      // 2. Load Cashfree Web SDK
-      const cashfree = await load({
-        mode: env === 'production' ? 'production' : 'sandbox',
-      });
 
       // Save billing credentials to localStorage so they are available upon successful return
       try {
@@ -241,16 +250,58 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice,
         });
       }
 
-      // 3. Initiate checkout (V3 Web Checkout)
-      await cashfree.checkout({
-        paymentSessionId: payment_session_id,
-        redirectTarget: '_self', // Best practices for reliable redirects across all webviews & browsers
-      }).then((result: any) => {
-        if (result && result.error) {
-          setLoading(false);
-          setError(result.error.message || 'Payment was cancelled or failed. Please try again.');
+      setLoading(false);
+
+      // 3. Initiate checkout (Razorpay)
+      const options = {
+        key: key_id,
+        amount: amount,
+        currency: currency,
+        name: "Auto Listing Tool",
+        description: finalPlanName,
+        order_id: order_id,
+        handler: async function (response: any) {
+          // Send verification to backend
+          try {
+            const verifyRes = await fetch('/api/verify-razorpay', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature
+              })
+            });
+            const verifyData = await verifyRes.json();
+            if (verifyData.success) {
+              window.location.href = `/?payment_status=success&order_id=${response.razorpay_order_id}`;
+            } else {
+              setError('Payment verification failed.');
+            }
+          } catch (e) {
+             setError('Payment verification failed due to network error.');
+          }
+        },
+        prefill: {
+          name: computedName,
+          email: computedEmail,
+          contact: computedPhone
+        },
+        theme: {
+          color: "#0F172A"
+        },
+        modal: {
+          ondismiss: function() {
+            setError('Payment was cancelled.');
+          }
         }
+      };
+
+      const rzp = new (window as any).Razorpay(options);
+      rzp.on('payment.failed', function (response: any){
+         setError(response.error.description || 'Payment failed.');
       });
+      rzp.open();
 
     } catch (err: any) {
       console.error('Checkout error:', err);
