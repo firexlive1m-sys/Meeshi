@@ -229,14 +229,7 @@ async function startServer() {
     try {
       const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
       
-      const keySecret = process.env.RAZORPAY_KEY_SECRET;
-      if (!keySecret) {
-        // Mock verification for preview environments
-        if (razorpay_order_id) {
-           return res.json({ success: true, isMock: true });
-        }
-        return res.status(400).json({ error: "Missing keys" });
-      }
+      const keySecret = process.env.RAZORPAY_KEY_SECRET || "fnLuKiMqKKJylXh41616vAE3";
 
       const body = razorpay_order_id + "|" + razorpay_payment_id;
       const expectedSignature = crypto.createHmac("sha256", keySecret)

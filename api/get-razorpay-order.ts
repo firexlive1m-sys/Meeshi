@@ -23,8 +23,8 @@ export default async function handler(req: any, res: any) {
       return res.status(400).json({ error: "Order ID is required." });
     }
 
-    const keyId = process.env.RAZORPAY_KEY_ID || "rzp_test_mock";
-    const keySecret = process.env.RAZORPAY_KEY_SECRET || "mock_secret";
+    const keyId = process.env.RAZORPAY_KEY_ID || "rzp_test_TOs0SFk8NpguhX";
+    const keySecret = process.env.RAZORPAY_KEY_SECRET || "fnLuKiMqKKJylXh41616vAE3";
     const auth = Buffer.from(`${keyId}:${keySecret}`).toString("base64");
 
     const url = `https://api.razorpay.com/v1/orders/${orderId}`;

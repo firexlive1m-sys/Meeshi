@@ -24,16 +24,8 @@ export default async function handler(req: any, res: any) {
       return res.status(400).json({ error: "Name, email, and 10-digit phone number are required." });
     }
 
-    const keyId = process.env.RAZORPAY_KEY_ID || "rzp_test_mock";
-    const keySecret = process.env.RAZORPAY_KEY_SECRET || "mock_secret";
-
-    if (keyId === "rzp_test_mock" && !process.env.RAZORPAY_KEY_ID) {
-      console.warn("Razorpay API keys are missing.");
-      return res.status(400).json({
-        error: "Razorpay API keys are not configured yet.",
-        setupInstruction: "Please add RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET to your environment variables."
-      });
-    }
+    const keyId = process.env.RAZORPAY_KEY_ID || "rzp_test_TOs0SFk8NpguhX";
+    const keySecret = process.env.RAZORPAY_KEY_SECRET || "fnLuKiMqKKJylXh41616vAE3";
 
     // Convert amount to paise (1 INR = 100 Paise)
     const amountInPaise = Math.round(Number(amount) * 100);

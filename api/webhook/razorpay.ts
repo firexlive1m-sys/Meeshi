@@ -35,7 +35,7 @@ export default async function handler(req: any, res: any) {
   }
 
   try {
-    const secret = process.env.RAZORPAY_KEY_SECRET || "mock_secret";
+    const secret = process.env.RAZORPAY_KEY_SECRET || "fnLuKiMqKKJylXh41616vAE3";
     const signature = req.headers["x-razorpay-signature"];
 
     // Validate signature - Next.js/Vercel stores raw body differently. We can use req.body stringified for basic, or rawBody if available.
