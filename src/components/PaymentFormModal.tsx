@@ -20,6 +20,7 @@ import {
   ShieldCheck
 } from 'lucide-react';
 // @ts-ignore
+import { load } from '@cashfreepayments/cashfree-js';
 
 interface PaymentFormModalProps {
   isOpen: boolean;
@@ -141,26 +142,12 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice,
     setPromoError(null);
   };
 
-  const loadRazorpayScript = () => {
-    return new Promise((resolve) => {
-      if ((window as any).Razorpay) {
-        resolve(true);
-        return;
-      }
-      const script = document.createElement('script');
-      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-      script.onload = () => resolve(true);
-      script.onerror = () => resolve(false);
-      document.body.appendChild(script);
-    });
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setSetupInstruction(null);
 
-    const isEmailInvalid = !email.trim() || !/^[^s@]+@[^s@]+.[^s@]+$/.test(email);
+    const isEmailInvalid = !email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     const isPhoneInvalid = !phone.trim() || !/^\d{10}$/.test(phone.replace(/\D/g, ''));
 
     if (!isUpgrade) {
@@ -183,35 +170,25 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice,
     setLoading(true);
 
     const emailStr = email.trim();
-    
     // Auto-generate name from email or use initialName
     let baseName = initialName || 'Customer';
     if (!initialName && emailStr.includes('@')) {
       const prefix = emailStr.split('@')[0];
       baseName = prefix.charAt(0).toUpperCase() + prefix.slice(1).replace(/[^a-zA-Z]/g, ' ').trim() || 'Customer';
     }
-
     const computedName = baseName;
     const computedEmail = emailStr;
     const computedPhone = phone.replace(/\D/g, '');
 
     try {
-      const res = await loadRazorpayScript();
-      if (!res) {
-        setLoading(false);
-        setError('Failed to load Razorpay SDK. Please check your internet connection.');
-        return;
-      }
-
       // 1. Create order on Express backend
-      const response = await fetch('/api/create-order', {
+      const response = await fetch('/api/create-cashfree-order', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          amount: finalTotal * 100, // amount in paise
-          currency: 'INR',
+          amount: finalTotal,
           customerName: computedName,
           customerEmail: computedEmail,
           customerPhone: computedPhone,
@@ -224,105 +201,61 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice,
       if (!response.ok) {
         setLoading(false);
         setError(data.error || 'Failed to create payment checkout session.');
+        if (data.setupInstruction) {
+          setSetupInstruction(data.setupInstruction);
+        }
         return;
       }
 
-      const { order_id, amount, currency } = data;
+      const { payment_session_id, env } = data;
 
-      if (!order_id) {
+      if (!payment_session_id) {
         setLoading(false);
-        setError('Payment Gateway returned an empty order ID. Please configure credentials properly.');
+        setError('Payment Gateway returned an empty session ID. Please configure credentials properly.');
         return;
       }
+
+      // 2. Load Cashfree Web SDK
+      const cashfree = await load({
+        mode: env === 'production' ? 'production' : 'sandbox',
+      });
 
       // Save billing credentials to localStorage so they are available upon successful return
       try {
         localStorage.setItem('pending_purchase_name', computedName);
-        localStorage.setItem('pending_purchase_phone', computedPhone);
         localStorage.setItem('pending_purchase_email', computedEmail);
+        localStorage.setItem('pending_purchase_phone', computedPhone);
         localStorage.setItem('pending_purchase_plan', finalPlanName);
+        localStorage.setItem('pending_purchase_price', finalTotal.toString());
       } catch (e) {
-        console.warn("Could not save to localStorage", e);
+        console.warn('Failed to save to localStorage:', e);
       }
 
-      // 2. Open Razorpay Checkout Modal
-      const options = {
-        key: import.meta.env.VITE_RAZORPAY_KEY_ID || '', // Enter the Key ID generated from the Dashboard
-        amount: amount, 
-        currency: currency,
-        name: 'Auto Listing',
-        description: finalPlanName,
-        order_id: order_id,
-        handler: async function (response: any) {
-          try {
-            // 3. Verify Payment Signature
-            const verifyRes = await fetch('/api/verify-payment', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_signature: response.razorpay_signature,
-                customerEmail: computedEmail,
-                customerName: computedName,
-                customerPhone: computedPhone,
-                planName: finalPlanName,
-                amount: amount
-              })
-            });
-            const verifyData = await verifyRes.json();
-            
-            if (verifyRes.ok && verifyData.success) {
-              window.location.href = '/?payment_status=success&order_id=' + response.razorpay_order_id;
-            } else {
-              setError(verifyData.error || 'Payment verification failed.');
-              setLoading(false);
-            }
-          } catch (err) {
-            setError('Error verifying payment.');
-            setLoading(false);
-          }
-        },
-        prefill: {
-          name: computedName,
-          email: computedEmail,
-          contact: computedPhone
-        },
-        theme: {
-          color: '#3B82F6'
-        },
-        modal: {
-          ondismiss: function() {
-            setLoading(false);
-            setError('Payment cancelled by user.');
-          }
-        }
-      };
-
-      const rzp = new (window as any).Razorpay(options);
-      
-      rzp.on('payment.failed', function (response: any){
-        setLoading(false);
-        setError(response.error.description || 'Payment failed.');
-      });
-
-      rzp.open();
-
-      // Fire InitiateCheckout Pixel
+      // Track InitiateCheckout Event
       if (typeof window !== 'undefined' && (window as any).fbq) {
         (window as any).fbq('track', 'InitiateCheckout', {
-          currency: 'INR',
           value: finalTotal,
-          content_name: finalPlanName
+          currency: 'INR',
+          content_name: finalPlanName,
+          num_items: 1
         });
       }
 
+      // 3. Initiate checkout (V3 Web Checkout)
+      await cashfree.checkout({
+        paymentSessionId: payment_session_id,
+        redirectTarget: '_self', // Best practices for reliable redirects across all webviews & browsers
+      }).then((result: any) => {
+        if (result && result.error) {
+          setLoading(false);
+          setError(result.error.message || 'Payment was cancelled or failed. Please try again.');
+        }
+      });
+
     } catch (err: any) {
+      console.error('Checkout error:', err);
       setLoading(false);
-      setError(err.message || 'An unexpected error occurred while initiating checkout.');
-      console.error(err);
+      setError(err.message || 'An unexpected error occurred. Please try again.');
     }
   };
 
