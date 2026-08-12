@@ -73,7 +73,7 @@ async function startServer() {
       });
     } catch (error) {
       console.error("Razorpay Create Order Error:", error);
-      res.status(500).json({ error: "Failed to create order", details: error.message });
+      res.status(500).json({ error: "Failed to create order", details: JSON.stringify(error) });
     }
   });
 
