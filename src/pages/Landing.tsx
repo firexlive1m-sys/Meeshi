@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import emailjs from '@emailjs/browser';
 import { 
   Zap, 
   ShieldCheck, 
@@ -155,22 +154,27 @@ export default function Landing() {
 
         try {
           if (customerEmail) {
-             await emailjs.send(
-               'service_9naplmf',
-               'template_zbzfxdh',
-               {
+             const response = await fetch('/api/send-email', {
+               method: 'POST',
+               headers: {
+                 'Content-Type': 'application/json',
+               },
+               body: JSON.stringify({
                  name: customerName,
                  email: customerEmail,
                  plan_name: storedPlan,
                  order_id: orderId || 'N/A',
                  download_link: window.location.origin + '/download'
-               },
-               'CSaUWlrxqThlBwlRF'
-             );
-             console.log("Email sent successfully!");
+               })
+             });
+             
+             if (!response.ok) {
+               throw new Error('Failed to send confirmation email via Resend');
+             }
+             console.log("Email sent successfully via Resend!");
           }
         } catch (emailErr) {
-          console.error("EmailJS sending error:", emailErr);
+          console.error("Resend sending error:", emailErr);
         }
 
         // Force logout if the logged-in user doesn't match the purchase email
