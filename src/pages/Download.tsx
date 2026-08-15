@@ -16,40 +16,107 @@ export default function Download() {
   const [savingDevice, setSavingDevice] = useState(false);
   const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
 
+  // OTP States
+  const [otpEmail, setOtpEmail] = useState('');
+  const [otp, setOtp] = useState('');
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpLoading, setOtpLoading] = useState(false);
+  const [otpError, setOtpError] = useState('');
+
   const isCombo = purchase?.plan?.toLowerCase().includes('combo') || purchase?.plan?.toLowerCase().includes('upgrade');
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      setUser(currentUser);
-      if (currentUser && currentUser.email) {
-        try {
-          // Check if there is a pending verified purchase in local storage
-          const pendingPurchaseStr = localStorage.getItem('verified_purchase');
-          if (pendingPurchaseStr) {
-            const pendingPurchase = JSON.parse(pendingPurchaseStr);
-            // If the logged in user matches the purchase email, save it to Firestore
-            if (pendingPurchase.email.toLowerCase() === currentUser.email.toLowerCase()) {
-              await setDoc(doc(db, 'purchases', currentUser.email.toLowerCase()), pendingPurchase.data, { merge: true });
-              // Clear it once saved
-              localStorage.removeItem('verified_purchase');
-            }
-          }
-
-          const docRef = doc(db, 'purchases', currentUser.email.toLowerCase());
-          const docSnap = await getDoc(docRef);
-          if (docSnap.exists()) {
-            setPurchase(docSnap.data());
-          } else {
-            setPurchase(null);
-          }
-        } catch (err) {
-          console.error("Error fetching/syncing purchase", err);
+  const fetchPurchaseData = async (emailToFetch: string) => {
+    try {
+      const pendingPurchaseStr = localStorage.getItem('verified_purchase');
+      if (pendingPurchaseStr) {
+        const pendingPurchase = JSON.parse(pendingPurchaseStr);
+        if (pendingPurchase.email.toLowerCase() === emailToFetch.toLowerCase()) {
+          await setDoc(doc(db, 'purchases', emailToFetch.toLowerCase()), pendingPurchase.data, { merge: true });
+          localStorage.removeItem('verified_purchase');
         }
+      }
+
+      const docRef = doc(db, 'purchases', emailToFetch.toLowerCase());
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        setPurchase(docSnap.data());
+      } else {
+        setPurchase(null);
+      }
+    } catch (err) {
+      console.error("Error fetching/syncing purchase", err);
+    }
+  };
+
+  useEffect(() => {
+    const authEmail = localStorage.getItem('auth_email');
+    if (authEmail) {
+      setUser({ email: authEmail });
+      fetchPurchaseData(authEmail).then(() => setLoading(false));
+      return;
+    }
+
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (currentUser && currentUser.email) {
+        setUser(currentUser);
+        await fetchPurchaseData(currentUser.email);
+      } else {
+        setUser(null);
       }
       setLoading(false);
     });
     return unsubscribe;
   }, []);
+
+  const handleSendOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!otpEmail) return;
+    setOtpLoading(true);
+    setOtpError('');
+    try {
+      const res = await fetch('/api/auth/send-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: otpEmail })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setOtpSent(true);
+      } else {
+        setOtpError(data.error || 'Failed to send OTP');
+      }
+    } catch (err) {
+      setOtpError('Network error. Try again.');
+    } finally {
+      setOtpLoading(false);
+    }
+  };
+
+  const handleVerifyOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!otp) return;
+    setOtpLoading(true);
+    setOtpError('');
+    try {
+      const res = await fetch('/api/auth/verify-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: otpEmail, otp })
+      });
+      const data = await res.json();
+      if (data.success) {
+        localStorage.setItem('auth_email', otpEmail.toLowerCase());
+        setUser({ email: otpEmail.toLowerCase() });
+        await fetchPurchaseData(otpEmail.toLowerCase());
+      } else {
+        setOtpError(data.error || 'Invalid OTP');
+      }
+    } catch (err) {
+      setOtpError('Network error. Try again.');
+    } finally {
+      setOtpLoading(false);
+    }
+  };
 
   const handleLogin = async () => {
     try {
@@ -61,6 +128,8 @@ export default function Download() {
 
   const handleLogout = () => {
     signOut(auth);
+    localStorage.removeItem('auth_email');
+    setUser(null);
     setPurchase(null);
   };
 
@@ -106,13 +175,65 @@ export default function Download() {
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-12 bg-emerald-500/20 blur-2xl rounded-full" />
           
           <h1 className="text-2xl font-bold mb-2">Access Your Purchase</h1>
-          <p className="text-gray-400 text-sm mb-8">
-            Please log in with the email address you used during purchase to access your files.
+          <p className="text-gray-400 text-sm mb-6">
+            Log in with the email address you used during purchase to access your files.
           </p>
+
+          {!otpSent ? (
+            <form onSubmit={handleSendOtp} className="space-y-4">
+              <div>
+                <input
+                  type="email"
+                  required
+                  placeholder="Enter your email address"
+                  className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
+                  value={otpEmail}
+                  onChange={(e) => setOtpEmail(e.target.value)}
+                />
+              </div>
+              {otpError && <p className="text-red-400 text-sm">{otpError}</p>}
+              <button
+                type="submit"
+                disabled={otpLoading || !otpEmail}
+                className="w-full flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 px-4 rounded-xl transition-colors disabled:opacity-50"
+              >
+                {otpLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Send OTP'}
+              </button>
+            </form>
+          ) : (
+            <form onSubmit={handleVerifyOtp} className="space-y-4">
+              <div>
+                <input
+                  type="text"
+                  required
+                  maxLength={6}
+                  placeholder="Enter 6-digit OTP"
+                  className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 text-center tracking-[0.5em] focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value)}
+                />
+                <p className="text-xs text-gray-400 mt-2 text-left">OTP sent to {otpEmail}. <button type="button" className="text-emerald-400 hover:underline" onClick={() => setOtpSent(false)}>Change</button></p>
+              </div>
+              {otpError && <p className="text-red-400 text-sm">{otpError}</p>}
+              <button
+                type="submit"
+                disabled={otpLoading || otp.length < 6}
+                className="w-full flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 px-4 rounded-xl transition-colors disabled:opacity-50"
+              >
+                {otpLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Verify & Login'}
+              </button>
+            </form>
+          )}
+
+          <div className="mt-6 flex items-center justify-center gap-4">
+            <div className="h-[1px] bg-slate-700 flex-1"></div>
+            <span className="text-xs text-gray-500 font-medium uppercase">or</span>
+            <div className="h-[1px] bg-slate-700 flex-1"></div>
+          </div>
           
           <button
             onClick={handleLogin}
-            className="w-full flex items-center justify-center gap-3 bg-white text-gray-900 font-bold py-3.5 px-4 rounded-xl hover:bg-gray-100 transition-colors"
+            className="w-full flex items-center justify-center gap-3 bg-white text-gray-900 font-bold py-3 px-4 rounded-xl hover:bg-gray-100 transition-colors mt-6"
           >
             <img src="https://www.svgrepo.com/show/475656/google-color.svg" className="w-5 h-5" alt="Google" />
             Continue with Google

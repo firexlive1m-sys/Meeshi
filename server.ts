@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import crypto from "crypto";
 import { initializeApp } from "firebase/app";
 import { getFirestore, doc, setDoc } from "firebase/firestore";
+import { Resend } from "resend";
 
 dotenv.config();
 
@@ -30,6 +31,106 @@ async function startServer() {
       req.rawBody = buf;
     }
   }));
+
+  // Resend Initialization
+  let resendClient: Resend | null = null;
+  function getResend() {
+    if (!resendClient && process.env.RESEND_API_KEY) {
+      resendClient = new Resend(process.env.RESEND_API_KEY);
+    }
+    return resendClient;
+  }
+
+  // OTP Store
+  const otpStore = new Map<string, { otp: string; expiresAt: number }>();
+
+  // Send OTP Endpoint
+  app.post("/api/auth/send-otp", async (req, res) => {
+    try {
+      const { email } = req.body;
+      if (!email) return res.status(400).json({ error: "Email is required" });
+
+      const otp = Math.floor(100000 + Math.random() * 900000).toString();
+      const expiresAt = Date.now() + 10 * 60 * 1000; // 10 minutes
+      otpStore.set(email.toLowerCase(), { otp, expiresAt });
+
+      const resend = getResend();
+      if (!resend) {
+        console.log("Mock sending OTP due to missing RESEND_API_KEY:", otp);
+        return res.json({ success: true, message: "OTP logged to console for testing." });
+      }
+
+      await resend.emails.send({
+        from: 'Auth <onboarding@resend.dev>', // Update with your verified domain in production
+        to: email,
+        subject: 'Your Login OTP',
+        html: `<p>Your One-Time Password is: <strong>${otp}</strong>. It will expire in 10 minutes.</p>`
+      });
+
+      res.json({ success: true, message: "OTP sent successfully" });
+    } catch (err: any) {
+      console.error("Error sending OTP:", err);
+      res.status(500).json({ error: "Failed to send OTP", message: err.message });
+    }
+  });
+
+  // Verify OTP Endpoint
+  app.post("/api/auth/verify-otp", async (req, res) => {
+    try {
+      const { email, otp } = req.body;
+      if (!email || !otp) return res.status(400).json({ error: "Email and OTP are required" });
+
+      const record = otpStore.get(email.toLowerCase());
+      if (!record) return res.status(400).json({ error: "No OTP found for this email" });
+      if (Date.now() > record.expiresAt) {
+        otpStore.delete(email.toLowerCase());
+        return res.status(400).json({ error: "OTP expired" });
+      }
+      if (record.otp !== otp) return res.status(400).json({ error: "Invalid OTP" });
+
+      // Clean up after successful verification
+      otpStore.delete(email.toLowerCase());
+      res.json({ success: true, token: "mock-jwt-token-replace-with-real-one" });
+    } catch (err: any) {
+      console.error("Error verifying OTP:", err);
+      res.status(500).json({ error: "Failed to verify OTP", message: err.message });
+    }
+  });
+
+  // Send Receipt Endpoint (Triggered by client)
+  app.post("/api/purchase/send-receipt", async (req, res) => {
+    try {
+      const { name, email, plan_name, order_id, download_link } = req.body;
+      if (!email) return res.status(400).json({ error: "Email is required" });
+
+      const resend = getResend();
+      if (!resend) {
+        console.log("Mock sending receipt to:", email);
+        return res.json({ success: true, message: "Receipt logged to console." });
+      }
+
+      await resend.emails.send({
+        from: 'Support <onboarding@resend.dev>', // Update with your verified domain
+        to: email,
+        subject: 'Purchase Confirmation - Access Your Tool',
+        html: `
+          <h1>Thank you for your purchase!</h1>
+          <p>Hi ${name || 'Customer'},</p>
+          <p>Your payment for the ${plan_name || 'Lifetime'} plan has been received successfully.</p>
+          <p><strong>Order ID:</strong> ${order_id}</p>
+          <br/>
+          <p>You can download and access your tool here: <a href="${download_link}">${download_link}</a></p>
+          <br/>
+          <p>Thanks,<br/>The Team</p>
+        `
+      });
+
+      res.json({ success: true, message: "Receipt sent successfully" });
+    } catch (err: any) {
+      console.error("Error sending receipt:", err);
+      res.status(500).json({ error: "Failed to send receipt", message: err.message });
+    }
+  });
 
   // Lazy Initialization of Gemini SDK safegaurded against missing / empty keys
   // Create Order on Razorpay
@@ -143,6 +244,31 @@ async function startServer() {
           
           await setDoc(doc(db, 'purchases', emailLower), purchaseData, { merge: true });
           console.log(`[Webhook] Successfully saved purchase for ${emailLower} - Order: ${orderId}`);
+
+          // Send Purchase Confirmation via Resend
+          const resend = getResend();
+          if (resend) {
+            try {
+              await resend.emails.send({
+                from: 'Support <onboarding@resend.dev>', // Update with verified domain
+                to: customerEmail,
+                subject: 'Purchase Confirmation - Your Order is Successful',
+                html: `
+                  <h1>Thank you for your purchase!</h1>
+                  <p>Hi ${notes.name || 'Customer'},</p>
+                  <p>Your payment of INR ${paymentEntity.amount / 100} for the ${planName} plan has been received successfully.</p>
+                  <p><strong>Order ID:</strong> ${orderId}</p>
+                  <br/>
+                  <p>Thanks,<br/>The Team</p>
+                `
+              });
+              console.log(`[Webhook] Purchase confirmation email sent to ${customerEmail}`);
+            } catch (emailErr) {
+              console.error("[Webhook] Failed to send confirmation email:", emailErr);
+            }
+          } else {
+             console.log(`[Webhook] Would send confirmation email to ${customerEmail} (Resend not configured)`);
+          }
         } else {
           console.error(`[Webhook] No customer email found in webhook payload for order ${orderId}`);
         }
