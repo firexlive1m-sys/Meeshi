@@ -212,24 +212,50 @@ export default function Download() {
                 <strong className="text-white text-sm">{emailForLink}</strong>
               </div>
               
-              <div className="bg-slate-800/50 rounded-xl p-4 mb-6 text-left border border-slate-700/50">
-                <p className="text-sm text-slate-300 font-medium mb-3 flex items-center gap-2">
-                  <Mail className="w-4 h-4 text-emerald-400" /> Next steps:
+              <div className="bg-slate-800/50 rounded-xl p-5 mb-6 text-left border border-slate-700/50 shadow-inner">
+                <p className="text-sm text-slate-300 font-semibold mb-4 border-b border-slate-700/80 pb-3">
+                  Follow these simple steps to access your purchase.
                 </p>
-                <ol className="text-sm text-slate-400 list-decimal pl-5 space-y-2 marker:text-slate-500">
-                  <li>Open your email inbox on this device.</li>
-                  <li>Look for an email from us with a login link.</li>
-                  <li>Click the link to instantly access your purchase.</li>
-                </ol>
-                <div className="mt-4 flex items-start gap-2 bg-amber-500/10 p-3 rounded-lg border border-amber-500/20 text-left">
-                  <AlertCircle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
-                  <p className="text-xs text-amber-300/90 leading-relaxed">
-                    <strong>Didn't receive it?</strong> It might take a minute. Please also check your <strong>Spam</strong> or <strong>Promotions</strong> folder just in case!
-                  </p>
+                <div className="space-y-4">
+                  <div className="flex gap-3">
+                    <div className="flex-shrink-0 w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs font-bold border border-emerald-500/30">1</div>
+                    <div>
+                      <h4 className="text-sm font-semibold text-slate-200">Open your email inbox</h4>
+                      <p className="text-xs text-slate-400 mt-0.5 leading-relaxed">Apne entered email address ka inbox open karein.</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-3">
+                    <div className="flex-shrink-0 w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs font-bold border border-emerald-500/30">2</div>
+                    <div>
+                      <h4 className="text-sm font-semibold text-slate-200">Find the login email</h4>
+                      <p className="text-xs text-slate-400 mt-0.5 leading-relaxed">Look for an email from Meesho Auto Listing Tool.</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-3">
+                    <div className="flex-shrink-0 w-6 h-6 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center text-xs font-bold border border-amber-500/30">3</div>
+                    <div>
+                      <h4 className="text-sm font-semibold text-amber-300">Check Spam or Promotions</h4>
+                      <p className="text-xs text-amber-400/80 mt-0.5 leading-relaxed">If you don't see it in your inbox, please check your Spam, Junk, or Promotions folder.</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-3">
+                    <div className="flex-shrink-0 w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs font-bold border border-emerald-500/30">4</div>
+                    <div>
+                      <h4 className="text-sm font-semibold text-slate-200">Open the login email</h4>
+                      <p className="text-xs text-slate-400 mt-0.5 leading-relaxed">Open the email and tap the Sign in link to securely access your purchase.</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-3">
+                    <div className="flex-shrink-0 w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs font-bold border border-emerald-500/30">5</div>
+                    <div>
+                      <h4 className="text-sm font-semibold text-slate-200">You're logged in</h4>
+                      <p className="text-xs text-slate-400 mt-0.5 leading-relaxed">You'll be automatically redirected to your purchase access page.</p>
+                    </div>
+                  </div>
                 </div>
               </div>
               
-              <div className="flex flex-col gap-3">
+              <div className="flex flex-col gap-3 mb-6">
                 <button 
                   type="button"
                   onClick={handleSendMagicLink}
@@ -243,8 +269,31 @@ export default function Download() {
                   onClick={() => setIsLinkSent(false)} 
                   className="text-xs text-slate-400 hover:text-white transition-colors py-2"
                 >
-                  Change email address
+                  Use a different email
                 </button>
+              </div>
+
+              <div className="pt-5 border-t border-emerald-500/20">
+                <h4 className="text-sm font-bold text-slate-200 mb-1.5">Need Help?</h4>
+                <p className="text-xs text-slate-400 mb-4 leading-relaxed px-4">
+                  Having trouble receiving your login email or accessing your purchase? We're here to help.
+                </p>
+                <a
+                  href={`https://wa.me/917992497673?text=${encodeURIComponent("Hi, I need help accessing my Meesho Auto Listing Tool purchase. My email is: " + emailForLink)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-2 text-xs font-medium text-emerald-400 hover:text-emerald-300 bg-emerald-500/10 hover:bg-emerald-500/20 py-2.5 px-6 rounded-lg transition-colors border border-emerald-500/20"
+                >
+                  <MessageCircle className="w-4 h-4" />
+                  Contact on WhatsApp
+                </a>
+              </div>
+              
+              <div className="mt-6 flex flex-col items-center justify-center gap-1 opacity-70">
+                 <p className="text-[11px] font-medium text-slate-400 flex items-center gap-1.5">
+                   <span>🔒</span> Secure passwordless login
+                 </p>
+                 <p className="text-[10px] text-slate-500">No password required.</p>
               </div>
             </div>
           )}
