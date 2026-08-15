@@ -7,8 +7,6 @@ import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { CONFIG } from '../data';
 import { Link } from 'react-router-dom';
 import PaymentFormModal from '../components/PaymentFormModal';
-import LoginScreen from '../components/LoginScreen';
-
 
 export default function Download() {
   const [user, setUser] = useState<any>(null);
@@ -92,7 +90,56 @@ export default function Download() {
 
   // Not Logged In State
   if (!user) {
-    return <LoginScreen />;
+    return (
+      <div className="min-h-screen bg-[#0F172A] flex flex-col items-center justify-center text-white p-4 space-y-6">
+        <div className="max-w-md w-full flex justify-start">
+          <Link 
+            to="/"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-[#1E293B] hover:bg-slate-800 border border-slate-700/50 rounded-xl transition-all text-sm font-medium text-slate-300 hover:text-white shadow-sm"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to Home
+          </Link>
+        </div>
+
+        <div className="max-w-md w-full bg-[#1E293B] border border-slate-700/50 rounded-3xl p-8 text-center shadow-2xl relative overflow-hidden">
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-12 bg-emerald-500/20 blur-2xl rounded-full" />
+          
+          <h1 className="text-2xl font-bold mb-2">Access Your Purchase</h1>
+          <p className="text-gray-400 text-sm mb-8">
+            Please log in with the email address you used during purchase to access your files.
+          </p>
+          
+          <button
+            onClick={handleLogin}
+            className="w-full flex items-center justify-center gap-3 bg-white text-gray-900 font-bold py-3.5 px-4 rounded-xl hover:bg-gray-100 transition-colors"
+          >
+            <img src="https://www.svgrepo.com/show/475656/google-color.svg" className="w-5 h-5" alt="Google" />
+            Continue with Google
+          </button>
+        </div>
+
+        {/* Need Help Section */}
+        <div className="max-w-md w-full bg-[#1E293B]/50 border border-slate-700/30 rounded-2xl p-6 text-center shadow-lg">
+          <h3 className="text-white font-bold mb-2 flex items-center justify-center gap-2">
+            <MessageCircle className="w-5 h-5 text-emerald-400" />
+            Need Help?
+          </h3>
+          <p className="text-sm text-gray-400 mb-4">
+            Facing issues logging in or accessing your purchase? Our support team is here to help.
+          </p>
+          <a
+            href={`https://wa.me/91${CONFIG.whatsappNumber}?text=${encodeURIComponent('Hello, I need help with the login page for the Auto Listing Tool.')}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-[#25D366]/10 hover:bg-[#25D366]/20 text-[#25D366] font-bold rounded-xl transition-all border border-[#25D366]/30 text-sm"
+          >
+            <MessageCircle className="w-4 h-4" />
+            Contact on WhatsApp
+          </a>
+        </div>
+      </div>
+    );
   }
 
   return (

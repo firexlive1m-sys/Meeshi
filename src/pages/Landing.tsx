@@ -40,9 +40,8 @@ import FAQSection from '../components/FAQSection';
 import PricingCard from '../components/PricingCard';
 import LiveSalesNotification from '../components/LiveSalesNotification';
 import PaymentFormModal from '../components/PaymentFormModal';
-import PasswordSetupModal from '../components/PasswordSetupModal';
 import { db, auth } from '../firebase';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { doc, setDoc } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
 import { useNavigate, Link } from 'react-router-dom';
 
@@ -58,8 +57,6 @@ export default function Landing() {
   // Payment Status State from URL Query Parameters
   const [paymentSuccess, setPaymentSuccess] = useState<boolean | null>(null);
   const [paymentOrderId, setPaymentOrderId] = useState<string>('');
-  const [showPasswordSetup, setShowPasswordSetup] = useState(false);
-  const [purchasedEmail, setPurchasedEmail] = useState('');
   const [isProcessingPayment, setIsProcessingPayment] = useState(() => {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
@@ -159,7 +156,7 @@ export default function Landing() {
         try {
           if (customerEmail) {
              await emailjs.send(
-               'service_0er29bt',
+               'service_9naplmf',
                'template_zbzfxdh',
                {
                  name: customerName,
@@ -185,24 +182,8 @@ export default function Landing() {
           }
         }
 
-        let hasPwd = false;
-        try {
-           const docRef = doc(db, 'purchases', customerEmail);
-           const docSnap = await getDoc(docRef);
-           if (docSnap.exists() && docSnap.data().hasPassword === true) {
-              hasPwd = true;
-           }
-        } catch (e) {
-           console.error("Error checking password status", e);
-        }
-
         window.history.replaceState({}, document.title, window.location.pathname);
-        if (hasPwd) {
-           navigate('/download');
-        } else {
-           setPurchasedEmail(customerEmail);
-           setShowPasswordSetup(true);
-        }
+        navigate('/download');
       };
 
       saveAndNavigate();
