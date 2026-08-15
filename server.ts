@@ -1,6 +1,5 @@
 import express from "express";
 import path from "path";
-import { createServer as createViteServer } from "vite";
 import dotenv from "dotenv";
 import crypto from "crypto";
 import { initializeApp } from "firebase/app";
@@ -21,16 +20,17 @@ const firebaseConfig = {
 const firebaseApp = initializeApp(firebaseConfig);
 const db = getFirestore(firebaseApp);
 
-async function startServer() {
-  const app = express();
-  const PORT = 3000;
+const app = express();
+export { app };
 
-  // Add raw body access for webhook verification
-  app.use(express.json({
-    verify: (req: any, res, buf) => {
-      req.rawBody = buf;
-    }
-  }));
+const PORT = 3000;
+
+// Add raw body access for webhook verification
+app.use(express.json({
+  verify: (req: any, res, buf) => {
+    req.rawBody = buf;
+  }
+}));
 
   // Resend Initialization
   let resendClient: Resend | null = null;
@@ -826,11 +826,15 @@ async function startServer() {
 
   // Vite Middleware mounting
   if (process.env.NODE_ENV !== "production") {
-    const vite = await createViteServer({
-      server: { middlewareMode: true },
-      appType: "spa",
+    // Note: We use dynamic import for createViteServer to avoid blocking module loading
+    import("vite").then(({ createServer: createViteServer }) => {
+      createViteServer({
+        server: { middlewareMode: true },
+        appType: "spa",
+      }).then(vite => {
+        app.use(vite.middlewares);
+      });
     });
-    app.use(vite.middlewares);
   } else {
     const distPath = path.join(process.cwd(), 'dist');
     app.use(express.static(distPath));
@@ -839,9 +843,9 @@ async function startServer() {
     });
   }
 
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server running on http://0.0.0.0:${PORT}`);
-  });
-}
-
-startServer();
+  // Only start the server if we are running it directly (not on Vercel)
+  if (process.env.VERCEL !== "1") {
+    app.listen(PORT, "0.0.0.0", () => {
+      console.log(`Server running on http://0.0.0.0:${PORT}`);
+    });
+  }
