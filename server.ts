@@ -4,7 +4,7 @@ import { createServer as createViteServer } from "vite";
 import dotenv from "dotenv";
 import crypto from "crypto";
 import { initializeApp } from "firebase/app";
-import { getFirestore, doc, setDoc } from "firebase/firestore";
+import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
 
 dotenv.config();
 
@@ -248,6 +248,40 @@ async function startServer() {
   });
 
   // Vite Middleware mounting
+
+  // Verify Purchase logic for Email + Phone login
+  app.post("/api/verify-purchase", async (req, res) => {
+    try {
+      const { email, phone } = req.body;
+      if (!email || !phone) {
+        return res.status(400).json({ error: "Email and phone are required." });
+      }
+      const emailLower = email.toLowerCase().trim();
+      const phoneDigits = phone.replace(/\D/g, '');
+      const docRef = doc(db, 'purchases', emailLower);
+      const docSnap = await getDoc(docRef);
+      
+      if (!docSnap.exists()) {
+        return res.status(401).json({ error: "Purchase not found. Please check your email and phone number or purchase the tool first." });
+      }
+      
+      const purchaseData = docSnap.data();
+      const savedPhone = (purchaseData.phone || purchaseData.contact || '').toString().replace(/\D/g, '');
+      
+      if (savedPhone !== phoneDigits) {
+        return res.status(401).json({ error: "Purchase not found. Please check your email and phone number or purchase the tool first." });
+      }
+      
+      return res.json({ 
+        success: true, 
+        hasPassword: purchaseData.hasPassword === true 
+      });
+    } catch (err: any) {
+      console.error("Error verifying purchase:", err);
+      return res.status(500).json({ error: "Internal server error." });
+    }
+  });
+
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
       server: { middlewareMode: true },
