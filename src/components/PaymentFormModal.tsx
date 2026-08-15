@@ -455,12 +455,7 @@ export default function PaymentFormModal({ isOpen, onClose, planName, planPrice,
                           Please enter a valid email address
                         </p>
                       )}
-                      <div className="mt-2.5 bg-amber-50/80 border border-amber-200/60 p-2.5 rounded-lg flex items-start gap-2">
-                        <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-                        <p className="text-[11px] leading-snug font-medium text-amber-900 text-left">
-                          <strong>Note:</strong> Tool access will be tied to this Gmail address. {isEmailLocked ? 'Since you are upgrading, this cannot be changed.' : 'Please ensure it is correct and you can log into it, as access cannot be transferred.'}
-                        </p>
-                      </div>
+
                     </div>
 
                     {/* Flipkart Tool Dotted/Dashed Blue Addon Card */}
