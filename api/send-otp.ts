@@ -44,9 +44,9 @@ export default async function handler(req: any, res: any) {
     });
 
     // Send email using EmailJS REST API
-    const serviceId = process.env.EMAILJS_SERVICE_ID;
-    const templateId = process.env.EMAILJS_OTP_TEMPLATE_ID;
-    const publicKey = process.env.EMAILJS_PUBLIC_KEY;
+    const serviceId = "service_0er29bt";
+    const templateId = "template_hw5yoex";
+    const publicKey = "CSaUWlrxqThlBwlRF";
 
     if (!serviceId || !templateId || !publicKey) {
       console.error("EmailJS configuration missing");
