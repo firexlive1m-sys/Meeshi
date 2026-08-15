@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
-import { LogOut, MessageCircle, Download as DownloadIcon, PlayCircle, Loader2, Sparkles, CheckCircle2, FileArchive, Link as LinkIcon, FileText, ShoppingCart, ArrowLeft, Copy, Share2, Laptop } from 'lucide-react';
+import { LogOut, MessageCircle, Download as DownloadIcon, PlayCircle, Loader2, Sparkles, CheckCircle2, FileArchive, Link as LinkIcon, FileText, ShoppingCart, ArrowLeft, Copy, Share2, Laptop, Mail, AlertCircle } from 'lucide-react';
 import { auth, db, googleProvider } from '../firebase';
 import { signInWithPopup, signOut, onAuthStateChanged, sendSignInLinkToEmail, isSignInWithEmailLink, signInWithEmailLink } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
@@ -206,10 +206,27 @@ export default function Download() {
               <CheckCircle2 className="w-12 h-12 text-emerald-400 mx-auto mb-3" />
               <h3 className="text-emerald-400 font-bold mb-2 text-lg">Check Your Email</h3>
               <p className="text-sm text-emerald-300/80 mb-3 leading-relaxed">
-                We've sent a secure login link to your email. Click the link to access your purchase.
+                We've sent a secure login link to:
               </p>
-              <div className="bg-slate-900/50 inline-block px-4 py-2 rounded-xl border border-slate-700/50 mb-6">
+              <div className="bg-slate-900/50 inline-block px-4 py-2 rounded-xl border border-slate-700/50 mb-5">
                 <strong className="text-white text-sm">{emailForLink}</strong>
+              </div>
+              
+              <div className="bg-slate-800/50 rounded-xl p-4 mb-6 text-left border border-slate-700/50">
+                <p className="text-sm text-slate-300 font-medium mb-3 flex items-center gap-2">
+                  <Mail className="w-4 h-4 text-emerald-400" /> Next steps:
+                </p>
+                <ol className="text-sm text-slate-400 list-decimal pl-5 space-y-2 marker:text-slate-500">
+                  <li>Open your email inbox on this device.</li>
+                  <li>Look for an email from us with a login link.</li>
+                  <li>Click the link to instantly access your purchase.</li>
+                </ol>
+                <div className="mt-4 flex items-start gap-2 bg-amber-500/10 p-3 rounded-lg border border-amber-500/20 text-left">
+                  <AlertCircle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+                  <p className="text-xs text-amber-300/90 leading-relaxed">
+                    <strong>Didn't receive it?</strong> It might take a minute. Please also check your <strong>Spam</strong> or <strong>Promotions</strong> folder just in case!
+                  </p>
+                </div>
               </div>
               
               <div className="flex flex-col gap-3">
