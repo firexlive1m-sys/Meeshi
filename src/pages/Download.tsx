@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import { LogOut, MessageCircle, Download as DownloadIcon, PlayCircle, Loader2, Sparkles, CheckCircle2, FileArchive, Link as LinkIcon, FileText, ShoppingCart, ArrowLeft, Copy, Share2, Laptop } from 'lucide-react';
 import { auth, db, googleProvider } from '../firebase';
-import { signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
+import { signInWithPopup, signOut, onAuthStateChanged, signInWithCustomToken } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { CONFIG } from '../data';
 import { Link } from 'react-router-dom';
@@ -15,6 +15,14 @@ export default function Download() {
   const [selectedDevice, setSelectedDevice] = useState<string>('Mobile');
   const [savingDevice, setSavingDevice] = useState(false);
   const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
+
+  // OTP Login States
+  const [email, setEmail] = useState('');
+  const [otp, setOtp] = useState('');
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpLoading, setOtpLoading] = useState(false);
+  const [otpError, setOtpError] = useState('');
+  const [showOtpMethod, setShowOtpMethod] = useState(false);
 
   const isCombo = purchase?.plan?.toLowerCase().includes('combo') || purchase?.plan?.toLowerCase().includes('upgrade');
 
@@ -64,6 +72,59 @@ export default function Download() {
     setPurchase(null);
   };
 
+  const handleSendOtp = async () => {
+    if (!email || !/^\S+@\S+\.\S+$/.test(email)) {
+      setOtpError('Please enter a valid email address.');
+      return;
+    }
+    setOtpLoading(true);
+    setOtpError('');
+    try {
+      const response = await fetch('/api/send-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to send OTP');
+      }
+      setOtpSent(true);
+    } catch (err: any) {
+      setOtpError(err.message || 'Unable to send OTP. Please try again.');
+    } finally {
+      setOtpLoading(false);
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    if (!otp || otp.length !== 6) {
+      setOtpError('Please enter a valid 6-digit OTP.');
+      return;
+    }
+    setOtpLoading(true);
+    setOtpError('');
+    try {
+      const response = await fetch('/api/verify-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, otp })
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Invalid OTP');
+      }
+      
+      if (data.customToken) {
+        await signInWithCustomToken(auth, data.customToken);
+      }
+    } catch (err: any) {
+      setOtpError(err.message || 'Unable to verify OTP.');
+    } finally {
+      setOtpLoading(false);
+    }
+  };
+
   const handleSaveDevice = async () => {
     if (!user?.email) return;
     setSavingDevice(true);
@@ -110,13 +171,103 @@ export default function Download() {
             Please log in with the email address you used during purchase to access your files.
           </p>
           
-          <button
-            onClick={handleLogin}
-            className="w-full flex items-center justify-center gap-3 bg-white text-gray-900 font-bold py-3.5 px-4 rounded-xl hover:bg-gray-100 transition-colors"
-          >
-            <img src="https://www.svgrepo.com/show/475656/google-color.svg" className="w-5 h-5" alt="Google" />
-            Continue with Google
-          </button>
+          {!showOtpMethod ? (
+            <div className="space-y-4">
+              <button
+                onClick={handleLogin}
+                className="w-full flex items-center justify-center gap-3 bg-white text-gray-900 font-bold py-3.5 px-4 rounded-xl hover:bg-gray-100 transition-colors"
+              >
+                <img src="https://www.svgrepo.com/show/475656/google-color.svg" className="w-5 h-5" alt="Google" />
+                Continue with Google
+              </button>
+              
+              <div className="relative flex py-2 items-center">
+                <div className="flex-grow border-t border-slate-700"></div>
+                <span className="flex-shrink-0 mx-4 text-slate-500 text-sm">or</span>
+                <div className="flex-grow border-t border-slate-700"></div>
+              </div>
+
+              <button
+                onClick={() => setShowOtpMethod(true)}
+                className="w-full flex items-center justify-center gap-3 bg-slate-800 text-white font-bold py-3.5 px-4 rounded-xl hover:bg-slate-700 transition-colors border border-slate-700"
+              >
+                Login with Email OTP
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-4 text-left">
+              {otpError && (
+                <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-sm p-3 rounded-lg text-center">
+                  {otpError}
+                </div>
+              )}
+              
+              {!otpSent ? (
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-slate-300 mb-1">Email Address</label>
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="Enter your email"
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 transition-colors"
+                    />
+                  </div>
+                  <button
+                    onClick={handleSendOtp}
+                    disabled={otpLoading}
+                    className="w-full flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-bold py-3 px-4 rounded-xl transition-colors disabled:opacity-70"
+                  >
+                    {otpLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Send OTP"}
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowOtpMethod(false);
+                      setOtpError('');
+                    }}
+                    className="w-full text-center text-sm text-slate-400 hover:text-white transition-colors"
+                  >
+                    Back to Google Login
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="text-center mb-4">
+                    <p className="text-sm text-slate-400">OTP sent to:</p>
+                    <p className="font-bold text-white">{email}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-300 mb-1">Enter 6-digit OTP</label>
+                    <input
+                      type="text"
+                      value={otp}
+                      onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                      placeholder="_ _ _ _ _ _"
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white text-center tracking-widest text-lg focus:outline-none focus:border-emerald-500 transition-colors"
+                    />
+                  </div>
+                  <button
+                    onClick={handleVerifyOtp}
+                    disabled={otpLoading || otp.length !== 6}
+                    className="w-full flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-bold py-3 px-4 rounded-xl transition-colors disabled:opacity-70"
+                  >
+                    {otpLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Verify OTP"}
+                  </button>
+                  <button
+                    onClick={() => {
+                      setOtpSent(false);
+                      setOtp('');
+                      setOtpError('');
+                    }}
+                    className="w-full text-center text-sm text-slate-400 hover:text-white transition-colors"
+                  >
+                    Change Email
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Need Help Section */}
