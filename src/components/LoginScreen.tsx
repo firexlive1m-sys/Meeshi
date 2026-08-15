@@ -1,23 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion } from 'motion/react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Loader2, MessageCircle, AlertCircle } from 'lucide-react';
-import { signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
-import { auth, googleProvider, db } from '../firebase';
+import { ArrowLeft, Loader2, MessageCircle } from 'lucide-react';
+import { signInWithPopup, signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
+import { auth, googleProvider } from '../firebase';
 import { CONFIG } from '../data';
 
 export default function LoginScreen() {
   const [showEmailPhoneLogin, setShowEmailPhoneLogin] = useState(false);
-  const [loginStep, setLoginStep] = useState<'initial' | 'verify' | 'enter_password' | 'create_password'>('initial');
+  const [loginStep, setLoginStep] = useState<'initial' | 'verify' | 'enter_password'>('initial');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Check for post-purchase flow
+  // Check for post-purchase flow (though normally now handled before reaching here)
   useEffect(() => {
     const pendingPurchaseStr = localStorage.getItem('verified_purchase');
     if (pendingPurchaseStr) {
@@ -60,7 +58,7 @@ export default function LoginScreen() {
         if (data.hasPassword) {
           setLoginStep('enter_password');
         } else {
-          setLoginStep('create_password');
+          setError("No password has been set for this account yet. Please use 'Continue with Google'.");
         }
       }
     } catch (err) {
@@ -81,28 +79,10 @@ export default function LoginScreen() {
     setError(null);
     setLoading(true);
     try {
-      if (loginStep === 'create_password') {
-        if (password.length < 8) {
-          setError("Password must be at least 8 characters long.");
-          setLoading(false);
-          return;
-        }
-        if (password !== confirmPassword) {
-          setError("Passwords do not match.");
-          setLoading(false);
-          return;
-        }
-        await createUserWithEmailAndPassword(auth, email, password);
-        // Add flag to DB so next time it shows enter_password
-        await setDoc(doc(db, "purchases", email.toLowerCase()), { hasPassword: true }, { merge: true });
-      } else {
-        await signInWithEmailAndPassword(auth, email, password);
-      }
+      await signInWithEmailAndPassword(auth, email, password);
     } catch (err: any) {
       if (err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
         setError("Incorrect password. Please try again.");
-      } else if (err.code === 'auth/email-already-in-use') {
-         setError("You already have an account. Please use 'Continue with Google' or try forgot password.");
       } else {
         setError("Authentication failed. Please try again.");
       }
@@ -216,7 +196,7 @@ export default function LoginScreen() {
           </>
         )}
 
-        {(loginStep === 'enter_password' || loginStep === 'create_password') && (
+        {loginStep === 'enter_password' && (
           <form className="text-left space-y-4" onSubmit={onPasswordSubmit}>
              <button 
                 type="button" 
@@ -226,17 +206,8 @@ export default function LoginScreen() {
                 <ArrowLeft className="w-4 h-4" /> Back
              </button>
              
-             {loginStep === 'create_password' ? (
-                <>
-                  <h2 className="text-xl font-bold text-white mb-1">Set Your Login Password</h2>
-                  <p className="text-slate-400 text-sm mb-4">Your purchase is confirmed. Create a password to access your purchase later using your email and phone number.</p>
-                </>
-             ) : (
-                <>
-                  <h2 className="text-xl font-bold text-white mb-1">Enter Password</h2>
-                  <p className="text-slate-400 text-sm mb-4">Please enter your password to login.</p>
-                </>
-             )}
+             <h2 className="text-xl font-bold text-white mb-1">Enter Password</h2>
+             <p className="text-slate-400 text-sm mb-4">Please enter your password to login.</p>
 
              <div>
                 <label className="block text-sm font-medium text-slate-300 mb-1">Password</label>
@@ -251,21 +222,6 @@ export default function LoginScreen() {
                 />
              </div>
 
-             {loginStep === 'create_password' && (
-                <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-1">Confirm Password</label>
-                  <input 
-                    type="password" 
-                    value={confirmPassword} 
-                    onChange={e => setConfirmPassword(e.target.value)} 
-                    required 
-                    minLength={8}
-                    className="w-full bg-[#0F172A] border border-slate-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-emerald-500 outline-none"
-                    placeholder="Confirm your password"
-                  />
-                </div>
-             )}
-
              {error && <p className="text-red-400 text-sm font-medium">{error}</p>}
 
              <button 
@@ -273,16 +229,14 @@ export default function LoginScreen() {
                 disabled={loading}
                 className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-4 rounded-xl transition-colors flex justify-center items-center"
               >
-                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : (loginStep === 'create_password' ? 'Set Password' : 'Login')}
+                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Login'}
              </button>
 
-             {loginStep === 'enter_password' && (
-               <div className="text-center mt-4">
-                 <button type="button" onClick={handleForgotPassword} className="text-slate-400 hover:text-white text-sm font-medium transition-colors">
-                   Forgot Password?
-                 </button>
-               </div>
-             )}
+             <div className="text-center mt-4">
+               <button type="button" onClick={handleForgotPassword} className="text-slate-400 hover:text-white text-sm font-medium transition-colors">
+                 Forgot Password?
+               </button>
+             </div>
           </form>
         )}
       </div>
