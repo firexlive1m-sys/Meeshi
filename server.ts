@@ -247,27 +247,6 @@ async function startServer() {
     }
   });
 
-  // OTP Endpoints
-  app.post("/api/send-otp", express.json(), async (req, res) => {
-    try {
-      const { default: handler } = await import("./api/send-otp.ts");
-      await handler(req, res);
-    } catch (e) {
-      console.error(e);
-      res.status(500).json({ error: "Local Dev Route Error" });
-    }
-  });
-
-  app.post("/api/verify-otp", express.json(), async (req, res) => {
-    try {
-      const { default: handler } = await import("./api/verify-otp.ts");
-      await handler(req, res);
-    } catch (e) {
-      console.error(e);
-      res.status(500).json({ error: "Local Dev Route Error" });
-    }
-  });
-
   // Vite Middleware mounting
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
