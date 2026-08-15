@@ -419,9 +419,9 @@ async function startServer() {
     }
   });
   
-  app.get("/api/session/:token", async (req, res) => {
+  app.get("/api/session", async (req, res) => {
     try {
-       const token = req.params.token;
+       const token = req.query.token;
        const sessionRef = doc(db, 'sessions', token);
        const sessionDoc = await getDoc(sessionRef);
        

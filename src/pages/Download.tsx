@@ -63,7 +63,7 @@ export default function Download() {
     const verifySession = async () => {
       if (sessionToken) {
         try {
-          const res = await fetch(`/api/session/${sessionToken}`);
+          const res = await fetch(`/api/session?token=${sessionToken}`);
           if (res.ok) {
             const data = await res.json();
             if (data.valid && data.email) {
