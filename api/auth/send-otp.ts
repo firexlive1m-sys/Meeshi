@@ -1,18 +1,18 @@
-import { initializeApp } from "firebase/app";
-import { getFirestore, doc, setDoc } from "firebase/firestore";
 import { Resend } from "resend";
+import crypto from 'crypto';
 
-const firebaseConfig = {
-  apiKey: "AIzaSyAz03aMpvhVpNN641_FcGm0MkicXI4v02Y",
-  authDomain: "meesho-auto-listing-tool.firebaseapp.com",
-  projectId: "meesho-auto-listing-tool",
-  storageBucket: "meesho-auto-listing-tool.firebasestorage.app",
-  messagingSenderId: "697269821379",
-  appId: "1:697269821379:web:f21348736a18096af9e776"
-};
+const SECRET_KEY = process.env.OTP_SECRET || 'meesho-auto-listing-tool-super-secret-key-fallback';
+const key = crypto.createHash('sha256').update(SECRET_KEY).digest();
 
-const firebaseApp = initializeApp(firebaseConfig);
-const db = getFirestore(firebaseApp);
+function encryptOTPData(data: object) {
+  const iv = crypto.randomBytes(16);
+  const cipher = crypto.createCipheriv('aes-256-gcm', key, iv);
+  const jsonStr = JSON.stringify(data);
+  let encrypted = cipher.update(jsonStr, 'utf8', 'hex');
+  encrypted += cipher.final('hex');
+  const authTag = cipher.getAuthTag().toString('hex');
+  return `${iv.toString('hex')}:${encrypted}:${authTag}`;
+}
 
 export default async function handler(req: any, res: any) {
   // Support CORS
@@ -40,8 +40,9 @@ export default async function handler(req: any, res: any) {
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const expiresAt = Date.now() + 10 * 60 * 1000; // 10 minutes
     
-    // Store in Firestore instead of in-memory map
-    await setDoc(doc(db, "otps", email.toLowerCase()), {
+    // Encrypt the OTP state to be stored on the client side securely
+    const token = encryptOTPData({
+      email: email.toLowerCase(),
       otp,
       expiresAt
     });
@@ -50,7 +51,7 @@ export default async function handler(req: any, res: any) {
     
     if (!resend) {
       console.log("Mock sending OTP due to missing RESEND_API_KEY:", otp);
-      return res.json({ success: true, message: "OTP logged to console for testing." });
+      return res.json({ success: true, message: "OTP logged to console for testing.", token });
     }
 
     await resend.emails.send({
@@ -67,113 +68,44 @@ export default async function handler(req: any, res: any) {
 </head>
 
 <body style="margin:0; padding:0; background:#f5f5f5; font-family:Arial,Helvetica,sans-serif; color:#111111;">
-
-  <!-- Preheader / Preview Text -->
-  <div style="display:none;font-size:1px;color:#333333;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;">
-    Your secure login OTP for Meesho Auto Listing Tool
-  </div>
-
   <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f5f5f5; padding:40px 15px;">
     <tr>
       <td align="center">
-
-        <table width="100%" cellpadding="0" cellspacing="0" border="0"
-          style="max-width:560px; background:#ffffff; border-radius:14px; overflow:hidden;">
-
-          <!-- Header -->
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px; background:#ffffff; border-radius:14px; overflow:hidden;">
           <tr>
             <td style="background:#111111; padding:28px 30px; text-align:center;">
-              <div style="font-size:24px; font-weight:700; color:#ffffff;">
-                Meesho Auto Listing Tool
-              </div>
-              <div style="font-size:13px; color:#aaaaaa; margin-top:7px;">
-                Secure Login Verification
-              </div>
+              <div style="font-size:24px; font-weight:700; color:#ffffff;">Meesho Auto Listing Tool</div>
+              <div style="font-size:13px; color:#aaaaaa; margin-top:7px;">Secure Login Verification</div>
             </td>
           </tr>
-
-          <!-- Content -->
           <tr>
             <td style="padding:40px 35px;">
-
-              <h2 style="margin:0 0 15px; font-size:24px; color:#111111;">
-                Login Verification
-              </h2>
-
+              <h2 style="margin:0 0 15px; font-size:24px; color:#111111;">Login Verification</h2>
               <p style="margin:0 0 25px; font-size:15px; line-height:1.6; color:#555555;">
                 Aapne Meesho Auto Listing Tool mein login karne ki request ki hai.
                 Login complete karne ke liye neeche diya gaya One-Time Password (OTP) enter karein.
               </p>
-
-              <!-- OTP Box -->
               <table width="100%" cellpadding="0" cellspacing="0" border="0">
                 <tr>
-                  <td align="center"
-                    style="background:#f5f5f5; border:1px solid #e5e5e5; border-radius:12px; padding:25px;">
-
-                    <div style="font-size:12px; text-transform:uppercase; letter-spacing:2px; color:#777777; margin-bottom:10px;">
-                      Your OTP
-                    </div>
-
-                    <div style="font-size:36px; font-weight:700; letter-spacing:8px; color:#111111;">
-                      ${otp}
-                    </div>
-
+                  <td align="center" style="background:#f5f5f5; border:1px solid #e5e5e5; border-radius:12px; padding:25px;">
+                    <div style="font-size:12px; text-transform:uppercase; letter-spacing:2px; color:#777777; margin-bottom:10px;">Your OTP</div>
+                    <div style="font-size:36px; font-weight:700; letter-spacing:8px; color:#111111;">${otp}</div>
                   </td>
                 </tr>
               </table>
-
-              <p style="margin:25px 0 0; font-size:14px; line-height:1.6; color:#666666; text-align:center;">
-                This OTP is valid for <strong>10 minutes</strong>.
-              </p>
-
-              <!-- Security Notice -->
-              <table width="100%" cellpadding="0" cellspacing="0" border="0"
-                style="margin-top:30px; background:#fafafa; border-radius:10px;">
-                <tr>
-                  <td style="padding:16px 18px;">
-                    <p style="margin:0; font-size:13px; line-height:1.6; color:#666666;">
-                      🔒 <strong>Security Notice:</strong><br>
-                      OTP kisi ke saath share na karein. Meesho Auto Listing Tool ki team
-                      aapse kabhi bhi OTP nahi maangegi.
-                    </p>
-                  </td>
-                </tr>
-              </table>
-
-              <p style="margin:30px 0 0; font-size:13px; line-height:1.6; color:#999999;">
-                Agar aapne login request nahi ki hai, to is email ko ignore karein.
-                Aapka account secure hai.
-              </p>
-
+              <p style="margin:25px 0 0; font-size:14px; line-height:1.6; color:#666666; text-align:center;">This OTP is valid for <strong>10 minutes</strong>.</p>
             </td>
           </tr>
-
-          <!-- Footer -->
-          <tr>
-            <td style="background:#111111; padding:22px 30px; text-align:center;">
-              <div style="font-size:13px; color:#ffffff; font-weight:600;">
-                Meesho Auto Listing Tool
-              </div>
-
-              <div style="font-size:11px; color:#888888; margin-top:8px;">
-                © 2026 All rights reserved.
-              </div>
-            </td>
-          </tr>
-
         </table>
-
       </td>
     </tr>
   </table>
-
 </body>
 </html>
       `
     });
 
-    res.json({ success: true, message: "OTP sent successfully" });
+    res.json({ success: true, message: "OTP sent successfully", token });
   } catch (err: any) {
     console.error("Error sending OTP:", err);
     res.status(500).json({ error: "Failed to send OTP", message: err.message });

@@ -1,17 +1,23 @@
-import { initializeApp } from "firebase/app";
-import { getFirestore, doc, getDoc, deleteDoc } from "firebase/firestore";
+import crypto from 'crypto';
 
-const firebaseConfig = {
-  apiKey: "AIzaSyAz03aMpvhVpNN641_FcGm0MkicXI4v02Y",
-  authDomain: "meesho-auto-listing-tool.firebaseapp.com",
-  projectId: "meesho-auto-listing-tool",
-  storageBucket: "meesho-auto-listing-tool.firebasestorage.app",
-  messagingSenderId: "697269821379",
-  appId: "1:697269821379:web:f21348736a18096af9e776"
-};
+const SECRET_KEY = process.env.OTP_SECRET || 'meesho-auto-listing-tool-super-secret-key-fallback';
+const key = crypto.createHash('sha256').update(SECRET_KEY).digest();
 
-const firebaseApp = initializeApp(firebaseConfig);
-const db = getFirestore(firebaseApp);
+function decryptOTPData(token: string) {
+  try {
+    const [ivHex, encryptedHex, authTagHex] = token.split(':');
+    if (!ivHex || !encryptedHex || !authTagHex) return null;
+    const iv = Buffer.from(ivHex, 'hex');
+    const authTag = Buffer.from(authTagHex, 'hex');
+    const decipher = crypto.createDecipheriv('aes-256-gcm', key, iv);
+    decipher.setAuthTag(authTag);
+    let decrypted = decipher.update(encryptedHex, 'hex', 'utf8');
+    decrypted += decipher.final('utf8');
+    return JSON.parse(decrypted);
+  } catch (err) {
+    return null;
+  }
+}
 
 export default async function handler(req: any, res: any) {
   // Support CORS
@@ -33,29 +39,30 @@ export default async function handler(req: any, res: any) {
   }
 
   try {
-    const { email, otp } = req.body;
-    if (!email || !otp) return res.status(400).json({ error: "Email and OTP are required" });
-
-    const docRef = doc(db, "otps", email.toLowerCase());
-    const docSnap = await getDoc(docRef);
-
-    if (!docSnap.exists()) {
-      return res.status(400).json({ error: "No OTP found for this email" });
+    const { email, otp, token } = req.body;
+    if (!email || !otp || !token) {
+      return res.status(400).json({ error: "Email, OTP, and token are required" });
     }
 
-    const record = docSnap.data();
+    const decrypted = decryptOTPData(token);
     
-    if (Date.now() > record.expiresAt) {
-      await deleteDoc(docRef);
+    if (!decrypted) {
+      return res.status(400).json({ error: "Invalid or tampered token" });
+    }
+
+    if (decrypted.email !== email.toLowerCase()) {
+      return res.status(400).json({ error: "Email mismatch" });
+    }
+    
+    if (Date.now() > decrypted.expiresAt) {
       return res.status(400).json({ error: "OTP expired" });
     }
     
-    if (record.otp !== otp) {
+    if (decrypted.otp !== otp) {
       return res.status(400).json({ error: "Invalid OTP" });
     }
 
-    // Clean up after successful verification
-    await deleteDoc(docRef);
+    // Success
     res.json({ success: true, token: "mock-jwt-token-replace-with-real-one" });
   } catch (err: any) {
     console.error("Error verifying OTP:", err);

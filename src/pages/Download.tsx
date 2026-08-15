@@ -23,6 +23,8 @@ export default function Download() {
   const [otpLoading, setOtpLoading] = useState(false);
   const [otpError, setOtpError] = useState('');
   
+  const [otpToken, setOtpToken] = useState('');
+
   const [countdown, setCountdown] = useState(0);
   const [otpDigits, setOtpDigits] = useState<string[]>(Array(6).fill(''));
   const inputRefs = React.useRef<(HTMLInputElement | null)[]>([]);
@@ -135,6 +137,7 @@ export default function Download() {
       });
       const data = await res.json();
       if (data.success) {
+        setOtpToken(data.token);
         setOtpSent(true);
         setCountdown(42);
         setOtpDigits(Array(6).fill(''));
@@ -158,7 +161,7 @@ export default function Download() {
       const res = await fetch('/api/auth/verify-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: otpEmail, otp })
+        body: JSON.stringify({ email: otpEmail, otp, token: otpToken })
       });
       const data = await res.json();
       if (data.success) {
