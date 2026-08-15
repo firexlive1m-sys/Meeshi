@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import emailjs from '@emailjs/browser';
 import { 
   Zap, 
   ShieldCheck, 
@@ -154,22 +155,22 @@ export default function Landing() {
 
         try {
           if (customerEmail) {
-            // Trigger backend to send receipt email via Resend
-            await fetch('/api/purchase/send-receipt', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                name: customerName,
-                email: customerEmail,
-                plan_name: storedPlan,
-                order_id: orderId || 'N/A',
-                download_link: window.location.origin + '/download'
-              })
-            });
-            console.log("Receipt email requested successfully!");
+             await emailjs.send(
+               'service_9naplmf',
+               'template_zbzfxdh',
+               {
+                 name: customerName,
+                 email: customerEmail,
+                 plan_name: storedPlan,
+                 order_id: orderId || 'N/A',
+                 download_link: window.location.origin + '/download'
+               },
+               'CSaUWlrxqThlBwlRF'
+             );
+             console.log("Email sent successfully!");
           }
         } catch (emailErr) {
-          console.error("Email sending error:", emailErr);
+          console.error("EmailJS sending error:", emailErr);
         }
 
         // Force logout if the logged-in user doesn't match the purchase email

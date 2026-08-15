@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
-import { LogOut, MessageCircle, Download as DownloadIcon, PlayCircle, Loader2, Sparkles, CheckCircle2, FileArchive, Link as LinkIcon, FileText, ShoppingCart, ArrowLeft, Copy, Share2, Laptop, Mail, KeyRound, ShieldCheck } from 'lucide-react';
+import { LogOut, MessageCircle, Download as DownloadIcon, PlayCircle, Loader2, Sparkles, CheckCircle2, FileArchive, Link as LinkIcon, FileText, ShoppingCart, ArrowLeft, Copy, Share2, Laptop } from 'lucide-react';
 import { auth, db, googleProvider } from '../firebase';
 import { signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
@@ -16,167 +16,40 @@ export default function Download() {
   const [savingDevice, setSavingDevice] = useState(false);
   const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
 
-  // OTP States
-  const [otpEmail, setOtpEmail] = useState('');
-  const [otp, setOtp] = useState('');
-  const [otpSent, setOtpSent] = useState(false);
-  const [otpLoading, setOtpLoading] = useState(false);
-  const [otpError, setOtpError] = useState('');
-  
-  const [otpToken, setOtpToken] = useState('');
-
-  const [countdown, setCountdown] = useState(0);
-  const [otpDigits, setOtpDigits] = useState<string[]>(Array(6).fill(''));
-  const inputRefs = React.useRef<(HTMLInputElement | null)[]>([]);
-
   const isCombo = purchase?.plan?.toLowerCase().includes('combo') || purchase?.plan?.toLowerCase().includes('upgrade');
 
-  const fetchPurchaseData = async (emailToFetch: string) => {
-    try {
-      const pendingPurchaseStr = localStorage.getItem('verified_purchase');
-      if (pendingPurchaseStr) {
-        const pendingPurchase = JSON.parse(pendingPurchaseStr);
-        if (pendingPurchase.email.toLowerCase() === emailToFetch.toLowerCase()) {
-          await setDoc(doc(db, 'purchases', emailToFetch.toLowerCase()), pendingPurchase.data, { merge: true });
-          localStorage.removeItem('verified_purchase');
-        }
-      }
-
-      const docRef = doc(db, 'purchases', emailToFetch.toLowerCase());
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        setPurchase(docSnap.data());
-      } else {
-        setPurchase(null);
-      }
-    } catch (err) {
-      console.error("Error fetching/syncing purchase", err);
-    }
-  };
-
   useEffect(() => {
-    const authEmail = localStorage.getItem('auth_email');
-    if (authEmail) {
-      setUser({ email: authEmail });
-      fetchPurchaseData(authEmail).then(() => setLoading(false));
-      return;
-    }
-
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      setUser(currentUser);
       if (currentUser && currentUser.email) {
-        setUser(currentUser);
-        await fetchPurchaseData(currentUser.email);
-      } else {
-        setUser(null);
+        try {
+          // Check if there is a pending verified purchase in local storage
+          const pendingPurchaseStr = localStorage.getItem('verified_purchase');
+          if (pendingPurchaseStr) {
+            const pendingPurchase = JSON.parse(pendingPurchaseStr);
+            // If the logged in user matches the purchase email, save it to Firestore
+            if (pendingPurchase.email.toLowerCase() === currentUser.email.toLowerCase()) {
+              await setDoc(doc(db, 'purchases', currentUser.email.toLowerCase()), pendingPurchase.data, { merge: true });
+              // Clear it once saved
+              localStorage.removeItem('verified_purchase');
+            }
+          }
+
+          const docRef = doc(db, 'purchases', currentUser.email.toLowerCase());
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            setPurchase(docSnap.data());
+          } else {
+            setPurchase(null);
+          }
+        } catch (err) {
+          console.error("Error fetching/syncing purchase", err);
+        }
       }
       setLoading(false);
     });
     return unsubscribe;
   }, []);
-
-  useEffect(() => {
-    let timer: NodeJS.Timeout;
-    if (otpSent && countdown > 0) {
-      timer = setInterval(() => {
-        setCountdown((prev) => prev - 1);
-      }, 1000);
-    }
-    return () => clearInterval(timer);
-  }, [otpSent, countdown]);
-
-  useEffect(() => {
-    if (otpSent) {
-      // Auto focus first input when OTP screen opens
-      setTimeout(() => inputRefs.current[0]?.focus(), 100);
-    }
-  }, [otpSent]);
-
-  const handleOtpChange = (index: number, value: string) => {
-    if (!/^\d*$/.test(value)) return;
-    const newDigits = [...otpDigits];
-    newDigits[index] = value.slice(-1);
-    setOtpDigits(newDigits);
-    setOtp(newDigits.join(''));
-    if (value && index < 5) {
-      inputRefs.current[index + 1]?.focus();
-    }
-  };
-
-  const handleOtpKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Backspace') {
-      if (!otpDigits[index] && index > 0) {
-        inputRefs.current[index - 1]?.focus();
-      }
-    }
-  };
-
-  const handleOtpPaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
-    e.preventDefault();
-    const pastedData = e.clipboardData.getData('text/plain').replace(/\D/g, '').slice(0, 6);
-    if (!pastedData) return;
-    const newDigits = [...otpDigits];
-    for (let i = 0; i < pastedData.length; i++) {
-      if (i < 6) newDigits[i] = pastedData[i];
-    }
-    setOtpDigits(newDigits);
-    setOtp(newDigits.join(''));
-    const focusIndex = Math.min(pastedData.length, 5);
-    inputRefs.current[focusIndex]?.focus();
-  };
-
-  const handleSendOtp = async (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    if (!otpEmail) return;
-    setOtpLoading(true);
-    setOtpError('');
-    try {
-      const res = await fetch('/api/auth/send-otp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: otpEmail })
-      });
-      const data = await res.json();
-      if (data.success) {
-        setOtpToken(data.token);
-        setOtpSent(true);
-        setCountdown(42);
-        setOtpDigits(Array(6).fill(''));
-        setOtp('');
-      } else {
-        setOtpError(data.error || 'Failed to send OTP');
-      }
-    } catch (err) {
-      setOtpError('Network error. Try again.');
-    } finally {
-      setOtpLoading(false);
-    }
-  };
-
-  const handleVerifyOtp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!otp) return;
-    setOtpLoading(true);
-    setOtpError('');
-    try {
-      const res = await fetch('/api/auth/verify-otp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: otpEmail, otp, token: otpToken })
-      });
-      const data = await res.json();
-      if (data.success) {
-        localStorage.setItem('auth_email', otpEmail.toLowerCase());
-        setUser({ email: otpEmail.toLowerCase() });
-        await fetchPurchaseData(otpEmail.toLowerCase());
-      } else {
-        setOtpError(data.error || 'Invalid OTP');
-      }
-    } catch (err) {
-      setOtpError('Network error. Try again.');
-    } finally {
-      setOtpLoading(false);
-    }
-  };
 
   const handleLogin = async () => {
     try {
@@ -188,8 +61,6 @@ export default function Download() {
 
   const handleLogout = () => {
     signOut(auth);
-    localStorage.removeItem('auth_email');
-    setUser(null);
     setPurchase(null);
   };
 
@@ -234,140 +105,34 @@ export default function Download() {
         <div className="max-w-md w-full bg-[#1E293B] border border-slate-700/50 rounded-3xl p-8 text-center shadow-2xl relative overflow-hidden">
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-12 bg-emerald-500/20 blur-2xl rounded-full" />
           
-          <div className="w-16 h-16 bg-slate-800 border border-slate-700 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-inner">
-            <ShieldCheck className="w-8 h-8 text-emerald-400" />
-          </div>
-
-          <h1 className="text-2xl font-bold mb-2">
-            {!otpSent ? "Access Your Tool" : "Verify Your Email"}
-          </h1>
-          
-          {!otpSent ? (
-            <>
-              <p className="text-gray-400 text-sm mb-6">
-                Enter the email address you used during your purchase to securely access your tool and files.
-              </p>
-              <form onSubmit={handleSendOtp} className="space-y-4">
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <Mail className="w-5 h-5 text-gray-500" />
-                  </div>
-                  <input
-                    type="email"
-                    required
-                    placeholder="Enter your email address"
-                    className="w-full bg-slate-800 border border-slate-700 rounded-xl pl-11 pr-4 py-3.5 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
-                    value={otpEmail}
-                    onChange={(e) => setOtpEmail(e.target.value)}
-                  />
-                </div>
-                {otpError && <p className="text-red-400 text-sm font-medium">{otpError}</p>}
-                <button
-                  type="submit"
-                  disabled={otpLoading || !otpEmail}
-                  className="w-full flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3.5 px-4 rounded-xl transition-colors disabled:opacity-50 shadow-lg shadow-emerald-500/20"
-                >
-                  {otpLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Continue with Email'}
-                </button>
-              </form>
-            </>
-          ) : (
-            <>
-              <p className="text-gray-400 text-sm mb-6">
-                We've sent a 6-digit verification code to <strong className="text-white">{otpEmail}</strong>.
-              </p>
-              <form onSubmit={handleVerifyOtp} className="space-y-4">
-                <div className="flex justify-between gap-2 mb-2">
-                  {otpDigits.map((digit, index) => (
-                    <input
-                      key={index}
-                      ref={(el) => (inputRefs.current[index] = el)}
-                      type="text"
-                      inputMode="numeric"
-                      maxLength={1}
-                      className="w-12 h-14 bg-slate-800 border border-slate-700 rounded-xl text-center text-white font-mono text-xl font-bold focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
-                      value={digit}
-                      onChange={(e) => handleOtpChange(index, e.target.value)}
-                      onKeyDown={(e) => handleOtpKeyDown(index, e)}
-                      onPaste={handleOtpPaste}
-                    />
-                  ))}
-                </div>
-                {otpError && <p className="text-red-400 text-sm font-medium mt-2">{otpError}</p>}
-                
-                <button
-                  type="submit"
-                  disabled={otpLoading || otp.length < 6}
-                  className="w-full flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3.5 px-4 rounded-xl transition-colors disabled:opacity-50 shadow-lg shadow-emerald-500/20 mt-4"
-                >
-                  {otpLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Verify Code & Login'}
-                </button>
-
-                <div className="mt-4 pt-4 border-t border-slate-700/50 flex flex-col gap-3 text-sm">
-                  {countdown > 0 ? (
-                    <p className="text-gray-400 text-center">
-                      Resend available in 00:{countdown.toString().padStart(2, '0')}
-                    </p>
-                  ) : (
-                    <button 
-                      type="button" 
-                      onClick={handleSendOtp}
-                      disabled={otpLoading}
-                      className="text-emerald-400 hover:text-emerald-300 font-medium transition-colors"
-                    >
-                      Didn't receive the code? Resend Code
-                    </button>
-                  )}
-
-                  <div className="flex justify-between items-center text-xs mt-2">
-                    <button type="button" className="text-gray-400 hover:text-white transition-colors flex items-center gap-1" onClick={() => setOtpSent(false)}>
-                      <ArrowLeft className="w-3 h-3" /> Change email address
-                    </button>
-                  </div>
-                  
-                  <div className="text-xs text-gray-500 bg-slate-800/50 p-3 rounded-xl mt-2 flex flex-col gap-2">
-                    <p>🔒 Never share your verification code with anyone.</p>
-                    <p>Didn't receive the code? Check your spam or promotions folder.</p>
-                  </div>
-                </div>
-              </form>
-            </>
-          )}
-
-          <div className="mt-8 relative flex items-center justify-center">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-slate-700/80"></div>
-            </div>
-            <div className="relative px-4 bg-[#1E293B]">
-              <span className="text-xs text-slate-500 font-medium uppercase tracking-wider">Or continue with</span>
-            </div>
-          </div>
+          <h1 className="text-2xl font-bold mb-2">Access Your Purchase</h1>
+          <p className="text-gray-400 text-sm mb-8">
+            Please log in with the email address you used during purchase to access your files.
+          </p>
           
           <button
             onClick={handleLogin}
-            className="w-full flex items-center justify-center gap-3 bg-slate-800/50 border border-slate-700 text-white font-semibold py-3.5 px-4 rounded-xl hover:bg-slate-700 transition-colors mt-6 group"
+            className="w-full flex items-center justify-center gap-3 bg-white text-gray-900 font-bold py-3.5 px-4 rounded-xl hover:bg-gray-100 transition-colors"
           >
-            <div className="bg-white p-1 rounded-full group-hover:scale-110 transition-transform">
-              <img src="https://www.svgrepo.com/show/475656/google-color.svg" className="w-4 h-4" alt="Google" />
-            </div>
-            Google Account
+            <img src="https://www.svgrepo.com/show/475656/google-color.svg" className="w-5 h-5" alt="Google" />
+            Continue with Google
           </button>
         </div>
 
         {/* Need Help Section */}
-        <div className="max-w-md w-full bg-[#1E293B]/50 border border-slate-700/30 rounded-2xl p-4 sm:p-6 text-center shadow-lg">
-          <h3 className="text-white font-bold mb-1.5 flex items-center justify-center gap-2 text-sm sm:text-base">
-            <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-400" />
-            Need help accessing your purchase?
+        <div className="max-w-md w-full bg-[#1E293B]/50 border border-slate-700/30 rounded-2xl p-6 text-center shadow-lg">
+          <h3 className="text-white font-bold mb-2 flex items-center justify-center gap-2">
+            <MessageCircle className="w-5 h-5 text-emerald-400" />
+            Need Help?
           </h3>
-          <p className="text-xs sm:text-sm text-gray-400 mb-4">
-            Facing issues logging in? Our support team is here to help.
+          <p className="text-sm text-gray-400 mb-4">
+            Facing issues logging in or accessing your purchase? Our support team is here to help.
           </p>
           <a
             href={`https://wa.me/91${CONFIG.whatsappNumber}?text=${encodeURIComponent('Hello, I need help with the login page for the Auto Listing Tool.')}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#25D366]/10 hover:bg-[#25D366]/20 text-[#25D366] font-bold rounded-xl transition-all border border-[#25D366]/30 text-sm"
+            className="inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-[#25D366]/10 hover:bg-[#25D366]/20 text-[#25D366] font-bold rounded-xl transition-all border border-[#25D366]/30 text-sm"
           >
             <MessageCircle className="w-4 h-4" />
             Contact on WhatsApp
