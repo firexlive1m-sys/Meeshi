@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import { LogOut, MessageCircle, Download as DownloadIcon, PlayCircle, Loader2, Sparkles, CheckCircle2, FileArchive, Link as LinkIcon, FileText, ShoppingCart, ArrowLeft, Copy, Share2, Laptop } from 'lucide-react';
 import { auth, db, googleProvider } from '../firebase';
-import { signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
+import { signInWithPopup, signOut, onAuthStateChanged, sendSignInLinkToEmail, isSignInWithEmailLink, signInWithEmailLink } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { CONFIG } from '../data';
 import { Link } from 'react-router-dom';
@@ -15,8 +15,45 @@ export default function Download() {
   const [selectedDevice, setSelectedDevice] = useState<string>('Mobile');
   const [savingDevice, setSavingDevice] = useState(false);
   const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
+  const [emailForLink, setEmailForLink] = useState('');
+  const [isLinkSent, setIsLinkSent] = useState(false);
+  const [isSendingLink, setIsSendingLink] = useState(false);
+  const [linkError, setLinkError] = useState('');
+  const [isVerifyingLink, setIsVerifyingLink] = useState(false);
+  const [resendTimer, setResendTimer] = useState(0);
 
   const isCombo = purchase?.plan?.toLowerCase().includes('combo') || purchase?.plan?.toLowerCase().includes('upgrade');
+
+  useEffect(() => {
+    if (resendTimer > 0) {
+      const timer = setTimeout(() => setResendTimer(resendTimer - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [resendTimer]);
+
+  useEffect(() => {
+    const checkEmailLink = async () => {
+      if (isSignInWithEmailLink(auth, window.location.href)) {
+        setIsVerifyingLink(true);
+        let email = window.localStorage.getItem('emailForSignIn');
+        if (!email) {
+          email = window.prompt('Please provide your email for confirmation');
+        }
+        if (email) {
+          try {
+            await signInWithEmailLink(auth, email, window.location.href);
+            window.localStorage.removeItem('emailForSignIn');
+            window.history.replaceState({}, document.title, window.location.pathname);
+          } catch (err) {
+            console.error("Magic link error", err);
+            setLinkError("This login link has expired. Please request a new one.");
+          }
+        }
+        setIsVerifyingLink(false);
+      }
+    };
+    checkEmailLink();
+  }, []);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -59,6 +96,31 @@ export default function Download() {
     }
   };
 
+  const handleSendMagicLink = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!emailForLink) return;
+    
+    setIsSendingLink(true);
+    setLinkError('');
+    
+    const actionCodeSettings = {
+      url: window.location.origin + '/download',
+      handleCodeInApp: true,
+    };
+
+    try {
+      await sendSignInLinkToEmail(auth, emailForLink, actionCodeSettings);
+      window.localStorage.setItem('emailForSignIn', emailForLink);
+      setIsLinkSent(true);
+      setResendTimer(30);
+    } catch (error: any) {
+      console.error("Error sending link", error);
+      setLinkError("Unable to send the login link right now. Please try again.");
+    } finally {
+      setIsSendingLink(false);
+    }
+  };
+
   const handleLogout = () => {
     signOut(auth);
     setPurchase(null);
@@ -80,10 +142,11 @@ export default function Download() {
     }
   };
 
-  if (loading) {
+  if (loading || isVerifyingLink) {
     return (
-      <div className="min-h-screen bg-[#0F172A] flex items-center justify-center text-white">
+      <div className="min-h-screen bg-[#0F172A] flex items-center justify-center flex-col gap-4 text-white">
         <Loader2 className="w-8 h-8 animate-spin text-emerald-500" />
+        {isVerifyingLink && <p className="text-emerald-400 font-medium">Verifying your magic link...</p>}
       </div>
     );
   }
@@ -106,13 +169,78 @@ export default function Download() {
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-12 bg-emerald-500/20 blur-2xl rounded-full" />
           
           <h1 className="text-2xl font-bold mb-2">Access Your Purchase</h1>
-          <p className="text-gray-400 text-sm mb-8">
-            Please log in with the email address you used during purchase to access your files.
+          <p className="text-gray-400 text-sm mb-6">
+            Enter the email you used during purchase. We'll send you a secure login link.
           </p>
           
+          {!isLinkSent ? (
+            <form onSubmit={handleSendMagicLink} className="mb-4">
+              <div className="mb-4 text-left">
+                <label className="block text-sm font-medium text-slate-300 mb-1.5">
+                  Email Address
+                </label>
+                <input 
+                  type="email" 
+                  required 
+                  placeholder="Enter your purchase email"
+                  value={emailForLink}
+                  onChange={(e) => setEmailForLink(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl bg-slate-800/50 border border-slate-600 text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all text-sm"
+                />
+              </div>
+              {linkError && <p className="text-red-400 text-xs text-left mb-4 bg-red-400/10 p-2.5 rounded-lg border border-red-400/20">{linkError}</p>}
+              <button
+                type="submit"
+                disabled={isSendingLink}
+                className="w-full flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-bold py-3.5 px-4 rounded-xl transition-all disabled:opacity-70 disabled:cursor-not-allowed shadow-lg hover:shadow-emerald-500/20"
+              >
+                {isSendingLink ? <Loader2 className="w-5 h-5 animate-spin" /> : <Sparkles className="w-5 h-5" />}
+                {isSendingLink ? 'Sending Link...' : 'Send Login Link'}
+              </button>
+              <p className="text-xs text-slate-500 mt-4 text-center font-medium flex items-center justify-center gap-1.5">
+                🔒 Secure login • No password required
+              </p>
+            </form>
+          ) : (
+            <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-6 mb-4 text-center">
+              <CheckCircle2 className="w-12 h-12 text-emerald-400 mx-auto mb-3" />
+              <h3 className="text-emerald-400 font-bold mb-2 text-lg">Check Your Email</h3>
+              <p className="text-sm text-emerald-300/80 mb-3 leading-relaxed">
+                We've sent a secure login link to your email. Click the link to access your purchase.
+              </p>
+              <div className="bg-slate-900/50 inline-block px-4 py-2 rounded-xl border border-slate-700/50 mb-6">
+                <strong className="text-white text-sm">{emailForLink}</strong>
+              </div>
+              
+              <div className="flex flex-col gap-3">
+                <button 
+                  type="button"
+                  onClick={handleSendMagicLink}
+                  disabled={resendTimer > 0 || isSendingLink}
+                  className="w-full text-sm font-bold text-white bg-slate-800 hover:bg-slate-700 border border-slate-600 py-3 px-4 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-2"
+                >
+                  {isSendingLink ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+                  {isSendingLink ? 'Sending...' : resendTimer > 0 ? `Resend in ${resendTimer}s` : 'Resend Login Link'}
+                </button>
+                <button 
+                  onClick={() => setIsLinkSent(false)} 
+                  className="text-xs text-slate-400 hover:text-white transition-colors py-2"
+                >
+                  Change email address
+                </button>
+              </div>
+            </div>
+          )}
+
+          <div className="flex items-center gap-4 my-6">
+            <div className="h-px bg-slate-700/50 flex-1"></div>
+            <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">OR</span>
+            <div className="h-px bg-slate-700/50 flex-1"></div>
+          </div>
+
           <button
             onClick={handleLogin}
-            className="w-full flex items-center justify-center gap-3 bg-white text-gray-900 font-bold py-3.5 px-4 rounded-xl hover:bg-gray-100 transition-colors"
+            className="w-full flex items-center justify-center gap-3 bg-white text-gray-900 font-bold py-3.5 px-4 rounded-xl hover:bg-gray-100 transition-colors shadow-sm"
           >
             <img src="https://www.svgrepo.com/show/475656/google-color.svg" className="w-5 h-5" alt="Google" />
             Continue with Google
@@ -126,7 +254,7 @@ export default function Download() {
             Need Help?
           </h3>
           <p className="text-sm text-gray-400 mb-4">
-            Facing issues logging in or accessing your purchase? Our support team is here to help.
+            Having trouble logging in or accessing your purchase? We're here to help.
           </p>
           <a
             href={`https://wa.me/91${CONFIG.whatsappNumber}?text=${encodeURIComponent('Hello, I need help with the login page for the Auto Listing Tool.')}`}
