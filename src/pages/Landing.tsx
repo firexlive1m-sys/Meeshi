@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-
+import emailjs from '@emailjs/browser';
 import { 
   Zap, 
   ShieldCheck, 
@@ -153,7 +153,25 @@ export default function Landing() {
           console.error("Firebase save/link error:", firebaseErr);
         }
 
-        
+        try {
+          if (customerEmail) {
+             await emailjs.send(
+               'service_9naplmf',
+               'template_zbzfxdh',
+               {
+                 name: customerName,
+                 email: customerEmail,
+                 plan_name: storedPlan,
+                 order_id: orderId || 'N/A',
+                 download_link: window.location.origin + '/download'
+               },
+               'CSaUWlrxqThlBwlRF'
+             );
+             console.log("Email sent successfully!");
+          }
+        } catch (emailErr) {
+          console.error("EmailJS sending error:", emailErr);
+        }
 
         // Force logout if the logged-in user doesn't match the purchase email
         if (auth.currentUser && auth.currentUser.email && auth.currentUser.email.toLowerCase() !== customerEmail) {
@@ -331,15 +349,7 @@ export default function Landing() {
         <div className="absolute -top-32 -left-32 w-96 h-96 bg-blue-600/10 rounded-full blur-[140px] pointer-events-none" />
         <div className="absolute top-64 right-10 w-80 h-80 bg-sky-500/5 rounded-full blur-[120px] pointer-events-none" />
 
-        
         <div className="max-w-7xl mx-auto px-4 md:px-8 relative z-10">
-          <div className="absolute top-4 right-4 md:top-6 md:right-8 z-50 flex gap-4">
-             <Link to="/download" className="inline-flex items-center gap-2 px-5 py-2.5 bg-slate-800/80 hover:bg-slate-700 border border-slate-700 rounded-xl transition-all text-sm font-semibold text-slate-200 shadow-lg backdrop-blur-md hover:scale-105">
-                <Lock className="w-4 h-4 text-emerald-400" />
-                Login / Access Tool
-             </Link>
-          </div>
-
           
           {/* Hero Main Grid/Column content */}
           <div className="text-center max-w-4xl mx-auto space-y-6 pt-2">

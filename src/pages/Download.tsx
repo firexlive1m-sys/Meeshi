@@ -18,146 +18,51 @@ export default function Download() {
 
   const isCombo = purchase?.plan?.toLowerCase().includes('combo') || purchase?.plan?.toLowerCase().includes('upgrade');
 
-  
-  const [emailInput, setEmailInput] = useState('');
-  const [otpInput, setOtpInput] = useState('');
-  const [otpSent, setOtpSent] = useState(false);
-  const [loginLoading, setLoginLoading] = useState(false);
-  const [loginError, setLoginError] = useState('');
-  const [cooldown, setCooldown] = useState(0);
-
   useEffect(() => {
-    let timer;
-    if (cooldown > 0) {
-      timer = setInterval(() => setCooldown(c => c - 1), 1000);
-    }
-    return () => clearInterval(timer);
-  }, [cooldown]);
-
-  const loadUserPurchase = async (userEmail) => {
-     try {
-        const pendingPurchaseStr = localStorage.getItem('verified_purchase');
-        if (pendingPurchaseStr) {
-          const pendingPurchase = JSON.parse(pendingPurchaseStr);
-          if (pendingPurchase.email.toLowerCase() === userEmail.toLowerCase()) {
-            await setDoc(doc(db, 'purchases', userEmail.toLowerCase()), pendingPurchase.data, { merge: true });
-            localStorage.removeItem('verified_purchase');
-          }
-        }
-        const docRef = doc(db, 'purchases', userEmail.toLowerCase());
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          setPurchase(docSnap.data());
-        } else {
-          setPurchase(null);
-        }
-     } catch (err) {
-        console.error("Error fetching/syncing purchase", err);
-     }
-  };
-
-  useEffect(() => {
-    // Check for custom OTP session
-    const sessionToken = localStorage.getItem('otp_session_token');
-    
-    const verifySession = async () => {
-      if (sessionToken) {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      setUser(currentUser);
+      if (currentUser && currentUser.email) {
         try {
-          const res = await fetch(`/api/session?token=${sessionToken}`);
-          if (res.ok) {
-            const data = await res.json();
-            if (data.valid && data.email) {
-              setUser({ email: data.email });
-              await loadUserPurchase(data.email);
-              setLoading(false);
-              return;
+          // Check if there is a pending verified purchase in local storage
+          const pendingPurchaseStr = localStorage.getItem('verified_purchase');
+          if (pendingPurchaseStr) {
+            const pendingPurchase = JSON.parse(pendingPurchaseStr);
+            // If the logged in user matches the purchase email, save it to Firestore
+            if (pendingPurchase.email.toLowerCase() === currentUser.email.toLowerCase()) {
+              await setDoc(doc(db, 'purchases', currentUser.email.toLowerCase()), pendingPurchase.data, { merge: true });
+              // Clear it once saved
+              localStorage.removeItem('verified_purchase');
             }
           }
-          // Invalid session
-          localStorage.removeItem('otp_session_token');
+
+          const docRef = doc(db, 'purchases', currentUser.email.toLowerCase());
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            setPurchase(docSnap.data());
+          } else {
+            setPurchase(null);
+          }
         } catch (err) {
-          console.error("Session verification failed", err);
+          console.error("Error fetching/syncing purchase", err);
         }
       }
-      
-      // Fallback to Firebase Auth
-      const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-        if (currentUser && currentUser.email) {
-          setUser(currentUser);
-          await loadUserPurchase(currentUser.email);
-        }
-        setLoading(false);
-      });
-      return unsubscribe;
-    };
-    
-    verifySession();
+      setLoading(false);
+    });
+    return unsubscribe;
   }, []);
 
-  const handleSendOtp = async (e) => {
-    e?.preventDefault();
-    setLoginError('');
-    if (!emailInput || !emailInput.includes('@')) {
-      setLoginError('Please enter a valid email address.');
-      return;
-    }
-    setLoginLoading(true);
+  const handleLogin = async () => {
     try {
-      const res = await fetch('/api/send-otp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: emailInput })
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setOtpSent(true);
-        setCooldown(60);
-      } else {
-        setLoginError(data.error || 'Failed to send OTP.');
-      }
-    } catch (err) {
-      setLoginError('Network error. Please try again.');
-    } finally {
-      setLoginLoading(false);
-    }
-  };
-
-  const handleVerifyOtp = async (e) => {
-    e?.preventDefault();
-    setLoginError('');
-    if (otpInput.length !== 6) {
-      setLoginError('Please enter a valid 6-digit OTP.');
-      return;
-    }
-    setLoginLoading(true);
-    try {
-      const res = await fetch('/api/verify-otp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: emailInput, otp: otpInput })
-      });
-      const data = await res.json();
-      if (res.ok && data.sessionToken) {
-        localStorage.setItem('otp_session_token', data.sessionToken);
-        setUser({ email: data.email });
-        await loadUserPurchase(data.email);
-      } else {
-        setLoginError(data.error || 'Invalid OTP.');
-      }
-    } catch (err) {
-      setLoginError('Network error. Please try again.');
-    } finally {
-      setLoginLoading(false);
+      await signInWithPopup(auth, googleProvider);
+    } catch (error) {
+      console.error("Login failed", error);
     }
   };
 
   const handleLogout = () => {
     signOut(auth);
-    localStorage.removeItem('otp_session_token');
-    setUser(null);
     setPurchase(null);
   };
-
 
   const handleSaveDevice = async () => {
     if (!user?.email) return;
@@ -205,64 +110,13 @@ export default function Download() {
             Please log in with the email address you used during purchase to access your files.
           </p>
           
-          
-          {loginError && (
-            <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-sm">
-              {loginError}
-            </div>
-          )}
-          
-          {!otpSent ? (
-            <form onSubmit={handleSendOtp} className="space-y-4">
-              <div className="text-left">
-                <label className="block text-sm font-medium text-gray-300 mb-1">Email Address</label>
-                <input 
-                  type="email" 
-                  value={emailInput}
-                  onChange={e => setEmailInput(e.target.value)}
-                  placeholder="Enter your purchase email"
-                  className="w-full bg-[#0F172A] border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 transition-colors"
-                  required
-                />
-              </div>
-              <button
-                type="submit"
-                disabled={loginLoading || cooldown > 0}
-                className="w-full flex items-center justify-center gap-3 bg-emerald-600 text-white font-bold py-3.5 px-4 rounded-xl hover:bg-emerald-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {loginLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : (cooldown > 0 ? `Wait ${cooldown}s` : 'Send OTP')}
-              </button>
-            </form>
-          ) : (
-            <form onSubmit={handleVerifyOtp} className="space-y-4">
-              <div className="text-left">
-                <label className="block text-sm font-medium text-gray-300 mb-1">Enter OTP</label>
-                <input 
-                  type="text" 
-                  value={otpInput}
-                  onChange={e => setOtpInput(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                  placeholder="6-digit code"
-                  className="w-full bg-[#0F172A] border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 transition-colors text-center text-xl tracking-widest font-mono"
-                  required
-                />
-              </div>
-              <button
-                type="submit"
-                disabled={loginLoading || otpInput.length !== 6}
-                className="w-full flex items-center justify-center gap-3 bg-emerald-600 text-white font-bold py-3.5 px-4 rounded-xl hover:bg-emerald-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {loginLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Verify & Login'}
-              </button>
-              <button
-                type="button"
-                onClick={handleSendOtp}
-                disabled={cooldown > 0 || loginLoading}
-                className="w-full text-sm text-gray-400 hover:text-white transition-colors disabled:opacity-50"
-              >
-                {cooldown > 0 ? `Resend OTP in ${cooldown}s` : 'Resend OTP'}
-              </button>
-            </form>
-          )}
+          <button
+            onClick={handleLogin}
+            className="w-full flex items-center justify-center gap-3 bg-white text-gray-900 font-bold py-3.5 px-4 rounded-xl hover:bg-gray-100 transition-colors"
+          >
+            <img src="https://www.svgrepo.com/show/475656/google-color.svg" className="w-5 h-5" alt="Google" />
+            Continue with Google
+          </button>
         </div>
 
         {/* Need Help Section */}

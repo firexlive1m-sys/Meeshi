@@ -1,22 +1,7 @@
 import crypto from 'crypto';
-import { initializeApp } from "firebase/app";
-import { getFirestore, doc, setDoc, getDoc, deleteDoc } from "firebase/firestore";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyAz03aMpvhVpNN641_FcGm0MkicXI4v02Y",
-  authDomain: "meesho-auto-listing-tool.firebaseapp.com",
-  projectId: "meesho-auto-listing-tool",
-  storageBucket: "meesho-auto-listing-tool.firebasestorage.app",
-  messagingSenderId: "697269821379",
-  appId: "1:697269821379:web:f21348736a18096af9e776"
-};
-
-const firebaseApp = initializeApp(firebaseConfig);
-const db = getFirestore(firebaseApp);
-
-import { sendPurchaseEmail } from "../emailService";
 
 export default async function handler(req: any, res: any) {
+  // Support CORS
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
@@ -45,73 +30,11 @@ export default async function handler(req: any, res: any) {
                                     .digest("hex");
                                     
     if (expectedSignature === razorpay_signature) {
-      try {
-        const keyId = process.env.RAZORPAY_KEY_ID || "rzp_live_TOszz4dY6LCHE8";
-        const auth = Buffer.from(keyId + ":" + keySecret).toString("base64");
-        
-        const orderRes = await fetch(`https://api.razorpay.com/v1/orders/${razorpay_order_id}`, {
-          headers: { "Authorization": `Basic ${auth}` }
-        });
-        const orderData = await orderRes.json();
-        
-        let email = orderData.notes?.email || "";
-        let name = orderData.notes?.name || "Customer";
-        let planName = orderData.notes?.plan || "Lifetime";
-        let phone = orderData.notes?.phone || "";
-        
-        if (!email) {
-          const paymentsRes = await fetch(`https://api.razorpay.com/v1/orders/${razorpay_order_id}/payments`, {
-            headers: { "Authorization": `Basic ${auth}` }
-          });
-          const paymentsData = await paymentsRes.json();
-          if (paymentsData.items && paymentsData.items.length > 0) {
-             const payment = paymentsData.items[0];
-             email = payment.email || payment.notes?.email || email;
-             name = payment.notes?.name || name;
-             planName = payment.notes?.plan || planName;
-             phone = payment.contact || payment.notes?.phone || phone;
-          }
-        }
-        
-        if (email) {
-          const emailLower = email.toLowerCase();
-          const purchaseData = {
-             plan: planName,
-             amount: orderData.amount / 100,
-             currency: orderData.currency,
-             orderId: razorpay_order_id,
-             timestamp: Date.now(),
-             name: name,
-             phone: phone,
-             isPaymentComplete: true,
-             paymentStatus: "PAID"
-          };
-          
-          const docRef = doc(db, 'purchases', emailLower);
-          const existingDoc = await getDoc(docRef);
-          
-          await setDoc(docRef, purchaseData, { merge: true });
-          
-          if (!existingDoc.exists() || existingDoc.data().emailSentOrderId !== razorpay_order_id) {
-             await sendPurchaseEmail({
-                email: emailLower,
-                name: name,
-                planName: planName,
-                orderId: razorpay_order_id,
-                amount: orderData.amount / 100
-             });
-             await setDoc(docRef, { emailSentOrderId: razorpay_order_id }, { merge: true });
-          }
-        }
-      } catch (innerErr) {
-        console.error("Error processing successful verified payment:", innerErr);
-      }
-
       res.json({ success: true });
     } else {
       res.status(400).json({ success: false, error: "Invalid signature" });
     }
-  } catch (err) {
+  } catch (err: any) {
     console.error("Verification error:", err);
     res.status(500).json({ success: false, error: "Verification failed" });
   }
