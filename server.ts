@@ -61,10 +61,123 @@ async function startServer() {
       }
 
       await resend.emails.send({
-        from: 'Auth <onboarding@resend.dev>', // Update with your verified domain in production
+        from: 'Meesho Auto Listing • OTP <Support@autolisting.online>',
         to: email,
-        subject: 'Your Login OTP',
-        html: `<p>Your One-Time Password is: <strong>${otp}</strong>. It will expire in 10 minutes.</p>`
+        subject: 'Your Login OTP – Meesho Auto Listing Tool',
+        html: `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Login OTP</title>
+</head>
+
+<body style="margin:0; padding:0; background:#f5f5f5; font-family:Arial,Helvetica,sans-serif; color:#111111;">
+
+  <!-- Preheader / Preview Text -->
+  <div style="display:none;font-size:1px;color:#333333;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;">
+    Your secure login OTP for Meesho Auto Listing Tool
+  </div>
+
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f5f5f5; padding:40px 15px;">
+    <tr>
+      <td align="center">
+
+        <table width="100%" cellpadding="0" cellspacing="0" border="0"
+          style="max-width:560px; background:#ffffff; border-radius:14px; overflow:hidden;">
+
+          <!-- Header -->
+          <tr>
+            <td style="background:#111111; padding:28px 30px; text-align:center;">
+              <div style="font-size:24px; font-weight:700; color:#ffffff;">
+                Meesho Auto Listing Tool
+              </div>
+              <div style="font-size:13px; color:#aaaaaa; margin-top:7px;">
+                Secure Login Verification
+              </div>
+            </td>
+          </tr>
+
+          <!-- Content -->
+          <tr>
+            <td style="padding:40px 35px;">
+
+              <h2 style="margin:0 0 15px; font-size:24px; color:#111111;">
+                Login Verification
+              </h2>
+
+              <p style="margin:0 0 25px; font-size:15px; line-height:1.6; color:#555555;">
+                Aapne Meesho Auto Listing Tool mein login karne ki request ki hai.
+                Login complete karne ke liye neeche diya gaya One-Time Password (OTP) enter karein.
+              </p>
+
+              <!-- OTP Box -->
+              <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td align="center"
+                    style="background:#f5f5f5; border:1px solid #e5e5e5; border-radius:12px; padding:25px;">
+
+                    <div style="font-size:12px; text-transform:uppercase; letter-spacing:2px; color:#777777; margin-bottom:10px;">
+                      Your OTP
+                    </div>
+
+                    <div style="font-size:36px; font-weight:700; letter-spacing:8px; color:#111111;">
+                      ${otp}
+                    </div>
+
+                  </td>
+                </tr>
+              </table>
+
+              <p style="margin:25px 0 0; font-size:14px; line-height:1.6; color:#666666; text-align:center;">
+                This OTP is valid for <strong>10 minutes</strong>.
+              </p>
+
+              <!-- Security Notice -->
+              <table width="100%" cellpadding="0" cellspacing="0" border="0"
+                style="margin-top:30px; background:#fafafa; border-radius:10px;">
+                <tr>
+                  <td style="padding:16px 18px;">
+                    <p style="margin:0; font-size:13px; line-height:1.6; color:#666666;">
+                      🔒 <strong>Security Notice:</strong><br>
+                      OTP kisi ke saath share na karein. Meesho Auto Listing Tool ki team
+                      aapse kabhi bhi OTP nahi maangegi.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+
+              <p style="margin:30px 0 0; font-size:13px; line-height:1.6; color:#999999;">
+                Agar aapne login request nahi ki hai, to is email ko ignore karein.
+                Aapka account secure hai.
+              </p>
+
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="background:#111111; padding:22px 30px; text-align:center;">
+              <div style="font-size:13px; color:#ffffff; font-weight:600;">
+                Meesho Auto Listing Tool
+              </div>
+
+              <div style="font-size:11px; color:#888888; margin-top:8px;">
+                © 2026 All rights reserved.
+              </div>
+            </td>
+          </tr>
+
+        </table>
+
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>
+        `
       });
 
       res.json({ success: true, message: "OTP sent successfully" });
@@ -110,7 +223,7 @@ async function startServer() {
       }
 
       await resend.emails.send({
-        from: 'Support <onboarding@resend.dev>', // Update with your verified domain
+        from: 'Meesho Auto Listing Tool <Support@autolisting.online>',
         to: email,
         subject: 'Purchase Confirmation - Access Your Tool',
         html: `
@@ -250,7 +363,7 @@ async function startServer() {
           if (resend) {
             try {
               await resend.emails.send({
-                from: 'Support <onboarding@resend.dev>', // Update with verified domain
+                from: 'Meesho Auto Listing Tool <Support@autolisting.online>',
                 to: customerEmail,
                 subject: 'Purchase Confirmation - Your Order is Successful',
                 html: `
